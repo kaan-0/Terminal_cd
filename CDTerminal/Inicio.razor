@@ -1,23 +1,86 @@
 ﻿@using System.IO
-@implements IDisposable
-@inject ISerialPortService SerialPortService
-@inject IJSRuntime JSRuntime
 @using System.Text
+@using System.Threading
+@using System.Threading.Tasks
+@implements IDisposable
+@inject IServiceProvider ServiceProvider
+@inject IJSRuntime JSRuntime
+@using Microsoft.Extensions.DependencyInjection
 
 <div class="app-shell">
 
-    <header class="app-header">
+    <nav class="app-menu" aria-label="Menú principal">
 
-        <div class="brand-area">
-            <div class="brand-icon">CD</div>
+        <div class="menu-links">
 
-            <div>
-                <h1>CD Terminal</h1>
-                <p>Terminal de comunicación serial</p>
+            <button type="button"
+                    class="menu-item active"
+                    @onclick="CerrarMenusNuevaSesion">
+                Inicio
+            </button>
+
+            <div class="menu-dropdown">
+
+                <button type="button"
+                        class="menu-item communication @(mostrarMenuComunicacion ? "open" : "")"
+                        @onclick="AlternarMenuComunicacion">
+                    Comunicación
+                    <span class="menu-arrow">@(mostrarMenuComunicacion ? "▲" : "▼")</span>
+                </button>
+
+                @if (mostrarMenuComunicacion)
+                {
+                    <div class="session-type-menu communication-options">
+
+                        <button type="button"
+                                class="session-type-option"
+                                @onclick="() => CrearNuevaSesion(TipoSesion.Serial)">
+                            <span class="session-type-icon serial">&gt;_</span>
+                            <span>
+                                <strong>Terminal serial</strong>
+                                <small>USB-TTL, RS-232 y comunicación RAW</small>
+                            </span>
+                        </button>
+
+                        <button type="button"
+                                class="session-type-option"
+                                @onclick="() => CrearNuevaSesion(TipoSesion.ModbusRtu)">
+                            <span class="session-type-icon modbus">MB</span>
+                            <span>
+                                <strong>Modbus RTU</strong>
+                                <small>Sensores y equipos RS-485</small>
+                            </span>
+                        </button>
+
+                    </div>
+                }
+
             </div>
+
+            <button type="button"
+                    class="menu-item"
+                    title="Se habilitará en una próxima etapa"
+                    disabled>
+                Ver
+            </button>
+
+            <button type="button"
+                    class="menu-item"
+                    title="Se habilitará en una próxima etapa"
+                    disabled>
+                Herramientas
+            </button>
+
+            <button type="button"
+                    class="menu-item"
+                    title="Se habilitará en una próxima etapa"
+                    disabled>
+                Ayuda
+            </button>
+
         </div>
 
-        <div class="header-status @(SerialPortService.EstaConectado
+        <div class="menu-status @(SerialPortService.EstaConectado
                                                    ? "connected"
                                                    : "disconnected")">
 
@@ -25,37 +88,37 @@
 
             @if (SerialPortService.EstaConectado)
             {
-                <span>
-                    Conectado a @SerialPortService.PuertoActual
-                </span>
+                <span>@NombreTipoSesion(SesionActiva.Tipo) · @SerialPortService.PuertoActual</span>
             }
             else
             {
-                <span>Desconectado</span>
+                <span>@NombreTipoSesion(SesionActiva.Tipo) · Desconectado</span>
             }
 
         </div>
 
-    </header>
+    </nav>
 
     <main class="workspace">
 
         <aside class="control-panel">
 
-            <div class="panel-tabs">
+            <div class="sidebar-tabs">
 
                 <button type="button"
-                        class="tab-button @(pestanaActiva == "puerto" ? "active" : "")"
+                        class="sidebar-tab @(pestanaActiva == "puerto" ? "active" : "")"
                         @onclick="MostrarPuerto">
 
-                    Puerto
+                    <span class="sidebar-tab-icon">⌁</span>
+                    Conexión
 
                 </button>
 
                 <button type="button"
-                        class="tab-button @(pestanaActiva == "configuracion" ? "active" : "")"
+                        class="sidebar-tab @(pestanaActiva == "configuracion" ? "active" : "")"
                         @onclick="MostrarConfiguracion">
 
+                    <span class="sidebar-tab-icon">⚙</span>
                     Configuración
 
                 </button>
@@ -71,8 +134,11 @@
                         <div class="section-header">
 
                             <div>
-                                <span class="section-number">01</span>
-                                <h2>Puerto serial</h2>
+                                <span class="section-icon">⌁</span>
+                                <div>
+                                    <span class="section-eyebrow">CONEXIÓN</span>
+                                    <h2>Puerto serial</h2>
+                                </div>
                             </div>
 
                             <button type="button"
@@ -80,9 +146,7 @@
                                     title="Actualizar puertos"
                                     disabled="@SerialPortService.EstaConectado"
                                     @onclick="ActualizarPuertos">
-
                                 ↻
-
                             </button>
 
                         </div>
@@ -91,8 +155,8 @@
                         {
                             <div class="empty-state">
 
+                                <span class="empty-state-icon">USB</span>
                                 <strong>No hay puertos disponibles</strong>
-
                                 <span>
                                     Conecta un dispositivo y presiona actualizar.
                                 </span>
@@ -112,10 +176,13 @@
                                             disabled="@SerialPortService.EstaConectado"
                                             @onclick="AlternarLista">
 
-                                        <span>
-                                            @(string.IsNullOrWhiteSpace(puertoSeleccionado)
-                                                ? "Seleccione un puerto"
-                                                : puertoSeleccionado)
+                                        <span class="port-button-content">
+                                            <span class="port-symbol">▰</span>
+                                            <strong>
+                                                @(string.IsNullOrWhiteSpace(puertoSeleccionado)
+                                                    ? "Seleccione un puerto"
+                                                    : puertoSeleccionado)
+                                            </strong>
                                         </span>
 
                                         <span class="selector-arrow">
@@ -133,13 +200,17 @@
                                             {
                                                 <button type="button"
                                                         class="port-option @(puerto == puertoSeleccionado
-                                                                                                                                      ? "selected"
-                                                                                                                                      : "")"
+                                                                                                                                        ? "selected"
+                                                                                                                                        : "")"
                                                         @onclick="() => SeleccionarPuerto(puerto)">
 
                                                     <span class="port-icon">◉</span>
+                                                    <span>@puerto</span>
 
-                                                    @puerto
+                                                    @if (puerto == puertoSeleccionado)
+                                                    {
+                                                        <span class="option-check">✓</span>
+                                                    }
 
                                                 </button>
                                             }
@@ -154,35 +225,101 @@
                             <div class="information-grid">
 
                                 <div class="information-card">
-                                    <span>Puertos detectados</span>
-                                    <strong>@puertos.Count</strong>
+                                    <span class="info-icon">▣</span>
+                                    <div>
+                                        <span>Puertos detectados</span>
+                                        <strong>@puertos.Count</strong>
+                                    </div>
                                 </div>
 
-                                <div class="information-card">
-                                    <span>Puerto seleccionado</span>
-                                    <strong>@puertoSeleccionado</strong>
+                                <div class="information-card selected-port-card">
+                                    <span class="info-icon">✓</span>
+                                    <div>
+                                        <span>Puerto seleccionado</span>
+                                        <strong>@puertoSeleccionado</strong>
+                                    </div>
                                 </div>
 
                             </div>
 
-                            <div class="configuration-summary">
+                            <div class="side-card configuration-card">
 
-                                <span class="summary-title">
-                                    Configuración actual
-                                </span>
+                                <div class="card-title-row">
+                                    <span class="card-icon">⚙</span>
+                                    <span>CONFIGURACIÓN ACTUAL</span>
+                                </div>
 
-                                <strong>
-                                    @ResumenConfiguracion
-                                </strong>
+                                <dl class="configuration-list">
+                                    <div>
+                                        <dt>Protocolo</dt>
+                                        <dd>@NombreTipoSesion(SesionActiva.Tipo)</dd>
+                                    </div>
+                                    @if (EsSesionModbus)
+                                    {
+                                        <div>
+                                            <dt>ID esclavo</dt>
+                                            <dd>@SesionActiva.IdEsclavoModbus</dd>
+                                        </div>
+                                    }
+                                    <div>
+                                        <dt>Baudios</dt>
+                                        <dd>@configuracion.Velocidad bps</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Bits de datos</dt>
+                                        <dd>@configuracion.BitsDeDatos bits</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Paridad</dt>
+                                        <dd>@NombreParidad(configuracion.Paridad)</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Bits de parada</dt>
+                                        <dd>@NombreBitsParada(configuracion.BitsDeParada) stop</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Control de flujo</dt>
+                                        <dd>@NombreControlFlujo(configuracion.ControlDeFlujo)</dd>
+                                    </div>
+                                </dl>
 
                                 <button type="button"
-                                        class="text-button"
+                                        class="card-action"
                                         disabled="@SerialPortService.EstaConectado"
                                         @onclick="MostrarConfiguracion">
-
-                                    Modificar
-
+                                    ✎ Modificar configuración
                                 </button>
+
+                            </div>
+
+                            <div class="side-card device-card">
+
+                                <div class="card-title-row">
+                                    <span class="card-icon">▣</span>
+                                    <span>DISPOSITIVO</span>
+                                </div>
+
+                                <dl class="device-list">
+                                    <div>
+                                        <dt>Estado</dt>
+                                        <dd>
+                                            <span class="mini-status-dot @(SerialPortService.EstaConectado ? "online" : "offline")"></span>
+                                            @(SerialPortService.EstaConectado ? "Conectado" : "Sin conexión")
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt>Puerto</dt>
+                                        <dd>@(SerialPortService.PuertoActual ?? puertoSeleccionado)</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Tipo</dt>
+                                        <dd>@DescripcionTipoSesion(SesionActiva.Tipo)</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Sesión</dt>
+                                        <dd>@(SerialPortService.EstaConectado ? "Activa" : "—")</dd>
+                                    </div>
+                                </dl>
 
                             </div>
                         }
@@ -196,8 +333,11 @@
                         <div class="section-header">
 
                             <div>
-                                <span class="section-number">02</span>
-                                <h2>Configuración</h2>
+                                <span class="section-icon">⚙</span>
+                                <div>
+                                    <span class="section-eyebrow">PUERTO SERIAL</span>
+                                    <h2>Configuración</h2>
+                                </div>
                             </div>
 
                         </div>
@@ -265,6 +405,54 @@
 
                         </div>
 
+                        @if (EsSesionModbus)
+                        {
+                            <div class="modbus-config-section">
+
+                                <div class="modbus-section-heading">
+                                    <span class="session-type-icon modbus">MB</span>
+                                    <div>
+                                        <strong>Parámetros Modbus RTU</strong>
+                                        <small>Configuración del dispositivo esclavo</small>
+                                    </div>
+                                </div>
+
+                                <div class="modbus-config-grid">
+
+                                    <label class="numeric-field">
+                                        <span>ID del esclavo</span>
+                                        <input type="number"
+                                               min="1"
+                                               max="247"
+                                               @bind="SesionActiva.IdEsclavoModbus" />
+                                        <small>Rango permitido: 1 a 247</small>
+                                    </label>
+
+                                    <label class="numeric-field">
+                                        <span>Tiempo de espera</span>
+                                        <div class="input-with-unit">
+                                            <input type="number"
+                                                   min="100"
+                                                   max="10000"
+                                                   step="100"
+                                                   @bind="SesionActiva.TimeoutModbusMs" />
+                                            <span>ms</span>
+                                        </div>
+                                    </label>
+
+                                    <label class="numeric-field">
+                                        <span>Reintentos</span>
+                                        <input type="number"
+                                               min="0"
+                                               max="10"
+                                               @bind="SesionActiva.ReintentosModbus" />
+                                    </label>
+
+                                </div>
+
+                            </div>
+                        }
+
                     </section>
                 }
 
@@ -281,20 +469,15 @@
                     <div class="connection-value">
 
                         <span class="connection-indicator @(SerialPortService.EstaConectado
-                                                                                            ? "online"
-                                                                                            : "offline")">
+                                                                                               ? "online"
+                                                                                               : "offline")">
                         </span>
 
-                        @if (SerialPortService.EstaConectado)
-                        {
-                            <strong>
-                                @SerialPortService.PuertoActual
-                            </strong>
-                        }
-                        else
-                        {
-                            <strong>Sin conexión</strong>
-                        }
+                        <strong>
+                            @(SerialPortService.EstaConectado
+                                ? SerialPortService.PuertoActual
+                                : "Sin conexión")
+                        </strong>
 
                     </div>
 
@@ -304,10 +487,9 @@
                 {
                     <button type="button"
                             class="primary-action disconnect"
-                            @onclick="Desconectar">
-
+                            @onclick="DesconectarAsync">
+                        <span>■</span>
                         Desconectar
-
                     </button>
                 }
                 else
@@ -316,195 +498,546 @@
                             class="primary-action connect"
                             disabled="@string.IsNullOrWhiteSpace(puertoSeleccionado)"
                             @onclick="Conectar">
-
+                        <span>▷</span>
                         Conectar
-
                     </button>
-                }
-
-                @if (!string.IsNullOrWhiteSpace(mensajeEstado))
-                {
-                    <div class="status-message">
-                        @mensajeEstado
-                    </div>
                 }
 
             </div>
 
         </aside>
 
-        <section class="terminal-panel">
+        <section class="terminal-workspace">
 
-            <header class="terminal-header">
+            <div class="terminal-tabs">
 
-                <div class="terminal-title">
-
-                    <div class="terminal-icon">&gt;_</div>
-
-                    <div>
-                        <h2>Terminal</h2>
-                        <span>Datos recibidos en tiempo real</span>
-                    </div>
-
-                </div>
-
-                <div class="terminal-toolbar">
-
-                    <div class="line-counter">
-                        @lineasTerminal.Count líneas
-                    </div>
-
-                    <label class="auto-scroll-option">
-
-                        <input type="checkbox"
-                               @bind="autoScroll" />
-
-                        Auto scroll
-
-                    </label>
-
+                @foreach (TerminalSesion sesion in sesiones)
+                {
                     <button type="button"
-                            class="clear-button"
-                            disabled="@(lineasTerminal.Count == 0)"
-                            @onclick="LimpiarTerminal">
+                            @key="sesion.Id"
+                            class="terminal-tab @(sesion.Id == sesionActivaId ? "active" : "")"
+                            title="@(sesion.Servicio.EstaConectado
+                                                            ? $"{sesion.Nombre} · {sesion.Servicio.PuertoActual}"
+                                                            : sesion.Nombre)"
+                            @onclick="() => SeleccionarTerminalAsync(sesion.Id)">
 
-                        Limpiar
+                        <span class="terminal-tab-dot @(sesion.Servicio.EstaConectado ? "online" : "offline")"></span>
+                        <span class="terminal-tab-protocol @(sesion.Tipo == TipoSesion.ModbusRtu ? "modbus" : "serial")">
+                            @(sesion.Tipo == TipoSesion.ModbusRtu ? "RTU" : "SER")
+                        </span>
+                        <span class="terminal-tab-name">@sesion.Nombre</span>
+
+                        <span class="terminal-tab-close"
+                              title="Cerrar terminal"
+                              @onclick:stopPropagation="true"
+                              @onclick="() => CerrarTerminalAsync(sesion.Id)">
+                            ×
+                        </span>
 
                     </button>
+                }
+
+                <div class="new-session-wrapper">
+
+                    <button type="button"
+                            class="new-terminal-tab @(mostrarSelectorNuevaSesion ? "open" : "")"
+                            title="Abrir nueva sesión"
+                            @onclick="AlternarSelectorNuevaSesion">
+                        +
+                    </button>
+
+                    @if (mostrarSelectorNuevaSesion)
+                    {
+                        <div class="session-type-menu new-session-options">
+
+                            <div class="session-menu-title">Nueva sesión</div>
+
+                            <button type="button"
+                                    class="session-type-option"
+                                    @onclick="() => CrearNuevaSesion(TipoSesion.Serial)">
+                                <span class="session-type-icon serial">&gt;_</span>
+                                <span>
+                                    <strong>Terminal serial</strong>
+                                    <small>Comunicación libre por puerto COM</small>
+                                </span>
+                            </button>
+
+                            <button type="button"
+                                    class="session-type-option"
+                                    @onclick="() => CrearNuevaSesion(TipoSesion.ModbusRtu)">
+                                <span class="session-type-icon modbus">MB</span>
+                                <span>
+                                    <strong>Modbus RTU</strong>
+                                    <small>Consultas industriales sobre RS-485</small>
+                                </span>
+                            </button>
+
+                        </div>
+                    }
 
                 </div>
 
-            </header>
+            </div>
 
-            <div class="terminal-screen"
-                 @ref="terminalElement">
+            <section class="terminal-panel">
 
-                @if (lineasTerminal.Count == 0)
+                <header class="terminal-header">
+
+                    <div class="terminal-title">
+
+                        <div class="terminal-icon @(EsSesionModbus ? "modbus" : "serial")">
+                            @(EsSesionModbus ? "MB" : ">_")
+                        </div>
+
+                        <div>
+                            <h2>@(EsSesionModbus ? "Modbus RTU" : "Terminal serial")</h2>
+                            <span>
+                                @(EsSesionModbus
+                                    ? "Consultas y lectura de registros sobre RS-485"
+                                    : "Datos recibidos en tiempo real")
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div class="terminal-toolbar">
+
+                        <div class="line-counter">
+                            @lineasTerminal.Count líneas
+                        </div>
+
+                        <label class="auto-scroll-option">
+
+                            <input type="checkbox"
+                                   @bind="autoScroll" />
+
+                            <span>Auto scroll</span>
+
+                        </label>
+
+                        <button type="button"
+                                class="clear-button"
+                                disabled="@(lineasTerminal.Count == 0)"
+                                @onclick="LimpiarTerminal">
+                            <span>⌫</span>
+                            Limpiar
+                        </button>
+
+                    </div>
+
+                </header>
+
+                <div class="terminal-screen"
+                     @ref="terminalElement">
+
+                    @if (lineasTerminal.Count == 0)
+                    {
+                        <div class="terminal-empty">
+
+                            <span class="terminal-empty-icon">@(EsSesionModbus ? "MB" : ">_")</span>
+                            <strong>
+                                @(EsSesionModbus
+                                    ? "Configura tu primera consulta"
+                                    : "Esperando información")
+                            </strong>
+                            <p>
+                                @(EsSesionModbus
+                                    ? "Las tramas preparadas y respuestas aparecerán aquí."
+                                    : "Los datos recibidos aparecerán aquí.")
+                            </p>
+
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var linea in lineasTerminal)
+                        {
+                            <div class="@($"terminal-line {ClaseLinea(linea)}")">
+                                <span class="terminal-time">@MarcaTiempoLinea(linea)</span>
+                                <span class="terminal-kind">@TipoVisualLinea(linea):</span>
+                                <span class="terminal-content">@ContenidoVisualLinea(linea)</span>
+                            </div>
+                        }
+                    }
+
+                </div>
+
+                @if (!EsSesionModbus)
                 {
-                    <div class="terminal-empty">
+                    <div class="send-container">
 
-                        <span class="terminal-empty-icon">&gt;_</span>
+                        <div class="send-header">
 
-                        <strong>Esperando información</strong>
+                            <div>
+                                <strong>Escribir al dispositivo</strong>
+                                <span>Envía texto al microcontrolador conectado</span>
+                            </div>
 
-                        <p>
-                            Los datos recibidos aparecerán aquí.
-                        </p>
+                            <span class="raw-mode-badge"
+                                  title="Actualmente el texto se envía sin CR ni LF">
+                                RAW
+                            </span>
+
+                        </div>
+
+                        <div class="send-row">
+
+                            <div class="send-input-wrapper">
+
+                                <span class="send-prefix">TX</span>
+
+                                <input type="text"
+                                       class="send-input"
+                                       placeholder="Escribe aquí..."
+                                       autocomplete="off"
+                                       @bind="textoParaEnviar"
+                                       @bind:event="oninput"
+                                       @onkeydown="ManejarTeclaEnvio"
+                                       disabled="@(!SerialPortService.EstaConectado)" />
+
+                            </div>
+
+                            <button type="button"
+                                    class="send-button"
+                                    disabled="@(!PuedeEnviarTexto)"
+                                    @onclick="EnviarTexto">
+                                <span>➤</span>
+                                Enviar
+                            </button>
+
+                        </div>
 
                     </div>
                 }
                 else
                 {
-                    @foreach (var linea in lineasTerminal)
-                    {
-                        <div class="@($"terminal-line {ClaseLinea(linea)}")">
-                            @linea
+                    <div class="modbus-builder">
+
+                        <div class="modbus-builder-header">
+                            <div>
+                                <strong>Consultar registros Modbus RTU</strong>
+                                <span>Envía la trama binaria y procesa la respuesta del sensor</span>
+                            </div>
+                            <span class="preview-mode-badge @(SesionActiva.PollingModbusActivo
+                                                                  ? "polling"
+                                                                  : SesionActiva.ConsultaModbusEnCurso
+                                                                      ? "reading"
+                                                                      : SerialPortService.EstaConectado ? "ready" : "")">
+                                @(SesionActiva.PollingModbusActivo
+                                    ? "AUTOMÁTICO"
+                                    : SesionActiva.ConsultaModbusEnCurso
+                                        ? "LEYENDO"
+                                        : SerialPortService.EstaConectado ? "LISTO" : "DESCONECTADO")
+                            </span>
                         </div>
-                    }
+
+                        <div class="modbus-query-grid">
+
+                            <SelectorPersonalizado Etiqueta="Función"
+                                                   Opciones="opcionesFuncionesModbus"
+                                                   @bind-ValorSeleccionado="FuncionModbusSeleccionada"
+                                                   Disabled="@BloquearParametrosModbus" />
+
+                            <label class="numeric-field">
+                                <span>Dirección inicial</span>
+                                <input type="number"
+                                       min="0"
+                                       max="65535"
+                                       disabled="@BloquearParametrosModbus"
+                                       @bind="SesionActiva.DireccionInicialModbus" />
+                                <small>Dirección PDU, base 0</small>
+                            </label>
+
+                            <label class="numeric-field">
+                                <span>Cantidad de registros</span>
+                                <input type="number"
+                                       min="1"
+                                       max="125"
+                                       disabled="@BloquearParametrosModbus"
+                                       @bind="SesionActiva.CantidadRegistrosModbus" />
+                                <small>1 registro = 16 bits</small>
+                            </label>
+
+                            <button type="button"
+                                    class="generate-frame-button"
+                                    disabled="@(!PuedeLeerModbus)"
+                                    @onclick="LeerRegistrosModbusAsync">
+                                <span>@(SesionActiva.ConsultaModbusEnCurso ? "◌" : "◇")</span>
+                                @(SesionActiva.PollingModbusActivo
+                                    ? "Polling activo"
+                                    : SesionActiva.ConsultaModbusEnCurso
+                                        ? "Leyendo..."
+                                        : "Leer registros")
+                            </button>
+
+                        </div>
+
+                        <div class="modbus-polling-panel @(SesionActiva.PollingModbusActivo ? "active" : "")">
+
+                            <div class="polling-panel-header">
+                                <div>
+                                    <strong>Lectura automática</strong>
+                                    <span>Consulta el sensor repetidamente sin superponer solicitudes</span>
+                                </div>
+
+                                <button type="button"
+                                        class="polling-action @(SesionActiva.PollingModbusActivo ? "stop" : "start")"
+                                        disabled="@(!SesionActiva.PollingModbusActivo && !PuedeIniciarPollingModbus)"
+                                        @onclick="AlternarPollingModbusAsync">
+                                    <span>@(SesionActiva.PollingModbusActivo ? "■" : "▶")</span>
+                                    @(SesionActiva.PollingModbusActivo
+                                        ? "Detener"
+                                        : "Iniciar polling")
+                                </button>
+                            </div>
+
+                            <div class="polling-controls">
+
+                                <label class="numeric-field polling-interval">
+                                    <span>Intervalo</span>
+                                    <div class="input-with-unit">
+                                        <input type="number"
+                                               min="250"
+                                               max="60000"
+                                               step="250"
+                                               disabled="@SesionActiva.PollingModbusActivo"
+                                               @bind="SesionActiva.IntervaloPollingModbusMs" />
+                                        <span>ms</span>
+                                    </div>
+                                    <small>Entre 250 ms y 60 segundos</small>
+                                </label>
+
+                                <label class="polling-log-option">
+                                    <input type="checkbox"
+                                           @bind="SesionActiva.RegistrarPollingEnTerminal" />
+                                    <span>
+                                        <strong>Registrar cada lectura</strong>
+                                        <small>Agrega TX, RX y CRC a la terminal</small>
+                                    </span>
+                                </label>
+
+                                <div class="polling-stat">
+                                    <span>Correctas</span>
+                                    <strong>@SesionActiva.LecturasPollingCorrectas</strong>
+                                </div>
+
+                                <div class="polling-stat error">
+                                    <span>Errores</span>
+                                    <strong>@SesionActiva.ErroresPolling</strong>
+                                </div>
+
+                                <div class="polling-stat last">
+                                    <span>Última lectura</span>
+                                    <strong>
+                                        @(SesionActiva.UltimaLecturaPolling is null
+                                            ? "—"
+                                            : SesionActiva.UltimaLecturaPolling.Value.ToString("HH:mm:ss"))
+                                    </strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(SesionActiva.TramaModbusPrevia))
+                        {
+                            <div class="frame-preview">
+                                <span>TX enviada</span>
+                                <code>@SesionActiva.TramaModbusPrevia</code>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(SesionActiva.UltimaRespuestaModbus))
+                        {
+                            <div class="frame-preview response">
+                                <span>RX recibida</span>
+                                <code>@SesionActiva.UltimaRespuestaModbus</code>
+                            </div>
+                        }
+
+                        @if (SesionActiva.RegistrosModbus.Count > 0)
+                        {
+                            <div class="modbus-results">
+
+                                <div class="modbus-results-header">
+                                    <div>
+                                        <strong>Registros recibidos</strong>
+                                        <span>@SesionActiva.RegistrosModbus.Count valor(es)</span>
+                                    </div>
+
+                                    @if (SesionActiva.CrcModbusValido == true)
+                                    {
+                                        <span class="crc-status valid">✓ CRC correcto</span>
+                                    }
+                                </div>
+
+                                <div class="modbus-register-table">
+                                    <div class="modbus-register-row header">
+                                        <span>Dirección</span>
+                                        <span>Hexadecimal</span>
+                                        <span>Decimal</span>
+                                        <span>Con signo</span>
+                                    </div>
+
+                                    @foreach (RegistroModbusResultado registro in SesionActiva.RegistrosModbus)
+                                    {
+                                        <div class="modbus-register-row" @key="registro.Direccion">
+                                            <strong>@registro.Direccion</strong>
+                                            <code>0x@(registro.ValorHex)</code>
+                                            <span>@registro.ValorSinSigno</span>
+                                            <span>@registro.ValorConSigno</span>
+                                        </div>
+                                    }
+                                </div>
+
+                            </div>
+                        }
+
+                        <div class="modbus-stage-note @(SerialPortService.EstaConectado ? "active" : "")">
+                            <span>ⓘ</span>
+                            @(SerialPortService.EstaConectado
+                                ? "La consulta se enviará por el puerto conectado. La trama TX permanecerá igual; la respuesta RX cambiará con el valor del sensor."
+                                : "Conecta el puerto RS-485 antes de leer los registros del sensor.")
+                        </div>
+
+                    </div>
                 }
 
-            </div>
-
-            <div class="send-container">
-
-                <div class="send-header">
-
-                    <div>
-                        <strong>Escribir al dispositivo</strong>
-
-                        <span>
-                            Envía texto al microcontrolador conectado
-                        </span>
-                    </div>
-
-                </div>
-
-                <div class="send-row">
-
-                    <div class="send-input-wrapper">
-
-                        <span class="send-prefix">
-                            TX
-                        </span>
-
-                        <input type="text"
-                               class="send-input"
-                               placeholder="Escribe aquí..."
-                               autocomplete="off"
-                               @bind="textoParaEnviar"
-                               @bind:event="oninput"
-                               @onkeydown="ManejarTeclaEnvio"
-                               disabled="@(!SerialPortService.EstaConectado)" />
-
-                    </div>
-
-                    <button type="button"
-                            class="send-button"
-                            disabled="@(!PuedeEnviarTexto)"
-                            @onclick="EnviarTexto">
-
-                        Enviar
-
-                    </button>
-
-                </div>
-
-            </div>
-
-            <footer class="terminal-footer">
-
-                <span>
-                    @(SerialPortService.EstaConectado
-                        ? $"Escuchando {SerialPortService.PuertoActual}"
-                        : "Conecta un puerto para comenzar")
-                </span>
-
-                <span>
-                    Máximo 500 registros
-                </span>
-
-            </footer>
+            </section>
 
         </section>
 
     </main>
 
+    <footer class="app-statusbar">
+
+        <div class="statusbar-message">
+            <span class="statusbar-icon">ⓘ</span>
+            <span>
+                @(string.IsNullOrWhiteSpace(mensajeEstado)
+                    ? "CD Terminal listo."
+                    : mensajeEstado)
+            </span>
+        </div>
+
+        <div class="statusbar-data">
+            <span><strong>@puertos.Count</strong> puerto(s)</span>
+            <span>@NombreTipoSesion(SesionActiva.Tipo)</span>
+            <span>
+                @(EsSesionModbus
+                    ? $"Esclavo {SesionActiva.IdEsclavoModbus} · {SesionActiva.FuncionModbus}"
+                    : ResumenConfiguracion)
+            </span>
+            <span><strong>500</strong> registros máx.</span>
+        </div>
+
+    </footer>
+
 </div>
 
 @code {
-    private IReadOnlyList<string> puertos =
-        Array.Empty<string>();
+    private readonly List<TerminalSesion> sesiones = new();
 
-    private string puertoSeleccionado =
-        string.Empty;
-
-    private string mensajeEstado =
-        string.Empty;
-
-    private string pestanaActiva =
-        "puerto";
-
-    private bool mostrarLista;
-
-    private bool autoScroll = true;
-
-    private bool scrollPendiente;
-
+    private int siguienteIdSesion = 1;
+    private int siguienteNumeroSerial = 1;
+    private int siguienteNumeroModbus = 1;
+    private int sesionActivaId;
+    private bool mostrarMenuComunicacion;
+    private bool mostrarSelectorNuevaSesion;
+    private bool componenteLiberado;
     private ElementReference terminalElement;
 
-    private readonly List<string> lineasTerminal = new();
+    private TerminalSesion SesionActiva =>
+        sesiones.First(sesion => sesion.Id == sesionActivaId);
 
-    private readonly ConfiguracionSerial configuracion = new();
+    private ISerialPortService SerialPortService =>
+        SesionActiva.Servicio;
 
-    private readonly StringBuilder bufferLineaRecepcion = new();
+    private bool EsSesionModbus =>
+        SesionActiva.Tipo == TipoSesion.ModbusRtu;
 
-    private bool ignorarSiguienteLf;
+    private IReadOnlyList<string> puertos
+    {
+        get => SesionActiva.Puertos;
+        set => SesionActiva.Puertos = value;
+    }
 
-    private string textoParaEnviar = string.Empty;
+    private string puertoSeleccionado
+    {
+        get => SesionActiva.PuertoSeleccionado;
+        set => SesionActiva.PuertoSeleccionado = value;
+    }
+
+    private string mensajeEstado
+    {
+        get => SesionActiva.MensajeEstado;
+        set => SesionActiva.MensajeEstado = value;
+    }
+
+    private string pestanaActiva
+    {
+        get => SesionActiva.PestanaPanel;
+        set => SesionActiva.PestanaPanel = value;
+    }
+
+    private bool mostrarLista
+    {
+        get => SesionActiva.MostrarListaPuertos;
+        set => SesionActiva.MostrarListaPuertos = value;
+    }
+
+    private bool autoScroll
+    {
+        get => SesionActiva.AutoScroll;
+        set => SesionActiva.AutoScroll = value;
+    }
+
+    private bool scrollPendiente
+    {
+        get => SesionActiva.ScrollPendiente;
+        set => SesionActiva.ScrollPendiente = value;
+    }
+
+    private List<string> lineasTerminal =>
+        SesionActiva.LineasTerminal;
+
+    private ConfiguracionSerial configuracion =>
+        SesionActiva.Configuracion;
+
+    private StringBuilder bufferLineaRecepcion =>
+        SesionActiva.BufferLineaRecepcion;
+
+    private bool ignorarSiguienteLf
+    {
+        get => SesionActiva.IgnorarSiguienteLf;
+        set => SesionActiva.IgnorarSiguienteLf = value;
+    }
+
+    private string textoParaEnviar
+    {
+        get => SesionActiva.TextoParaEnviar;
+        set => SesionActiva.TextoParaEnviar = value;
+    }
 
     private bool PuedeEnviarTexto =>
         SerialPortService.EstaConectado &&
         !string.IsNullOrWhiteSpace(textoParaEnviar);
+
+    private bool BloquearParametrosModbus =>
+        SesionActiva.ConsultaModbusEnCurso ||
+        SesionActiva.PollingModbusActivo;
+
+    private bool PuedeLeerModbus =>
+        EsSesionModbus &&
+        SerialPortService.EstaConectado &&
+        !SesionActiva.ConsultaModbusEnCurso &&
+        !SesionActiva.PollingModbusActivo;
+
+    private bool PuedeIniciarPollingModbus =>
+        EsSesionModbus &&
+        SerialPortService.EstaConectado &&
+        !SesionActiva.ConsultaModbusEnCurso &&
+        SesionActiva.IntervaloPollingModbusMs is >= 250 and <= 60000;
 
     private static readonly IReadOnlyList<OpcionSelector>
         opcionesVelocidad =
@@ -561,28 +1094,258 @@
         )
     ];
 
+    private static readonly IReadOnlyList<OpcionSelector>
+        opcionesFuncionesModbus =
+    [
+        new("03", "03 · Leer Holding Registers"),
+        new("04", "04 · Leer Input Registers")
+    ];
+
     protected override void OnInitialized()
     {
-        SerialPortService.DatosRecibidos += AlRecibirDatos;
-        SerialPortService.ErrorOcurrido += AlOcurrirError;
+        TerminalSesion primeraSesion =
+            CrearSesion(TipoSesion.Serial);
 
-        ActualizarPuertos();
+        sesiones.Add(primeraSesion);
+        sesionActivaId = primeraSesion.Id;
+
+        ActualizarPuertos(primeraSesion);
     }
 
     protected override async Task OnAfterRenderAsync(
         bool firstRender)
     {
-        if (!scrollPendiente || !autoScroll)
+        TerminalSesion sesion = SesionActiva;
+
+        if (!sesion.ScrollPendiente || !sesion.AutoScroll)
         {
             return;
         }
 
-        scrollPendiente = false;
+        sesion.ScrollPendiente = false;
 
         await JSRuntime.InvokeVoidAsync(
             "cdTerminal.scrollToBottom",
             terminalElement
         );
+    }
+
+    private TerminalSesion CrearSesion(
+        TipoSesion tipo,
+        ConfiguracionSerial? configuracionBase = null)
+    {
+        int id = siguienteIdSesion++;
+        int numero = tipo == TipoSesion.ModbusRtu
+            ? siguienteNumeroModbus++
+            : siguienteNumeroSerial++;
+
+        string nombre = tipo == TipoSesion.ModbusRtu
+            ? $"Modbus RTU {numero}"
+            : $"Terminal {numero}";
+
+        ISerialPortService servicio =
+            ServiceProvider.GetRequiredService<ISerialPortService>();
+
+        ConfiguracionSerial nuevaConfiguracion =
+            CrearCopiaConfiguracion(configuracionBase);
+
+        TerminalSesion sesion = new(
+            id,
+            nombre,
+            tipo,
+            servicio,
+            nuevaConfiguracion
+        );
+
+        sesion.ManejadorDatos = (_, datos) =>
+            AlRecibirDatos(sesion, datos);
+
+        sesion.ManejadorError = (_, error) =>
+            AlOcurrirError(sesion, error);
+
+        servicio.DatosRecibidos += sesion.ManejadorDatos;
+        servicio.ErrorOcurrido += sesion.ManejadorError;
+
+        return sesion;
+    }
+
+    private void AlternarMenuComunicacion()
+    {
+        mostrarMenuComunicacion = !mostrarMenuComunicacion;
+        mostrarSelectorNuevaSesion = false;
+    }
+
+    private void AlternarSelectorNuevaSesion()
+    {
+        mostrarSelectorNuevaSesion = !mostrarSelectorNuevaSesion;
+        mostrarMenuComunicacion = false;
+    }
+
+    private void CerrarMenusNuevaSesion()
+    {
+        mostrarMenuComunicacion = false;
+        mostrarSelectorNuevaSesion = false;
+    }
+
+    private void CrearNuevaSesion(TipoSesion tipo)
+    {
+        ConfiguracionSerial configuracionBase =
+            SesionActiva.Configuracion;
+
+        TerminalSesion nuevaSesion =
+            CrearSesion(tipo, configuracionBase);
+
+        sesiones.Add(nuevaSesion);
+        sesionActivaId = nuevaSesion.Id;
+        terminalElement = default;
+
+        CerrarMenusNuevaSesion();
+        ActualizarPuertos(nuevaSesion);
+
+        nuevaSesion.MensajeEstado =
+            $"{nuevaSesion.Nombre} creada.";
+
+        if (tipo == TipoSesion.ModbusRtu)
+        {
+            AgregarLineaTerminal(
+                nuevaSesion,
+                "SYS",
+                "Sesión Modbus RTU creada. Configura el puerto, " +
+                "el ID del esclavo y la consulta."
+            );
+        }
+    }
+
+    private async Task SeleccionarTerminalAsync(int id)
+    {
+        if (id == sesionActivaId ||
+            sesiones.All(sesion => sesion.Id != id))
+        {
+            return;
+        }
+
+        TerminalSesion sesionAnterior = SesionActiva;
+
+        if (sesionAnterior.PollingModbusActivo)
+        {
+            await DetenerPollingModbusAsync(
+                sesionAnterior,
+                registrarMensaje: true
+            );
+        }
+
+        sesionAnterior.MostrarListaPuertos = false;
+        CerrarMenusNuevaSesion();
+        sesionActivaId = id;
+        terminalElement = default;
+
+        TerminalSesion nuevaSesionActiva = SesionActiva;
+
+        if (nuevaSesionActiva.AutoScroll &&
+            nuevaSesionActiva.LineasTerminal.Count > 0)
+        {
+            nuevaSesionActiva.ScrollPendiente = true;
+        }
+    }
+
+    private async Task CerrarTerminalAsync(int id)
+    {
+        TerminalSesion? sesion =
+            sesiones.FirstOrDefault(item => item.Id == id);
+
+        if (sesion is null)
+        {
+            return;
+        }
+
+        if (sesiones.Count == 1)
+        {
+            sesion.MensajeEstado =
+                "Debe permanecer al menos una terminal abierta.";
+            return;
+        }
+
+        if (sesion.PollingModbusActivo)
+        {
+            await DetenerPollingModbusAsync(
+                sesion,
+                registrarMensaje: false
+            );
+        }
+
+        if (sesion.ConsultaModbusEnCurso)
+        {
+            sesion.MensajeEstado =
+                "Espera a que termine la consulta Modbus antes de cerrar la sesión.";
+            return;
+        }
+
+        int indice = sesiones.IndexOf(sesion);
+        bool eraActiva = sesion.Id == sesionActivaId;
+        string nombreCerrado = sesion.Nombre;
+
+        LiberarSesion(sesion);
+        sesiones.Remove(sesion);
+
+        if (eraActiva)
+        {
+            int nuevoIndice = Math.Min(
+                indice,
+                sesiones.Count - 1
+            );
+
+            sesionActivaId = sesiones[nuevoIndice].Id;
+            terminalElement = default;
+
+            if (SesionActiva.AutoScroll &&
+                SesionActiva.LineasTerminal.Count > 0)
+            {
+                SesionActiva.ScrollPendiente = true;
+            }
+        }
+
+        SesionActiva.MensajeEstado =
+            $"{nombreCerrado} cerrada.";
+    }
+
+    private void LiberarSesion(TerminalSesion sesion)
+    {
+        sesion.PollingCancellation?.Cancel();
+
+        if (sesion.ManejadorDatos is not null)
+        {
+            sesion.Servicio.DatosRecibidos -=
+                sesion.ManejadorDatos;
+        }
+
+        if (sesion.ManejadorError is not null)
+        {
+            sesion.Servicio.ErrorOcurrido -=
+                sesion.ManejadorError;
+        }
+
+        sesion.Servicio.Dispose();
+    }
+
+    private static ConfiguracionSerial CrearCopiaConfiguracion(
+        ConfiguracionSerial? origen)
+    {
+        ConfiguracionSerial copia = new();
+
+        if (origen is null)
+        {
+            return copia;
+        }
+
+        copia.Velocidad = origen.Velocidad;
+        copia.BitsDeDatos = origen.BitsDeDatos;
+        copia.Paridad = origen.Paridad;
+        copia.BitsDeParada = origen.BitsDeParada;
+        copia.ControlDeFlujo = origen.ControlDeFlujo;
+        copia.HabilitarDtr = origen.HabilitarDtr;
+        copia.HabilitarRts = origen.HabilitarRts;
+
+        return copia;
     }
 
     private void MostrarPuerto()
@@ -599,30 +1362,50 @@
 
     private void ActualizarPuertos()
     {
-        puertos =
-            SerialPortService.ObtenerPuertosDisponibles();
+        ActualizarPuertos(SesionActiva);
+    }
 
-        mostrarLista = false;
+    private void ActualizarPuertos(TerminalSesion sesion)
+    {
+        sesion.Puertos =
+            sesion.Servicio.ObtenerPuertosDisponibles();
 
-        if (puertos.Count == 0)
+        sesion.MostrarListaPuertos = false;
+
+        if (sesion.Puertos.Count == 0)
         {
-            puertoSeleccionado = string.Empty;
-            configuracion.NombrePuerto = string.Empty;
-            mensajeEstado = "No se encontraron puertos COM.";
+            sesion.PuertoSeleccionado = string.Empty;
+            sesion.Configuracion.NombrePuerto = string.Empty;
+            sesion.MensajeEstado =
+                "No se encontraron puertos COM.";
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(puertoSeleccionado) ||
-            !puertos.Contains(puertoSeleccionado))
+        if (string.IsNullOrWhiteSpace(
+                sesion.PuertoSeleccionado) ||
+            !sesion.Puertos.Contains(
+                sesion.PuertoSeleccionado))
         {
-            puertoSeleccionado = puertos[0];
+            HashSet<string> puertosEnUso = sesiones
+                .Where(item =>
+                    item.Id != sesion.Id &&
+                    item.Servicio.EstaConectado &&
+                    !string.IsNullOrWhiteSpace(
+                        item.Servicio.PuertoActual))
+                .Select(item => item.Servicio.PuertoActual!)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            sesion.PuertoSeleccionado =
+                sesion.Puertos.FirstOrDefault(
+                    puerto => !puertosEnUso.Contains(puerto))
+                ?? sesion.Puertos[0];
         }
 
-        configuracion.NombrePuerto =
-            puertoSeleccionado;
+        sesion.Configuracion.NombrePuerto =
+            sesion.PuertoSeleccionado;
 
-        mensajeEstado =
-            $"{puertos.Count} puerto(s) detectado(s).";
+        sesion.MensajeEstado =
+            $"{sesion.Puertos.Count} puerto(s) detectado(s).";
     }
 
     private void AlternarLista()
@@ -633,8 +1416,7 @@
         }
     }
 
-    private void SeleccionarPuerto(
-        string puerto)
+    private void SeleccionarPuerto(string puerto)
     {
         puertoSeleccionado = puerto;
         configuracion.NombrePuerto = puerto;
@@ -646,73 +1428,101 @@
 
     private void Conectar()
     {
+        TerminalSesion sesion = SesionActiva;
+
         try
         {
-            configuracion.NombrePuerto =
-                puertoSeleccionado;
+            sesion.Configuracion.NombrePuerto =
+                sesion.PuertoSeleccionado;
 
-            SerialPortService.Conectar(
-                configuracion
+            sesion.Servicio.Conectar(
+                sesion.Configuracion
             );
 
-            mostrarLista = false;
-
-            mensajeEstado =
-                $"Conexión establecida en {puertoSeleccionado}.";
+            sesion.MostrarListaPuertos = false;
+            sesion.MensajeEstado =
+                $"Conexión establecida en " +
+                $"{sesion.PuertoSeleccionado}.";
 
             AgregarLineaTerminal(
+                sesion,
                 "SYS",
-                $"Conectado a {puertoSeleccionado} " +
-                $"a {configuracion.Velocidad} bps."
+                $"Conectado a {sesion.PuertoSeleccionado} " +
+                $"a {sesion.Configuracion.Velocidad} bps."
             );
         }
         catch (UnauthorizedAccessException)
         {
-            mensajeEstado =
-                $"No se puede acceder a {puertoSeleccionado}. " +
-                "Probablemente está siendo utilizado por otro programa.";
+            sesion.MensajeEstado =
+                $"No se puede acceder a " +
+                $"{sesion.PuertoSeleccionado}. " +
+                "Probablemente está siendo utilizado por " +
+                "otra terminal o programa.";
         }
         catch (IOException ex)
         {
-            mensajeEstado =
+            sesion.MensajeEstado =
                 $"Error de comunicación: {ex.Message}";
         }
         catch (Exception ex)
         {
-            mensajeEstado =
+            sesion.MensajeEstado =
                 $"No fue posible conectar: {ex.Message}";
         }
     }
 
-    private void Desconectar()
+    private async Task DesconectarAsync()
     {
+        TerminalSesion sesion = SesionActiva;
+
+        if (sesion.PollingModbusActivo)
+        {
+            await DetenerPollingModbusAsync(
+                sesion,
+                registrarMensaje: true
+            );
+        }
+
+        if (sesion.ConsultaModbusEnCurso)
+        {
+            sesion.MensajeEstado =
+                "Espera a que termine la consulta Modbus antes de desconectar.";
+            return;
+        }
+
         try
         {
             string puertoAnterior =
-                SerialPortService.PuertoActual ??
-                puertoSeleccionado;
+                sesion.Servicio.PuertoActual ??
+                sesion.PuertoSeleccionado;
 
-            SerialPortService.Desconectar();
+            sesion.Servicio.Desconectar();
 
-            mensajeEstado =
+            sesion.MensajeEstado =
                 $"El puerto {puertoAnterior} fue desconectado.";
 
             AgregarLineaTerminal(
+                sesion,
                 "SYS",
                 $"Puerto {puertoAnterior} desconectado."
             );
         }
         catch (Exception ex)
         {
-            mensajeEstado =
+            sesion.MensajeEstado =
                 $"No fue posible desconectar: {ex.Message}";
         }
     }
 
     private void AlRecibirDatos(
-    object? sender,
-    string datos)
+        TerminalSesion sesion,
+        string datos)
     {
+        if (sesion.Tipo == TipoSesion.ModbusRtu)
+        {
+            return;
+        }
+
         if (string.IsNullOrEmpty(datos))
         {
             return;
@@ -720,53 +1530,49 @@
 
         _ = InvokeAsync(() =>
         {
-            ProcesarDatosRecibidos(datos);
-
+            ProcesarDatosRecibidos(sesion, datos);
             StateHasChanged();
         });
     }
 
-    private void ProcesarDatosRecibidos(string datos)
+    private void ProcesarDatosRecibidos(
+        TerminalSesion sesion,
+        string datos)
     {
         foreach (char caracter in datos)
         {
             if (caracter == '\r')
             {
-                CompletarLineaRecibida();
-
-                ignorarSiguienteLf = true;
-
+                CompletarLineaRecibida(sesion);
+                sesion.IgnorarSiguienteLf = true;
                 continue;
             }
 
             if (caracter == '\n')
             {
-                if (ignorarSiguienteLf)
+                if (sesion.IgnorarSiguienteLf)
                 {
-                    ignorarSiguienteLf = false;
-
+                    sesion.IgnorarSiguienteLf = false;
                     continue;
                 }
 
-                CompletarLineaRecibida();
-
+                CompletarLineaRecibida(sesion);
                 continue;
             }
 
-            ignorarSiguienteLf = false;
-
-            bufferLineaRecepcion.Append(caracter);
+            sesion.IgnorarSiguienteLf = false;
+            sesion.BufferLineaRecepcion.Append(caracter);
         }
     }
 
-    private void CompletarLineaRecibida()
+    private void CompletarLineaRecibida(
+        TerminalSesion sesion)
     {
-        string linea =
-            bufferLineaRecepcion
-                .ToString()
-                .Trim();
+        string linea = sesion.BufferLineaRecepcion
+            .ToString()
+            .Trim();
 
-        bufferLineaRecepcion.Clear();
+        sesion.BufferLineaRecepcion.Clear();
 
         if (string.IsNullOrWhiteSpace(linea))
         {
@@ -774,36 +1580,50 @@
         }
 
         AgregarLineaTerminal(
+            sesion,
             "RX",
             linea
         );
     }
 
     private void AlOcurrirError(
-        object? sender,
+        TerminalSesion sesion,
         string error)
     {
         _ = InvokeAsync(() =>
         {
             AgregarLineaTerminal(
+                sesion,
                 "ERROR",
                 error
             );
 
+            sesion.MensajeEstado = error;
             StateHasChanged();
         });
     }
 
     private void AgregarLineaTerminal(
-    string tipo,
-    string contenido)
+        string tipo,
+        string contenido)
     {
-        string contenidoLimpio =
+        AgregarLineaTerminal(
+            SesionActiva,
+            tipo,
             contenido
-                .Replace("\r\n", " ")
-                .Replace('\r', ' ')
-                .Replace('\n', ' ')
-                .Trim();
+        );
+    }
+
+    private static void AgregarLineaTerminal(
+        TerminalSesion sesion,
+        string tipo,
+        string contenido)
+    {
+        string contenidoLimpio = contenido
+            .Replace("\r\n", " ")
+            .Replace('\r', ' ')
+            .Replace('\n', ' ')
+            .Trim();
 
         if (string.IsNullOrWhiteSpace(contenidoLimpio))
         {
@@ -814,39 +1634,37 @@
             $"[{DateTime.Now:HH:mm:ss.fff}] " +
             $"{tipo}: {contenidoLimpio}";
 
-        lineasTerminal.Add(texto);
+        sesion.LineasTerminal.Add(texto);
 
-        if (lineasTerminal.Count > 500)
+        if (sesion.LineasTerminal.Count > 500)
         {
             int cantidadEliminar =
-                lineasTerminal.Count - 500;
+                sesion.LineasTerminal.Count - 500;
 
-            lineasTerminal.RemoveRange(
+            sesion.LineasTerminal.RemoveRange(
                 0,
                 cantidadEliminar
             );
         }
 
-        if (autoScroll)
+        if (sesion.AutoScroll)
         {
-            scrollPendiente = true;
+            sesion.ScrollPendiente = true;
         }
     }
 
     private void LimpiarTerminal()
     {
-        lineasTerminal.Clear();
+        TerminalSesion sesion = SesionActiva;
 
-        bufferLineaRecepcion.Clear();
-
-        ignorarSiguienteLf = false;
-
-        mensajeEstado =
+        sesion.LineasTerminal.Clear();
+        sesion.BufferLineaRecepcion.Clear();
+        sesion.IgnorarSiguienteLf = false;
+        sesion.MensajeEstado =
             "La terminal fue limpiada.";
     }
 
-    private static string ClaseLinea(
-    string linea)
+    private static string ClaseLinea(string linea)
     {
         if (linea.Contains(
                 "ERROR:",
@@ -878,8 +1696,7 @@
         $"{NombreParidad(configuracion.Paridad)} · " +
         $"{NombreBitsParada(configuracion.BitsDeParada)} stop";
 
-    private static string NombreParidad(
-        Parity paridad)
+    private static string NombreParidad(Parity paridad)
     {
         return paridad switch
         {
@@ -892,8 +1709,7 @@
         };
     }
 
-    private static string NombreBitsParada(
-        StopBits bits)
+    private static string NombreBitsParada(StopBits bits)
     {
         return bits switch
         {
@@ -906,11 +1722,15 @@
 
     public void Dispose()
     {
-        SerialPortService.DatosRecibidos -=
-            AlRecibirDatos;
+        componenteLiberado = true;
 
-        SerialPortService.ErrorOcurrido -=
-            AlOcurrirError;
+        foreach (TerminalSesion sesion in sesiones.ToArray())
+        {
+            sesion.PollingCancellation?.Cancel();
+            LiberarSesion(sesion);
+        }
+
+        sesiones.Clear();
     }
 
     private string VelocidadSeleccionada
@@ -919,12 +1739,9 @@
 
         set
         {
-            if (int.TryParse(
-                    value,
-                    out int velocidad))
+            if (int.TryParse(value, out int velocidad))
             {
-                configuracion.Velocidad =
-                    velocidad;
+                configuracion.Velocidad = velocidad;
             }
         }
     }
@@ -935,12 +1752,9 @@
 
         set
         {
-            if (int.TryParse(
-                    value,
-                    out int bits))
+            if (int.TryParse(value, out int bits))
             {
-                configuracion.BitsDeDatos =
-                    bits;
+                configuracion.BitsDeDatos = bits;
             }
         }
     }
@@ -951,12 +1765,9 @@
 
         set
         {
-            if (Enum.TryParse(
-                    value,
-                    out Parity paridad))
+            if (Enum.TryParse(value, out Parity paridad))
             {
-                configuracion.Paridad =
-                    paridad;
+                configuracion.Paridad = paridad;
             }
         }
     }
@@ -987,15 +1798,18 @@
                     value,
                     out Handshake control))
             {
-                configuracion.ControlDeFlujo =
-                    control;
+                configuracion.ControlDeFlujo = control;
             }
         }
     }
 
     private void EnviarTexto()
     {
-        if (!PuedeEnviarTexto)
+        TerminalSesion sesion = SesionActiva;
+
+        if (!sesion.Servicio.EstaConectado ||
+            string.IsNullOrWhiteSpace(
+                sesion.TextoParaEnviar))
         {
             return;
         }
@@ -1003,42 +1817,887 @@
         try
         {
             string textoEnviado =
-                textoParaEnviar;
+                sesion.TextoParaEnviar;
 
-            SerialPortService.EnviarTexto(
-                textoEnviado
-            );
+            sesion.Servicio.EnviarTexto(textoEnviado);
 
             AgregarLineaTerminal(
+                sesion,
                 "TX",
                 textoEnviado
             );
 
-            textoParaEnviar =
-                string.Empty;
-
-            mensajeEstado =
+            sesion.TextoParaEnviar = string.Empty;
+            sesion.MensajeEstado =
                 "Texto enviado correctamente.";
         }
         catch (Exception ex)
         {
-            mensajeEstado =
+            sesion.MensajeEstado =
                 $"No fue posible enviar: {ex.Message}";
 
             AgregarLineaTerminal(
+                sesion,
                 "ERROR",
-                mensajeEstado
+                sesion.MensajeEstado
             );
         }
     }
 
     private void ManejarTeclaEnvio(
-    KeyboardEventArgs evento)
+        KeyboardEventArgs evento)
     {
         if (evento.Key == "Enter" &&
             PuedeEnviarTexto)
         {
             EnviarTexto();
         }
+    }
+
+    private static string MarcaTiempoLinea(string linea)
+    {
+        int finMarca = linea.IndexOf(']');
+
+        return finMarca >= 0
+            ? linea[..(finMarca + 1)]
+            : string.Empty;
+    }
+
+    private static string TipoVisualLinea(string linea)
+    {
+        if (linea.Contains("ERROR:", StringComparison.Ordinal))
+        {
+            return "ERROR";
+        }
+
+        if (linea.Contains("SYS:", StringComparison.Ordinal))
+        {
+            return "SYS";
+        }
+
+        if (linea.Contains("TX:", StringComparison.Ordinal))
+        {
+            return "TX";
+        }
+
+        return "RX";
+    }
+
+    private static string ContenidoVisualLinea(string linea)
+    {
+        string[] marcadores = ["ERROR:", "SYS:", "TX:", "RX:"];
+
+        foreach (string marcador in marcadores)
+        {
+            int posicion = linea.IndexOf(
+                marcador,
+                StringComparison.Ordinal
+            );
+
+            if (posicion >= 0)
+            {
+                return linea[(posicion + marcador.Length)..]
+                    .TrimStart();
+            }
+        }
+
+        return linea;
+    }
+
+    private string FuncionModbusSeleccionada
+    {
+        get => SesionActiva.FuncionModbus;
+        set
+        {
+            SesionActiva.FuncionModbus = value;
+            SesionActiva.TramaModbusPrevia = string.Empty;
+            SesionActiva.UltimaRespuestaModbus = string.Empty;
+            SesionActiva.CrcModbusValido = null;
+            SesionActiva.RegistrosModbus.Clear();
+        }
+    }
+
+    private async Task LeerRegistrosModbusAsync()
+    {
+        await EjecutarLecturaModbusAsync(
+            SesionActiva,
+            registrarEnTerminal: true,
+            esPolling: false,
+            CancellationToken.None
+        );
+    }
+
+    private async Task AlternarPollingModbusAsync()
+    {
+        TerminalSesion sesion = SesionActiva;
+
+        if (sesion.PollingModbusActivo)
+        {
+            await DetenerPollingModbusAsync(
+                sesion,
+                registrarMensaje: true
+            );
+
+            return;
+        }
+
+        if (!sesion.Servicio.EstaConectado)
+        {
+            sesion.MensajeEstado =
+                "Conecta el puerto RS-485 antes de iniciar el polling.";
+            return;
+        }
+
+        if (!ValidarParametrosModbus(sesion))
+        {
+            return;
+        }
+
+        if (sesion.IntervaloPollingModbusMs is < 250 or > 60000)
+        {
+            sesion.MensajeEstado =
+                "El intervalo de polling debe estar entre 250 y 60000 ms.";
+            return;
+        }
+
+        sesion.LecturasPollingCorrectas = 0;
+        sesion.ErroresPolling = 0;
+        sesion.UltimaLecturaPolling = null;
+        sesion.UltimoErrorPolling = string.Empty;
+        sesion.PollingCancellation =
+            new CancellationTokenSource();
+        sesion.PollingModbusActivo = true;
+
+        AgregarLineaTerminal(
+            sesion,
+            "SYS",
+            $"Polling iniciado cada " +
+            $"{sesion.IntervaloPollingModbusMs} ms."
+        );
+
+        sesion.MensajeEstado =
+            "Lectura automática Modbus RTU activa.";
+
+        sesion.PollingTask = EjecutarPollingModbusAsync(
+            sesion,
+            sesion.PollingCancellation.Token
+        );
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task EjecutarPollingModbusAsync(
+        TerminalSesion sesion,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            while (!cancellationToken.IsCancellationRequested &&
+                   sesion.Servicio.EstaConectado)
+            {
+                bool lecturaCorrecta =
+                    await EjecutarLecturaModbusAsync(
+                        sesion,
+                        sesion.RegistrarPollingEnTerminal,
+                        esPolling: true,
+                        cancellationToken
+                    );
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                if (lecturaCorrecta)
+                {
+                    sesion.LecturasPollingCorrectas++;
+                    sesion.UltimaLecturaPolling = DateTime.Now;
+                    sesion.UltimoErrorPolling = string.Empty;
+                    sesion.MensajeEstado =
+                        $"Polling activo · " +
+                        $"{sesion.LecturasPollingCorrectas} correcta(s) · " +
+                        $"{sesion.ErroresPolling} error(es).";
+                }
+                else
+                {
+                    sesion.ErroresPolling++;
+                    sesion.MensajeEstado =
+                        $"Polling activo · " +
+                        $"{sesion.LecturasPollingCorrectas} correcta(s) · " +
+                        $"{sesion.ErroresPolling} error(es).";
+                }
+
+                if (!componenteLiberado)
+                {
+                    await InvokeAsync(StateHasChanged);
+                }
+
+                await Task.Delay(
+                    Math.Clamp(
+                        sesion.IntervaloPollingModbusMs,
+                        250,
+                        60000
+                    ),
+                    cancellationToken
+                );
+            }
+        }
+        catch (OperationCanceledException)
+            when (cancellationToken.IsCancellationRequested)
+        {
+            // Detención solicitada por el usuario.
+        }
+        catch (Exception ex)
+        {
+            sesion.ErroresPolling++;
+            sesion.MensajeEstado =
+                $"El polling se detuvo: {ex.Message}";
+
+            AgregarLineaTerminal(
+                sesion,
+                "ERROR",
+                $"Polling detenido: {ex.Message}"
+            );
+        }
+        finally
+        {
+            sesion.PollingModbusActivo = false;
+            sesion.ConsultaModbusEnCurso = false;
+
+            CancellationTokenSource? cancellation =
+                sesion.PollingCancellation;
+
+            sesion.PollingCancellation = null;
+            sesion.PollingTask = null;
+            cancellation?.Dispose();
+
+            if (!componenteLiberado)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    private async Task DetenerPollingModbusAsync(
+        TerminalSesion sesion,
+        bool registrarMensaje)
+    {
+        CancellationTokenSource? cancellation =
+            sesion.PollingCancellation;
+
+        Task? pollingTask = sesion.PollingTask;
+
+        if (!sesion.PollingModbusActivo &&
+            cancellation is null &&
+            pollingTask is null)
+        {
+            return;
+        }
+
+        cancellation?.Cancel();
+
+        if (pollingTask is not null)
+        {
+            try
+            {
+                await pollingTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancelación normal.
+            }
+        }
+
+        if (registrarMensaje)
+        {
+            sesion.MensajeEstado =
+                "Lectura automática Modbus RTU detenida.";
+
+            AgregarLineaTerminal(
+                sesion,
+                "SYS",
+                "Polling Modbus RTU detenido."
+            );
+        }
+
+        if (!componenteLiberado)
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task<bool> EjecutarLecturaModbusAsync(
+        TerminalSesion sesion,
+        bool registrarEnTerminal,
+        bool esPolling,
+        CancellationToken cancellationToken)
+    {
+        if (sesion.Tipo != TipoSesion.ModbusRtu)
+        {
+            return false;
+        }
+
+        if (!sesion.Servicio.EstaConectado)
+        {
+            sesion.MensajeEstado =
+                "Conecta el puerto RS-485 antes de consultar el sensor.";
+            return false;
+        }
+
+        if (sesion.ConsultaModbusEnCurso)
+        {
+            return false;
+        }
+
+        if (!ValidarParametrosModbus(sesion))
+        {
+            return false;
+        }
+
+        byte funcion = sesion.FuncionModbus == "04"
+            ? (byte)0x04
+            : (byte)0x03;
+
+        byte[] solicitud = ConstruirTramaLecturaModbus(
+            (byte)sesion.IdEsclavoModbus,
+            funcion,
+            (ushort)sesion.DireccionInicialModbus,
+            (ushort)sesion.CantidadRegistrosModbus
+        );
+
+        sesion.TramaModbusPrevia = ConvertirAHex(solicitud);
+        sesion.ConsultaModbusEnCurso = true;
+
+        if (!esPolling)
+        {
+            sesion.UltimaRespuestaModbus = string.Empty;
+            sesion.CrcModbusValido = null;
+            sesion.RegistrosModbus.Clear();
+            sesion.MensajeEstado =
+                $"Consultando al esclavo {sesion.IdEsclavoModbus}...";
+        }
+
+        if (!componenteLiberado)
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+
+        try
+        {
+            int reintentos = Math.Clamp(
+                sesion.ReintentosModbus,
+                0,
+                10
+            );
+
+            int intentosTotales = reintentos + 1;
+            Exception? ultimoError = null;
+
+            for (int intento = 1;
+                 intento <= intentosTotales;
+                 intento++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (intento > 1 && registrarEnTerminal)
+                {
+                    AgregarLineaTerminal(
+                        sesion,
+                        "SYS",
+                        $"Reintento {intento - 1} de {reintentos}."
+                    );
+                }
+
+                if (registrarEnTerminal)
+                {
+                    AgregarLineaTerminal(
+                        sesion,
+                        "TX",
+                        sesion.TramaModbusPrevia
+                    );
+                }
+
+                if (!componenteLiberado)
+                {
+                    await InvokeAsync(StateHasChanged);
+                }
+
+                try
+                {
+                    byte[] respuesta = await sesion.Servicio
+                        .TransaccionModbusAsync(
+                            solicitud,
+                            Math.Clamp(
+                                sesion.TimeoutModbusMs,
+                                100,
+                                10000
+                            ),
+                            cancellationToken
+                        );
+
+                    ProcesarRespuestaModbus(
+                        sesion,
+                        respuesta,
+                        funcion,
+                        registrarEnTerminal
+                    );
+
+                    return true;
+                }
+                catch (TimeoutException ex)
+                {
+                    ultimoError = ex;
+
+                    if (intento < intentosTotales &&
+                        registrarEnTerminal)
+                    {
+                        AgregarLineaTerminal(
+                            sesion,
+                            "SYS",
+                            "Sin respuesta. Se intentará nuevamente."
+                        );
+                    }
+                }
+            }
+
+            throw ultimoError ?? new TimeoutException(
+                "El dispositivo no respondió."
+            );
+        }
+        catch (OperationCanceledException)
+            when (cancellationToken.IsCancellationRequested)
+        {
+            return false;
+        }
+        catch (Exception ex)
+        {
+            sesion.MensajeEstado =
+                esPolling
+                    ? $"Polling: {ex.Message}"
+                    : $"La consulta Modbus falló: {ex.Message}";
+
+            bool registrarError =
+                !esPolling ||
+                registrarEnTerminal ||
+                !string.Equals(
+                    sesion.UltimoErrorPolling,
+                    ex.Message,
+                    StringComparison.Ordinal
+                );
+
+            if (registrarError)
+            {
+                AgregarLineaTerminal(
+                    sesion,
+                    "ERROR",
+                    ex.Message
+                );
+            }
+
+            if (esPolling)
+            {
+                sesion.UltimoErrorPolling = ex.Message;
+            }
+
+            return false;
+        }
+        finally
+        {
+            sesion.ConsultaModbusEnCurso = false;
+
+            if (!componenteLiberado)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    private static bool ValidarParametrosModbus(
+        TerminalSesion sesion)
+    {
+        if (sesion.IdEsclavoModbus is < 1 or > 247)
+        {
+            sesion.MensajeEstado =
+                "El ID del esclavo debe estar entre 1 y 247.";
+            return false;
+        }
+
+        if (sesion.DireccionInicialModbus is < 0 or > 65535)
+        {
+            sesion.MensajeEstado =
+                "La dirección inicial debe estar entre 0 y 65535.";
+            return false;
+        }
+
+        if (sesion.CantidadRegistrosModbus is < 1 or > 125)
+        {
+            sesion.MensajeEstado =
+                "La cantidad de registros debe estar entre 1 y 125.";
+            return false;
+        }
+
+        long ultimaDireccion =
+            (long)sesion.DireccionInicialModbus +
+            sesion.CantidadRegistrosModbus - 1;
+
+        if (ultimaDireccion > 65535)
+        {
+            sesion.MensajeEstado =
+                "La consulta supera la dirección Modbus 65535.";
+            return false;
+        }
+
+        if (sesion.TimeoutModbusMs is < 100 or > 10000)
+        {
+            sesion.MensajeEstado =
+                "El tiempo de espera debe estar entre 100 y 10000 ms.";
+            return false;
+        }
+
+        if (sesion.ReintentosModbus is < 0 or > 10)
+        {
+            sesion.MensajeEstado =
+                "Los reintentos deben estar entre 0 y 10.";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void ProcesarRespuestaModbus(
+        TerminalSesion sesion,
+        byte[] respuesta,
+        byte funcionSolicitada,
+        bool registrarEnTerminal)
+    {
+        sesion.UltimaRespuestaModbus =
+            ConvertirAHex(respuesta);
+
+        if (registrarEnTerminal)
+        {
+            AgregarLineaTerminal(
+                sesion,
+                "RX",
+                sesion.UltimaRespuestaModbus
+            );
+        }
+
+        if (respuesta.Length < 5)
+        {
+            throw new InvalidDataException(
+                "La respuesta Modbus está incompleta."
+            );
+        }
+
+        ushort crcCalculado = CalcularCrcModbus(
+            respuesta.AsSpan(0, respuesta.Length - 2)
+        );
+
+        ushort crcRecibido = (ushort)(
+            respuesta[^2] |
+            (respuesta[^1] << 8)
+        );
+
+        sesion.CrcModbusValido =
+            crcCalculado == crcRecibido;
+
+        if (sesion.CrcModbusValido != true)
+        {
+            throw new InvalidDataException(
+                $"CRC incorrecto. Recibido 0x{crcRecibido:X4}, " +
+                $"calculado 0x{crcCalculado:X4}."
+            );
+        }
+
+        if (respuesta[0] != (byte)sesion.IdEsclavoModbus)
+        {
+            throw new InvalidDataException(
+                $"Respondió el esclavo {respuesta[0]}, " +
+                $"pero se esperaba el {sesion.IdEsclavoModbus}."
+            );
+        }
+
+        byte funcionRespuesta = respuesta[1];
+
+        if (funcionRespuesta == (byte)(funcionSolicitada | 0x80))
+        {
+            byte codigoExcepcion = respuesta[2];
+
+            throw new InvalidOperationException(
+                $"Excepción Modbus 0x{codigoExcepcion:X2}: " +
+                DescribirExcepcionModbus(codigoExcepcion)
+            );
+        }
+
+        if (funcionRespuesta != funcionSolicitada)
+        {
+            throw new InvalidDataException(
+                $"La función recibida 0x{funcionRespuesta:X2} " +
+                $"no coincide con 0x{funcionSolicitada:X2}."
+            );
+        }
+
+        int cantidadBytes = respuesta[2];
+        int cantidadEsperada =
+            sesion.CantidadRegistrosModbus * 2;
+
+        if (cantidadBytes != cantidadEsperada)
+        {
+            throw new InvalidDataException(
+                $"El dispositivo devolvió {cantidadBytes} byte(s), " +
+                $"pero se esperaban {cantidadEsperada}."
+            );
+        }
+
+        if (respuesta.Length != cantidadBytes + 5)
+        {
+            throw new InvalidDataException(
+                "La longitud de la respuesta Modbus no es válida."
+            );
+        }
+
+        sesion.RegistrosModbus.Clear();
+
+        for (int indice = 0;
+             indice < sesion.CantidadRegistrosModbus;
+             indice++)
+        {
+            int posicion = 3 + indice * 2;
+
+            ushort valor = (ushort)(
+                (respuesta[posicion] << 8) |
+                respuesta[posicion + 1]
+            );
+
+            sesion.RegistrosModbus.Add(
+                new RegistroModbusResultado(
+                    sesion.DireccionInicialModbus + indice,
+                    valor
+                )
+            );
+        }
+
+        sesion.MensajeEstado =
+            $"Lectura completada: " +
+            $"{sesion.RegistrosModbus.Count} registro(s).";
+
+        if (registrarEnTerminal)
+        {
+            AgregarLineaTerminal(
+                sesion,
+                "SYS",
+                $"CRC correcto · " +
+                $"{sesion.RegistrosModbus.Count} registro(s) recibido(s)."
+            );
+        }
+    }
+
+    private static string ConvertirAHex(
+        IEnumerable<byte> datos)
+    {
+        return string.Join(
+            " ",
+            datos.Select(valor => valor.ToString("X2"))
+        );
+    }
+
+    private static string DescribirExcepcionModbus(
+        byte codigo)
+    {
+        return codigo switch
+        {
+            0x01 => "Función no soportada.",
+            0x02 => "Dirección de registro no válida.",
+            0x03 => "Valor de datos no válido.",
+            0x04 => "Fallo interno del dispositivo.",
+            0x05 => "Solicitud aceptada, procesamiento pendiente.",
+            0x06 => "Dispositivo ocupado.",
+            0x08 => "Error de paridad de memoria.",
+            0x0A => "Ruta de gateway no disponible.",
+            0x0B => "El dispositivo de destino no respondió.",
+            _ => "Error informado por el dispositivo."
+        };
+    }
+
+    private static byte[] ConstruirTramaLecturaModbus(
+        byte idEsclavo,
+        byte funcion,
+        ushort direccionInicial,
+        ushort cantidadRegistros)
+    {
+        byte[] trama = new byte[8];
+
+        trama[0] = idEsclavo;
+        trama[1] = funcion;
+        trama[2] = (byte)(direccionInicial >> 8);
+        trama[3] = (byte)direccionInicial;
+        trama[4] = (byte)(cantidadRegistros >> 8);
+        trama[5] = (byte)cantidadRegistros;
+
+        ushort crc = CalcularCrcModbus(trama.AsSpan(0, 6));
+
+        trama[6] = (byte)(crc & 0xFF);
+        trama[7] = (byte)(crc >> 8);
+
+        return trama;
+    }
+
+    private static ushort CalcularCrcModbus(
+        ReadOnlySpan<byte> datos)
+    {
+        ushort crc = 0xFFFF;
+
+        foreach (byte dato in datos)
+        {
+            crc ^= dato;
+
+            for (int bit = 0; bit < 8; bit++)
+            {
+                bool bitMenosSignificativo =
+                    (crc & 0x0001) != 0;
+
+                crc >>= 1;
+
+                if (bitMenosSignificativo)
+                {
+                    crc ^= 0xA001;
+                }
+            }
+        }
+
+        return crc;
+    }
+
+    private static string NombreTipoSesion(TipoSesion tipo)
+    {
+        return tipo == TipoSesion.ModbusRtu
+            ? "Modbus RTU"
+            : "Terminal serial";
+    }
+
+    private static string DescripcionTipoSesion(TipoSesion tipo)
+    {
+        return tipo == TipoSesion.ModbusRtu
+            ? "Modbus RTU sobre RS-485"
+            : "Comunicación serial RAW";
+    }
+
+    private static string NombreControlFlujo(
+        Handshake control)
+    {
+        return control switch
+        {
+            Handshake.None => "Ninguno",
+            Handshake.XOnXOff => "XON / XOFF",
+            Handshake.RequestToSend => "RTS / CTS",
+            Handshake.RequestToSendXOnXOff =>
+                "RTS / CTS + XON / XOFF",
+            _ => control.ToString()
+        };
+    }
+
+    private enum TipoSesion
+    {
+        Serial,
+        ModbusRtu
+    }
+
+    private sealed class RegistroModbusResultado
+    {
+        public RegistroModbusResultado(
+            int direccion,
+            ushort valorSinSigno)
+        {
+            Direccion = direccion;
+            ValorSinSigno = valorSinSigno;
+        }
+
+        public int Direccion { get; }
+        public ushort ValorSinSigno { get; }
+        public short ValorConSigno =>
+            unchecked((short)ValorSinSigno);
+        public string ValorHex =>
+            ValorSinSigno.ToString("X4");
+    }
+
+    private sealed class TerminalSesion
+    {
+        public TerminalSesion(
+            int id,
+            string nombre,
+            TipoSesion tipo,
+            ISerialPortService servicio,
+            ConfiguracionSerial configuracion)
+        {
+            Id = id;
+            Nombre = nombre;
+            Tipo = tipo;
+            Servicio = servicio;
+            Configuracion = configuracion;
+        }
+
+        public int Id { get; }
+        public string Nombre { get; }
+        public TipoSesion Tipo { get; }
+        public ISerialPortService Servicio { get; }
+        public ConfiguracionSerial Configuracion { get; }
+
+        public IReadOnlyList<string> Puertos { get; set; } =
+            Array.Empty<string>();
+
+        public string PuertoSeleccionado { get; set; } =
+            string.Empty;
+
+        public string MensajeEstado { get; set; } =
+            string.Empty;
+
+        public string PestanaPanel { get; set; } =
+            "puerto";
+
+        public bool MostrarListaPuertos { get; set; }
+        public bool AutoScroll { get; set; } = true;
+        public bool ScrollPendiente { get; set; }
+        public bool IgnorarSiguienteLf { get; set; }
+
+        public string TextoParaEnviar { get; set; } =
+            string.Empty;
+
+        public int IdEsclavoModbus { get; set; } = 1;
+        public int TimeoutModbusMs { get; set; } = 1000;
+        public int ReintentosModbus { get; set; } = 1;
+        public string FuncionModbus { get; set; } = "03";
+        public int DireccionInicialModbus { get; set; }
+        public int CantidadRegistrosModbus { get; set; } = 1;
+        public string TramaModbusPrevia { get; set; } =
+            string.Empty;
+
+        public string UltimaRespuestaModbus { get; set; } =
+            string.Empty;
+
+        public bool ConsultaModbusEnCurso { get; set; }
+        public bool? CrcModbusValido { get; set; }
+
+        public bool PollingModbusActivo { get; set; }
+        public int IntervaloPollingModbusMs { get; set; } = 1000;
+        public bool RegistrarPollingEnTerminal { get; set; }
+        public int LecturasPollingCorrectas { get; set; }
+        public int ErroresPolling { get; set; }
+        public DateTime? UltimaLecturaPolling { get; set; }
+        public string UltimoErrorPolling { get; set; } =
+            string.Empty;
+
+        public CancellationTokenSource? PollingCancellation { get; set; }
+        public Task? PollingTask { get; set; }
+
+        public List<RegistroModbusResultado> RegistrosModbus { get; } =
+            new();
+
+        public List<string> LineasTerminal { get; } = new();
+
+        public StringBuilder BufferLineaRecepcion { get; } =
+            new();
+
+        public EventHandler<string>? ManejadorDatos { get; set; }
+        public EventHandler<string>? ManejadorError { get; set; }
     }
 }

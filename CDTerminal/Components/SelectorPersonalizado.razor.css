@@ -1,0 +1,89 @@
+﻿.campo-selector {
+    width: 100%;
+}
+
+.campo-selector label {
+    display: block;
+    margin-bottom: 7px;
+    color: #a8b8c6;
+    font-size: 0.72rem;
+    font-weight: 750;
+}
+
+.selector-personalizado {
+    position: relative;
+    width: 100%;
+}
+
+.selector-boton {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 42px;
+    padding: 0 13px;
+    border: 1px solid #22364a;
+    border-radius: 9px;
+    color: #e8f0f6;
+    background: #0a1522;
+    font-size: 0.77rem;
+    cursor: pointer;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.selector-boton:hover:not(:disabled) {
+    border-color: #10b7a4;
+    background: #0d1c2b;
+    box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.08);
+}
+
+.selector-boton:disabled {
+    cursor: not-allowed;
+    opacity: 0.52;
+    background: #0b1621;
+}
+
+.flecha {
+    margin-left: 12px;
+    color: #10b7a4;
+    font-size: 0.58rem;
+}
+
+.selector-opciones {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    left: 0;
+    z-index: 700;
+    max-height: 230px;
+    padding: 6px;
+    overflow-y: auto;
+    border: 1px solid #2a4358;
+    border-radius: 10px;
+    background: #0b1724;
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.42);
+}
+
+.selector-opcion {
+    display: block;
+    width: 100%;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 7px;
+    color: #a8b8c6;
+    background: transparent;
+    text-align: left;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.selector-opcion:hover {
+    color: white;
+    background: #14283a;
+}
+
+.selector-opcion.seleccionada {
+    color: #e4fff9;
+    background: rgba(16, 183, 164, 0.18);
+    font-weight: 750;
+}

@@ -5,24 +5,195 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:blazor="clr-namespace:Microsoft.AspNetCore.Components.WebView.Wpf;assembly=Microsoft.AspNetCore.Components.WebView.Wpf"
         xmlns:local="clr-namespace:CDTerminal"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="CD Terminal"
-        Height="600"
-        Width="1000"
-        WindowStartupLocation="CenterScreen">
+        Height="720"
+        Width="1280"
+        MinHeight="580"
+        MinWidth="900"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        Background="#07111D"
+        SnapsToDevicePixels="True"
+        StateChanged="Window_StateChanged">
 
-    <Grid>
-        <blazor:BlazorWebView
-            HostPage="wwwroot\index.html"
-            Services="{DynamicResource services}">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="44"
+                            ResizeBorderThickness="7"
+                            GlassFrameThickness="0"
+                            CornerRadius="0"
+                            UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
 
-            <blazor:BlazorWebView.RootComponents>
-                <blazor:RootComponent
-                    Selector="#app"
-                    ComponentType="{x:Type local:Inicio}" />
-            </blazor:BlazorWebView.RootComponents>
+    <Window.Resources>
 
-        </blazor:BlazorWebView>
-    </Grid>
+        <Style x:Key="TitleBarButtonStyle"
+               TargetType="Button">
+
+            <Setter Property="Width" Value="46" />
+            <Setter Property="Height" Value="44" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#D9E5ED" />
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="Background" Value="#182A3A" />
+                </Trigger>
+
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#21384B" />
+                </Trigger>
+            </Style.Triggers>
+
+        </Style>
+
+        <Style x:Key="CloseTitleBarButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource TitleBarButtonStyle}">
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="Background" Value="#D83B4A" />
+                </Trigger>
+
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#B52E3B" />
+                </Trigger>
+            </Style.Triggers>
+
+        </Style>
+
+    </Window.Resources>
+
+    <Border BorderBrush="#24384A"
+            BorderThickness="1"
+            Background="#07111D">
+
+        <Grid>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    BorderBrush="#1A2B3C"
+                    BorderThickness="0,0,0,1"
+                    Background="#08131F">
+
+                <Grid>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="12,0,0,0">
+
+                        <Border Width="29"
+                                Height="29"
+                                CornerRadius="8"
+                                BorderBrush="#3EDAC7"
+                                BorderThickness="1"
+                                Background="#0D8279">
+
+                            <TextBlock Text="CD"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="White"
+                                       FontSize="11"
+                                       FontWeight="Bold" />
+
+                        </Border>
+
+                        <StackPanel Margin="9,0,0,0"
+                                    VerticalAlignment="Center">
+
+                            <TextBlock Text="CD Terminal"
+                                       Foreground="#F2F7FA"
+                                       FontSize="12"
+                                       FontWeight="SemiBold" />
+
+                            <TextBlock Text="Terminal de comunicación serial"
+                                       Foreground="#8094A5"
+                                       FontSize="8" />
+
+                        </StackPanel>
+
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+
+                        <Button ToolTip="Minimizar"
+                                Style="{StaticResource TitleBarButtonStyle}"
+                                Click="MinimizeButton_Click">
+                            <TextBlock Text="&#xE921;" />
+                        </Button>
+
+                        <Button x:Name="MaximizeRestoreButton"
+                                ToolTip="Maximizar"
+                                Style="{StaticResource TitleBarButtonStyle}"
+                                Click="MaximizeRestoreButton_Click">
+                            <TextBlock x:Name="MaximizeRestoreIcon"
+                                       Text="&#xE922;" />
+                        </Button>
+
+                        <Button ToolTip="Cerrar"
+                                Style="{StaticResource CloseTitleBarButtonStyle}"
+                                Click="CloseButton_Click">
+                            <TextBlock Text="&#xE8BB;"
+                                       FontSize="11" />
+                        </Button>
+
+                    </StackPanel>
+
+                </Grid>
+
+            </Border>
+
+            <Border Grid.Row="1"
+                    Background="#07111D">
+
+                <blazor:BlazorWebView HostPage="wwwroot\index.html"
+                                      Services="{DynamicResource services}">
+
+                    <blazor:BlazorWebView.RootComponents>
+                        <blazor:RootComponent Selector="#app"
+                                              ComponentType="{x:Type local:Inicio}" />
+                    </blazor:BlazorWebView.RootComponents>
+
+                </blazor:BlazorWebView>
+
+            </Border>
+
+        </Grid>
+
+    </Border>
 
 </Window>
