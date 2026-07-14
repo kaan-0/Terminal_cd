@@ -1,0 +1,1044 @@
+﻿@using System.IO
+@implements IDisposable
+@inject ISerialPortService SerialPortService
+@inject IJSRuntime JSRuntime
+@using System.Text
+
+<div class="app-shell">
+
+    <header class="app-header">
+
+        <div class="brand-area">
+            <div class="brand-icon">CD</div>
+
+            <div>
+                <h1>CD Terminal</h1>
+                <p>Terminal de comunicación serial</p>
+            </div>
+        </div>
+
+        <div class="header-status @(SerialPortService.EstaConectado
+                                                   ? "connected"
+                                                   : "disconnected")">
+
+            <span class="status-dot"></span>
+
+            @if (SerialPortService.EstaConectado)
+            {
+                <span>
+                    Conectado a @SerialPortService.PuertoActual
+                </span>
+            }
+            else
+            {
+                <span>Desconectado</span>
+            }
+
+        </div>
+
+    </header>
+
+    <main class="workspace">
+
+        <aside class="control-panel">
+
+            <div class="panel-tabs">
+
+                <button type="button"
+                        class="tab-button @(pestanaActiva == "puerto" ? "active" : "")"
+                        @onclick="MostrarPuerto">
+
+                    Puerto
+
+                </button>
+
+                <button type="button"
+                        class="tab-button @(pestanaActiva == "configuracion" ? "active" : "")"
+                        @onclick="MostrarConfiguracion">
+
+                    Configuración
+
+                </button>
+
+            </div>
+
+            <div class="panel-body">
+
+                @if (pestanaActiva == "puerto")
+                {
+                    <section class="panel-section">
+
+                        <div class="section-header">
+
+                            <div>
+                                <span class="section-number">01</span>
+                                <h2>Puerto serial</h2>
+                            </div>
+
+                            <button type="button"
+                                    class="icon-button"
+                                    title="Actualizar puertos"
+                                    disabled="@SerialPortService.EstaConectado"
+                                    @onclick="ActualizarPuertos">
+
+                                ↻
+
+                            </button>
+
+                        </div>
+
+                        @if (puertos.Count == 0)
+                        {
+                            <div class="empty-state">
+
+                                <strong>No hay puertos disponibles</strong>
+
+                                <span>
+                                    Conecta un dispositivo y presiona actualizar.
+                                </span>
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="field-group">
+
+                                <label>Puerto COM</label>
+
+                                <div class="port-selector">
+
+                                    <button type="button"
+                                            class="port-selector-button"
+                                            disabled="@SerialPortService.EstaConectado"
+                                            @onclick="AlternarLista">
+
+                                        <span>
+                                            @(string.IsNullOrWhiteSpace(puertoSeleccionado)
+                                                ? "Seleccione un puerto"
+                                                : puertoSeleccionado)
+                                        </span>
+
+                                        <span class="selector-arrow">
+                                            @(mostrarLista ? "▲" : "▼")
+                                        </span>
+
+                                    </button>
+
+                                    @if (mostrarLista &&
+                                         !SerialPortService.EstaConectado)
+                                    {
+                                        <div class="port-options">
+
+                                            @foreach (var puerto in puertos)
+                                            {
+                                                <button type="button"
+                                                        class="port-option @(puerto == puertoSeleccionado
+                                                                                                                                      ? "selected"
+                                                                                                                                      : "")"
+                                                        @onclick="() => SeleccionarPuerto(puerto)">
+
+                                                    <span class="port-icon">◉</span>
+
+                                                    @puerto
+
+                                                </button>
+                                            }
+
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                            <div class="information-grid">
+
+                                <div class="information-card">
+                                    <span>Puertos detectados</span>
+                                    <strong>@puertos.Count</strong>
+                                </div>
+
+                                <div class="information-card">
+                                    <span>Puerto seleccionado</span>
+                                    <strong>@puertoSeleccionado</strong>
+                                </div>
+
+                            </div>
+
+                            <div class="configuration-summary">
+
+                                <span class="summary-title">
+                                    Configuración actual
+                                </span>
+
+                                <strong>
+                                    @ResumenConfiguracion
+                                </strong>
+
+                                <button type="button"
+                                        class="text-button"
+                                        disabled="@SerialPortService.EstaConectado"
+                                        @onclick="MostrarConfiguracion">
+
+                                    Modificar
+
+                                </button>
+
+                            </div>
+                        }
+
+                    </section>
+                }
+                else
+                {
+                    <section class="panel-section">
+
+                        <div class="section-header">
+
+                            <div>
+                                <span class="section-number">02</span>
+                                <h2>Configuración</h2>
+                            </div>
+
+                        </div>
+
+                        <div class="configuration-fields">
+
+                            <SelectorPersonalizado Etiqueta="Velocidad"
+                                                   Opciones="opcionesVelocidad"
+                                                   @bind-ValorSeleccionado="VelocidadSeleccionada"
+                                                   Disabled="@SerialPortService.EstaConectado" />
+
+                            <SelectorPersonalizado Etiqueta="Bits de datos"
+                                                   Opciones="opcionesBitsDeDatos"
+                                                   @bind-ValorSeleccionado="BitsDeDatosSeleccionados"
+                                                   Disabled="@SerialPortService.EstaConectado" />
+
+                            <SelectorPersonalizado Etiqueta="Paridad"
+                                                   Opciones="opcionesParidad"
+                                                   @bind-ValorSeleccionado="ParidadSeleccionada"
+                                                   Disabled="@SerialPortService.EstaConectado" />
+
+                            <SelectorPersonalizado Etiqueta="Bits de parada"
+                                                   Opciones="opcionesBitsDeParada"
+                                                   @bind-ValorSeleccionado="BitsDeParadaSeleccionados"
+                                                   Disabled="@SerialPortService.EstaConectado" />
+
+                            <SelectorPersonalizado Etiqueta="Control de flujo"
+                                                   Opciones="opcionesControlDeFlujo"
+                                                   @bind-ValorSeleccionado="ControlDeFlujoSeleccionado"
+                                                   Disabled="@SerialPortService.EstaConectado" />
+
+                        </div>
+
+                        <div class="advanced-options">
+
+                            <span class="advanced-title">
+                                Líneas de control
+                            </span>
+
+                            <label class="toggle-option">
+
+                                <input type="checkbox"
+                                       @bind="configuracion.HabilitarDtr"
+                                       disabled="@SerialPortService.EstaConectado" />
+
+                                <span>
+                                    <strong>DTR</strong>
+                                    <small>Data Terminal Ready</small>
+                                </span>
+
+                            </label>
+
+                            <label class="toggle-option">
+
+                                <input type="checkbox"
+                                       @bind="configuracion.HabilitarRts"
+                                       disabled="@SerialPortService.EstaConectado" />
+
+                                <span>
+                                    <strong>RTS</strong>
+                                    <small>Request To Send</small>
+                                </span>
+
+                            </label>
+
+                        </div>
+
+                    </section>
+                }
+
+            </div>
+
+            <div class="connection-footer">
+
+                <div class="connection-summary">
+
+                    <span class="connection-label">
+                        Estado de conexión
+                    </span>
+
+                    <div class="connection-value">
+
+                        <span class="connection-indicator @(SerialPortService.EstaConectado
+                                                                                            ? "online"
+                                                                                            : "offline")">
+                        </span>
+
+                        @if (SerialPortService.EstaConectado)
+                        {
+                            <strong>
+                                @SerialPortService.PuertoActual
+                            </strong>
+                        }
+                        else
+                        {
+                            <strong>Sin conexión</strong>
+                        }
+
+                    </div>
+
+                </div>
+
+                @if (SerialPortService.EstaConectado)
+                {
+                    <button type="button"
+                            class="primary-action disconnect"
+                            @onclick="Desconectar">
+
+                        Desconectar
+
+                    </button>
+                }
+                else
+                {
+                    <button type="button"
+                            class="primary-action connect"
+                            disabled="@string.IsNullOrWhiteSpace(puertoSeleccionado)"
+                            @onclick="Conectar">
+
+                        Conectar
+
+                    </button>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(mensajeEstado))
+                {
+                    <div class="status-message">
+                        @mensajeEstado
+                    </div>
+                }
+
+            </div>
+
+        </aside>
+
+        <section class="terminal-panel">
+
+            <header class="terminal-header">
+
+                <div class="terminal-title">
+
+                    <div class="terminal-icon">&gt;_</div>
+
+                    <div>
+                        <h2>Terminal</h2>
+                        <span>Datos recibidos en tiempo real</span>
+                    </div>
+
+                </div>
+
+                <div class="terminal-toolbar">
+
+                    <div class="line-counter">
+                        @lineasTerminal.Count líneas
+                    </div>
+
+                    <label class="auto-scroll-option">
+
+                        <input type="checkbox"
+                               @bind="autoScroll" />
+
+                        Auto scroll
+
+                    </label>
+
+                    <button type="button"
+                            class="clear-button"
+                            disabled="@(lineasTerminal.Count == 0)"
+                            @onclick="LimpiarTerminal">
+
+                        Limpiar
+
+                    </button>
+
+                </div>
+
+            </header>
+
+            <div class="terminal-screen"
+                 @ref="terminalElement">
+
+                @if (lineasTerminal.Count == 0)
+                {
+                    <div class="terminal-empty">
+
+                        <span class="terminal-empty-icon">&gt;_</span>
+
+                        <strong>Esperando información</strong>
+
+                        <p>
+                            Los datos recibidos aparecerán aquí.
+                        </p>
+
+                    </div>
+                }
+                else
+                {
+                    @foreach (var linea in lineasTerminal)
+                    {
+                        <div class="@($"terminal-line {ClaseLinea(linea)}")">
+                            @linea
+                        </div>
+                    }
+                }
+
+            </div>
+
+            <div class="send-container">
+
+                <div class="send-header">
+
+                    <div>
+                        <strong>Escribir al dispositivo</strong>
+
+                        <span>
+                            Envía texto al microcontrolador conectado
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="send-row">
+
+                    <div class="send-input-wrapper">
+
+                        <span class="send-prefix">
+                            TX
+                        </span>
+
+                        <input type="text"
+                               class="send-input"
+                               placeholder="Escribe aquí..."
+                               autocomplete="off"
+                               @bind="textoParaEnviar"
+                               @bind:event="oninput"
+                               @onkeydown="ManejarTeclaEnvio"
+                               disabled="@(!SerialPortService.EstaConectado)" />
+
+                    </div>
+
+                    <button type="button"
+                            class="send-button"
+                            disabled="@(!PuedeEnviarTexto)"
+                            @onclick="EnviarTexto">
+
+                        Enviar
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <footer class="terminal-footer">
+
+                <span>
+                    @(SerialPortService.EstaConectado
+                        ? $"Escuchando {SerialPortService.PuertoActual}"
+                        : "Conecta un puerto para comenzar")
+                </span>
+
+                <span>
+                    Máximo 500 registros
+                </span>
+
+            </footer>
+
+        </section>
+
+    </main>
+
+</div>
+
+@code {
+    private IReadOnlyList<string> puertos =
+        Array.Empty<string>();
+
+    private string puertoSeleccionado =
+        string.Empty;
+
+    private string mensajeEstado =
+        string.Empty;
+
+    private string pestanaActiva =
+        "puerto";
+
+    private bool mostrarLista;
+
+    private bool autoScroll = true;
+
+    private bool scrollPendiente;
+
+    private ElementReference terminalElement;
+
+    private readonly List<string> lineasTerminal = new();
+
+    private readonly ConfiguracionSerial configuracion = new();
+
+    private readonly StringBuilder bufferLineaRecepcion = new();
+
+    private bool ignorarSiguienteLf;
+
+    private string textoParaEnviar = string.Empty;
+
+    private bool PuedeEnviarTexto =>
+        SerialPortService.EstaConectado &&
+        !string.IsNullOrWhiteSpace(textoParaEnviar);
+
+    private static readonly IReadOnlyList<OpcionSelector>
+        opcionesVelocidad =
+    [
+        new("300", "300"),
+        new("600", "600"),
+        new("1200", "1200"),
+        new("2400", "2400"),
+        new("4800", "4800"),
+        new("9600", "9600"),
+        new("19200", "19200"),
+        new("38400", "38400"),
+        new("57600", "57600"),
+        new("115200", "115200"),
+        new("230400", "230400")
+    ];
+
+    private static readonly IReadOnlyList<OpcionSelector>
+        opcionesBitsDeDatos =
+    [
+        new("5", "5 bits"),
+        new("6", "6 bits"),
+        new("7", "7 bits"),
+        new("8", "8 bits")
+    ];
+
+    private static readonly IReadOnlyList<OpcionSelector>
+        opcionesParidad =
+    [
+        new(nameof(Parity.None), "Ninguna"),
+        new(nameof(Parity.Even), "Par"),
+        new(nameof(Parity.Odd), "Impar"),
+        new(nameof(Parity.Mark), "Marca"),
+        new(nameof(Parity.Space), "Espacio")
+    ];
+
+    private static readonly IReadOnlyList<OpcionSelector>
+        opcionesBitsDeParada =
+    [
+        new(nameof(StopBits.One), "1"),
+        new(nameof(StopBits.OnePointFive), "1.5"),
+        new(nameof(StopBits.Two), "2")
+    ];
+
+    private static readonly IReadOnlyList<OpcionSelector>
+        opcionesControlDeFlujo =
+    [
+        new(nameof(Handshake.None), "Ninguno"),
+        new(nameof(Handshake.XOnXOff), "XON / XOFF"),
+        new(nameof(Handshake.RequestToSend), "RTS / CTS"),
+        new(
+            nameof(Handshake.RequestToSendXOnXOff),
+            "RTS / CTS + XON / XOFF"
+        )
+    ];
+
+    protected override void OnInitialized()
+    {
+        SerialPortService.DatosRecibidos += AlRecibirDatos;
+        SerialPortService.ErrorOcurrido += AlOcurrirError;
+
+        ActualizarPuertos();
+    }
+
+    protected override async Task OnAfterRenderAsync(
+        bool firstRender)
+    {
+        if (!scrollPendiente || !autoScroll)
+        {
+            return;
+        }
+
+        scrollPendiente = false;
+
+        await JSRuntime.InvokeVoidAsync(
+            "cdTerminal.scrollToBottom",
+            terminalElement
+        );
+    }
+
+    private void MostrarPuerto()
+    {
+        pestanaActiva = "puerto";
+        mostrarLista = false;
+    }
+
+    private void MostrarConfiguracion()
+    {
+        pestanaActiva = "configuracion";
+        mostrarLista = false;
+    }
+
+    private void ActualizarPuertos()
+    {
+        puertos =
+            SerialPortService.ObtenerPuertosDisponibles();
+
+        mostrarLista = false;
+
+        if (puertos.Count == 0)
+        {
+            puertoSeleccionado = string.Empty;
+            configuracion.NombrePuerto = string.Empty;
+            mensajeEstado = "No se encontraron puertos COM.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(puertoSeleccionado) ||
+            !puertos.Contains(puertoSeleccionado))
+        {
+            puertoSeleccionado = puertos[0];
+        }
+
+        configuracion.NombrePuerto =
+            puertoSeleccionado;
+
+        mensajeEstado =
+            $"{puertos.Count} puerto(s) detectado(s).";
+    }
+
+    private void AlternarLista()
+    {
+        if (!SerialPortService.EstaConectado)
+        {
+            mostrarLista = !mostrarLista;
+        }
+    }
+
+    private void SeleccionarPuerto(
+        string puerto)
+    {
+        puertoSeleccionado = puerto;
+        configuracion.NombrePuerto = puerto;
+        mostrarLista = false;
+
+        mensajeEstado =
+            $"{puerto} seleccionado.";
+    }
+
+    private void Conectar()
+    {
+        try
+        {
+            configuracion.NombrePuerto =
+                puertoSeleccionado;
+
+            SerialPortService.Conectar(
+                configuracion
+            );
+
+            mostrarLista = false;
+
+            mensajeEstado =
+                $"Conexión establecida en {puertoSeleccionado}.";
+
+            AgregarLineaTerminal(
+                "SYS",
+                $"Conectado a {puertoSeleccionado} " +
+                $"a {configuracion.Velocidad} bps."
+            );
+        }
+        catch (UnauthorizedAccessException)
+        {
+            mensajeEstado =
+                $"No se puede acceder a {puertoSeleccionado}. " +
+                "Probablemente está siendo utilizado por otro programa.";
+        }
+        catch (IOException ex)
+        {
+            mensajeEstado =
+                $"Error de comunicación: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            mensajeEstado =
+                $"No fue posible conectar: {ex.Message}";
+        }
+    }
+
+    private void Desconectar()
+    {
+        try
+        {
+            string puertoAnterior =
+                SerialPortService.PuertoActual ??
+                puertoSeleccionado;
+
+            SerialPortService.Desconectar();
+
+            mensajeEstado =
+                $"El puerto {puertoAnterior} fue desconectado.";
+
+            AgregarLineaTerminal(
+                "SYS",
+                $"Puerto {puertoAnterior} desconectado."
+            );
+        }
+        catch (Exception ex)
+        {
+            mensajeEstado =
+                $"No fue posible desconectar: {ex.Message}";
+        }
+    }
+
+    private void AlRecibirDatos(
+    object? sender,
+    string datos)
+    {
+        if (string.IsNullOrEmpty(datos))
+        {
+            return;
+        }
+
+        _ = InvokeAsync(() =>
+        {
+            ProcesarDatosRecibidos(datos);
+
+            StateHasChanged();
+        });
+    }
+
+    private void ProcesarDatosRecibidos(string datos)
+    {
+        foreach (char caracter in datos)
+        {
+            if (caracter == '\r')
+            {
+                CompletarLineaRecibida();
+
+                ignorarSiguienteLf = true;
+
+                continue;
+            }
+
+            if (caracter == '\n')
+            {
+                if (ignorarSiguienteLf)
+                {
+                    ignorarSiguienteLf = false;
+
+                    continue;
+                }
+
+                CompletarLineaRecibida();
+
+                continue;
+            }
+
+            ignorarSiguienteLf = false;
+
+            bufferLineaRecepcion.Append(caracter);
+        }
+    }
+
+    private void CompletarLineaRecibida()
+    {
+        string linea =
+            bufferLineaRecepcion
+                .ToString()
+                .Trim();
+
+        bufferLineaRecepcion.Clear();
+
+        if (string.IsNullOrWhiteSpace(linea))
+        {
+            return;
+        }
+
+        AgregarLineaTerminal(
+            "RX",
+            linea
+        );
+    }
+
+    private void AlOcurrirError(
+        object? sender,
+        string error)
+    {
+        _ = InvokeAsync(() =>
+        {
+            AgregarLineaTerminal(
+                "ERROR",
+                error
+            );
+
+            StateHasChanged();
+        });
+    }
+
+    private void AgregarLineaTerminal(
+    string tipo,
+    string contenido)
+    {
+        string contenidoLimpio =
+            contenido
+                .Replace("\r\n", " ")
+                .Replace('\r', ' ')
+                .Replace('\n', ' ')
+                .Trim();
+
+        if (string.IsNullOrWhiteSpace(contenidoLimpio))
+        {
+            return;
+        }
+
+        string texto =
+            $"[{DateTime.Now:HH:mm:ss.fff}] " +
+            $"{tipo}: {contenidoLimpio}";
+
+        lineasTerminal.Add(texto);
+
+        if (lineasTerminal.Count > 500)
+        {
+            int cantidadEliminar =
+                lineasTerminal.Count - 500;
+
+            lineasTerminal.RemoveRange(
+                0,
+                cantidadEliminar
+            );
+        }
+
+        if (autoScroll)
+        {
+            scrollPendiente = true;
+        }
+    }
+
+    private void LimpiarTerminal()
+    {
+        lineasTerminal.Clear();
+
+        bufferLineaRecepcion.Clear();
+
+        ignorarSiguienteLf = false;
+
+        mensajeEstado =
+            "La terminal fue limpiada.";
+    }
+
+    private static string ClaseLinea(
+    string linea)
+    {
+        if (linea.Contains(
+                "ERROR:",
+                StringComparison.Ordinal))
+        {
+            return "error";
+        }
+
+        if (linea.Contains(
+                "SYS:",
+                StringComparison.Ordinal))
+        {
+            return "system";
+        }
+
+        if (linea.Contains(
+                "TX:",
+                StringComparison.Ordinal))
+        {
+            return "sent";
+        }
+
+        return "received";
+    }
+
+    private string ResumenConfiguracion =>
+        $"{configuracion.Velocidad} bps · " +
+        $"{configuracion.BitsDeDatos} bits · " +
+        $"{NombreParidad(configuracion.Paridad)} · " +
+        $"{NombreBitsParada(configuracion.BitsDeParada)} stop";
+
+    private static string NombreParidad(
+        Parity paridad)
+    {
+        return paridad switch
+        {
+            Parity.None => "Sin paridad",
+            Parity.Even => "Par",
+            Parity.Odd => "Impar",
+            Parity.Mark => "Marca",
+            Parity.Space => "Espacio",
+            _ => paridad.ToString()
+        };
+    }
+
+    private static string NombreBitsParada(
+        StopBits bits)
+    {
+        return bits switch
+        {
+            StopBits.One => "1",
+            StopBits.OnePointFive => "1.5",
+            StopBits.Two => "2",
+            _ => bits.ToString()
+        };
+    }
+
+    public void Dispose()
+    {
+        SerialPortService.DatosRecibidos -=
+            AlRecibirDatos;
+
+        SerialPortService.ErrorOcurrido -=
+            AlOcurrirError;
+    }
+
+    private string VelocidadSeleccionada
+    {
+        get => configuracion.Velocidad.ToString();
+
+        set
+        {
+            if (int.TryParse(
+                    value,
+                    out int velocidad))
+            {
+                configuracion.Velocidad =
+                    velocidad;
+            }
+        }
+    }
+
+    private string BitsDeDatosSeleccionados
+    {
+        get => configuracion.BitsDeDatos.ToString();
+
+        set
+        {
+            if (int.TryParse(
+                    value,
+                    out int bits))
+            {
+                configuracion.BitsDeDatos =
+                    bits;
+            }
+        }
+    }
+
+    private string ParidadSeleccionada
+    {
+        get => configuracion.Paridad.ToString();
+
+        set
+        {
+            if (Enum.TryParse(
+                    value,
+                    out Parity paridad))
+            {
+                configuracion.Paridad =
+                    paridad;
+            }
+        }
+    }
+
+    private string BitsDeParadaSeleccionados
+    {
+        get => configuracion.BitsDeParada.ToString();
+
+        set
+        {
+            if (Enum.TryParse(
+                    value,
+                    out StopBits bitsDeParada))
+            {
+                configuracion.BitsDeParada =
+                    bitsDeParada;
+            }
+        }
+    }
+
+    private string ControlDeFlujoSeleccionado
+    {
+        get => configuracion.ControlDeFlujo.ToString();
+
+        set
+        {
+            if (Enum.TryParse(
+                    value,
+                    out Handshake control))
+            {
+                configuracion.ControlDeFlujo =
+                    control;
+            }
+        }
+    }
+
+    private void EnviarTexto()
+    {
+        if (!PuedeEnviarTexto)
+        {
+            return;
+        }
+
+        try
+        {
+            string textoEnviado =
+                textoParaEnviar;
+
+            SerialPortService.EnviarTexto(
+                textoEnviado
+            );
+
+            AgregarLineaTerminal(
+                "TX",
+                textoEnviado
+            );
+
+            textoParaEnviar =
+                string.Empty;
+
+            mensajeEstado =
+                "Texto enviado correctamente.";
+        }
+        catch (Exception ex)
+        {
+            mensajeEstado =
+                $"No fue posible enviar: {ex.Message}";
+
+            AgregarLineaTerminal(
+                "ERROR",
+                mensajeEstado
+            );
+        }
+    }
+
+    private void ManejarTeclaEnvio(
+    KeyboardEventArgs evento)
+    {
+        if (evento.Key == "Enter" &&
+            PuedeEnviarTexto)
+        {
+            EnviarTexto();
+        }
+    }
+}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>CD Terminal</title>
+
+    <base href="/" />
+    <link href="CDTerminal.styles.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="app">Cargando CD Terminal...</div>
+
+    <script>
+        window.cdTerminal = {
+            scrollToBottom: function (element) {
+                if (!element) {
+                    return;
+                }
+
+                element.scrollTop = element.scrollHeight;
+            }
+        };
+    </script>
+
+    <script src="_framework/blazor.webview.js"></script>
+</body>
+</html>

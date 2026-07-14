@@ -1,0 +1,85 @@
+﻿.campo-selector {
+width: 100%;
+}
+
+.campo-selector label {
+display: block;
+margin-bottom: 7px;
+color: #345268;
+font-size: 14px;
+font-weight: bold;
+}
+
+.selector-personalizado {
+position: relative;
+width: 100%;
+}
+
+.selector-boton {
+display: flex;
+align-items: center;
+justify-content: space-between;
+width: 100%;
+min-height: 44px;
+padding: 0 14px;
+border: 1px solid #aebdc7;
+border-radius: 8px;
+color: #17324d;
+background: white;
+font-size: 15px;
+cursor: pointer;
+}
+
+.selector-boton:hover:not(:disabled) {
+border-color: #087f77;
+}
+
+.selector-boton:disabled {
+cursor: not-allowed;
+opacity: 0.55;
+background: #eef2f4;
+}
+
+.flecha {
+margin-left: 12px;
+color: #087f77;
+font-size: 11px;
+}
+
+.selector-opciones {
+position: absolute;
+top: calc(100% + 5px);
+right: 0;
+left: 0;
+z-index: 200;
+max-height: 230px;
+overflow-y: auto;
+padding: 5px;
+border: 1px solid #aebdc7;
+border-radius: 8px;
+background: white;
+box-shadow: 0 10px 25px rgba(23, 50, 77, 0.18);
+}
+
+.selector-opcion {
+display: block;
+width: 100%;
+padding: 10px 12px;
+border: none;
+border-radius: 6px;
+color: #17324d;
+background: transparent;
+text-align: left;
+font-size: 14px;
+cursor: pointer;
+}
+
+.selector-opcion:hover {
+background: #e4f5f2;
+}
+
+.selector-opcion.seleccionada {
+color: white;
+background: #087f77;
+font-weight: bold;
+}
