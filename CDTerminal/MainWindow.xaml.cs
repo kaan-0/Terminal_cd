@@ -17,6 +17,8 @@ public partial class MainWindow : Window
 
         services.AddWpfBlazorWebView();
         services.AddTransient<ISerialPortService, SerialPortService>();
+        services.AddSingleton<IFileExportService, FileExportService>();
+        services.AddSingleton<IPerfilDispositivoService, PerfilDispositivoService>();
 
         _serviceProvider = services.BuildServiceProvider();
 
