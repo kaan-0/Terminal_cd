@@ -13,39 +13,74 @@ namespace CDTerminal.Services;
 
 public sealed class SerialPortService : ISerialPortService
 {
+    private const int IntervaloMonitorConexionMs = 750;
+    private const int IntervaloVerificacionTransaccionMs = 150;
+
     private readonly SemaphoreSlim _bloqueoTransaccion = new(1, 1);
     private readonly object _bloqueoLectura = new();
+    private readonly object _bloqueoEstado = new();
 
     private SerialPort? _puertoSerial;
+    private CancellationTokenSource? _conexionCancellation;
+    private Timer? _monitorConexion;
     private volatile bool _transaccionBinariaEnCurso;
+    private int _conexionPerdidaNotificada;
     private bool _disposed;
 
-    public bool EstaConectado =>
-        _puertoSerial?.IsOpen == true;
+    public bool EstaConectado
+    {
+        get
+        {
+            lock (_bloqueoEstado)
+            {
+                return PuertoAbiertoSeguro(_puertoSerial) &&
+                       _conexionCancellation?.IsCancellationRequested != true;
+            }
+        }
+    }
 
-    public string? PuertoActual =>
-        EstaConectado
-            ? _puertoSerial?.PortName
-            : null;
+    public string? PuertoActual
+    {
+        get
+        {
+            lock (_bloqueoEstado)
+            {
+                return PuertoAbiertoSeguro(_puertoSerial)
+                    ? _puertoSerial?.PortName
+                    : null;
+            }
+        }
+    }
 
     public event EventHandler<string>? DatosRecibidos;
 
     public event EventHandler<string>? ErrorOcurrido;
 
+    public event EventHandler<string>? ConexionPerdida;
+
     public IReadOnlyList<string> ObtenerPuertosDisponibles()
     {
         ThrowIfDisposed();
 
-        return SerialPort
-            .GetPortNames()
-            .OrderBy(ObtenerNumeroPuerto)
-            .ToArray();
+        try
+        {
+            return SerialPort
+                .GetPortNames()
+                .OrderBy(ObtenerNumeroPuerto)
+                .ToArray();
+        }
+        catch (Exception ex)
+        {
+            throw new IOException(
+                $"No fue posible consultar los puertos COM: {ex.Message}",
+                ex
+            );
+        }
     }
 
     public void Conectar(ConfiguracionSerial configuracion)
     {
         ThrowIfDisposed();
-
         ArgumentNullException.ThrowIfNull(configuracion);
 
         if (string.IsNullOrWhiteSpace(configuracion.NombrePuerto))
@@ -56,14 +91,25 @@ public sealed class SerialPortService : ISerialPortService
             );
         }
 
-        if (EstaConectado)
+        lock (_bloqueoEstado)
         {
-            throw new InvalidOperationException(
-                $"Ya existe una conexión activa en {_puertoSerial?.PortName}."
+            if (PuertoAbiertoSeguro(_puertoSerial))
+            {
+                throw new InvalidOperationException(
+                    $"Ya existe una conexión activa en {_puertoSerial?.PortName}."
+                );
+            }
+        }
+
+        if (!PuertoExiste(configuracion.NombrePuerto))
+        {
+            throw new IOException(
+                $"El puerto {configuracion.NombrePuerto} no está disponible. " +
+                "Actualiza la lista de puertos y vuelve a intentarlo."
             );
         }
 
-        _puertoSerial = new SerialPort
+        SerialPort nuevoPuerto = new()
         {
             PortName = configuracion.NombrePuerto,
             BaudRate = configuracion.Velocidad,
@@ -71,32 +117,58 @@ public sealed class SerialPortService : ISerialPortService
             Parity = configuracion.Paridad,
             StopBits = configuracion.BitsDeParada,
             Handshake = configuracion.ControlDeFlujo,
-
             Encoding = Encoding.ASCII,
             ReceivedBytesThreshold = 1,
-
             DtrEnable = configuracion.HabilitarDtr,
             RtsEnable = configuracion.HabilitarRts,
-
             ReadTimeout = 1000,
             WriteTimeout = 1000
         };
 
+        CancellationTokenSource conexionCancellation = new();
+
         try
         {
-            _puertoSerial.DataReceived += PuertoSerial_DataReceived;
-            _puertoSerial.ErrorReceived += PuertoSerial_ErrorReceived;
+            nuevoPuerto.DataReceived += PuertoSerial_DataReceived;
+            nuevoPuerto.ErrorReceived += PuertoSerial_ErrorReceived;
+            nuevoPuerto.Open();
 
-            _puertoSerial.Open();
+            lock (_bloqueoEstado)
+            {
+                _puertoSerial = nuevoPuerto;
+                _conexionCancellation = conexionCancellation;
+                Interlocked.Exchange(
+                    ref _conexionPerdidaNotificada,
+                    0
+                );
+
+                _monitorConexion = new Timer(
+                    MonitorearConexion,
+                    nuevoPuerto,
+                    IntervaloMonitorConexionMs,
+                    IntervaloMonitorConexionMs
+                );
+            }
         }
         catch
         {
-            _puertoSerial.DataReceived -= PuertoSerial_DataReceived;
-            _puertoSerial.ErrorReceived -= PuertoSerial_ErrorReceived;
+            nuevoPuerto.DataReceived -= PuertoSerial_DataReceived;
+            nuevoPuerto.ErrorReceived -= PuertoSerial_ErrorReceived;
 
-            _puertoSerial.Dispose();
-            _puertoSerial = null;
+            try
+            {
+                if (nuevoPuerto.IsOpen)
+                {
+                    nuevoPuerto.Close();
+                }
+            }
+            catch
+            {
+                // La limpieza no debe ocultar el error original.
+            }
 
+            nuevoPuerto.Dispose();
+            conexionCancellation.Dispose();
             throw;
         }
     }
@@ -105,14 +177,29 @@ public sealed class SerialPortService : ISerialPortService
     {
         ThrowIfDisposed();
 
-        SerialPort puerto = ObtenerPuertoAbierto();
-
         if (string.IsNullOrEmpty(texto))
         {
             return;
         }
 
-        puerto.Write(texto);
+        (SerialPort puerto, _) = ObtenerConexionActiva();
+
+        try
+        {
+            puerto.Write(texto);
+        }
+        catch (Exception ex) when (EsErrorDeConexion(ex))
+        {
+            ManejarConexionPerdida(
+                puerto,
+                CrearMensajeConexionPerdida(puerto.PortName, ex)
+            );
+
+            throw new IOException(
+                "No fue posible enviar porque se perdió la conexión serial.",
+                ex
+            );
+        }
     }
 
     public async Task<byte[]> TransaccionModbusAsync(
@@ -121,7 +208,6 @@ public sealed class SerialPortService : ISerialPortService
         CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
-
         ArgumentNullException.ThrowIfNull(solicitud);
 
         if (solicitud.Length == 0)
@@ -144,7 +230,17 @@ public sealed class SerialPortService : ISerialPortService
 
         try
         {
-            SerialPort puerto = ObtenerPuertoAbierto();
+            (SerialPort puerto, CancellationToken tokenConexion) =
+                ObtenerConexionActiva();
+
+            using CancellationTokenSource linkedCancellation =
+                CancellationTokenSource.CreateLinkedTokenSource(
+                    cancellationToken,
+                    tokenConexion
+                );
+
+            CancellationToken tokenOperacion =
+                linkedCancellation.Token;
 
             _transaccionBinariaEnCurso = true;
             puerto.DataReceived -= PuertoSerial_DataReceived;
@@ -156,16 +252,32 @@ public sealed class SerialPortService : ISerialPortService
                         puerto,
                         solicitud,
                         timeoutMs,
-                        cancellationToken
+                        tokenOperacion
                     ),
-                    cancellationToken
+                    tokenOperacion
                 );
+            }
+            catch (OperationCanceledException ex)
+                when (!cancellationToken.IsCancellationRequested &&
+                      tokenConexion.IsCancellationRequested)
+            {
+                throw new IOException(
+                    "Se perdió la conexión serial durante la operación Modbus.",
+                    ex
+                );
+            }
+            catch (Exception ex) when (EsErrorDeConexion(ex))
+            {
+                ManejarConexionPerdida(
+                    puerto,
+                    CrearMensajeConexionPerdida(puerto.PortName, ex)
+                );
+
+                throw;
             }
             finally
             {
-                if (!_disposed &&
-                    ReferenceEquals(_puertoSerial, puerto) &&
-                    puerto.IsOpen)
+                if (!_disposed && EsPuertoActualYAbierto(puerto))
                 {
                     puerto.DataReceived += PuertoSerial_DataReceived;
                 }
@@ -182,8 +294,7 @@ public sealed class SerialPortService : ISerialPortService
     public void Desconectar()
     {
         ThrowIfDisposed();
-
-        CerrarPuerto();
+        CerrarPuerto(null);
     }
 
     private byte[] EjecutarTransaccionModbus(
@@ -194,34 +305,26 @@ public sealed class SerialPortService : ISerialPortService
     {
         lock (_bloqueoLectura)
         {
-            if (!puerto.IsOpen)
-            {
-                throw new InvalidOperationException(
-                    "El puerto serial se cerró antes de iniciar la consulta."
-                );
-            }
+            VerificarPuertoDisponible(puerto);
 
             puerto.DiscardInBuffer();
             puerto.DiscardOutBuffer();
-
-            puerto.Write(
-                solicitud,
-                0,
-                solicitud.Length
-            );
+            puerto.Write(solicitud, 0, solicitud.Length);
 
             List<byte> respuesta = new();
             Stopwatch reloj = Stopwatch.StartNew();
+            long siguienteVerificacion =
+                IntervaloVerificacionTransaccionMs;
 
             while (reloj.ElapsedMilliseconds < timeoutMs)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (!puerto.IsOpen)
+                if (reloj.ElapsedMilliseconds >= siguienteVerificacion)
                 {
-                    throw new IOException(
-                        "El puerto serial se cerró mientras se esperaba la respuesta."
-                    );
+                    VerificarPuertoDisponible(puerto);
+                    siguienteVerificacion +=
+                        IntervaloVerificacionTransaccionMs;
                 }
 
                 int disponibles = puerto.BytesToRead;
@@ -278,54 +381,240 @@ public sealed class SerialPortService : ISerialPortService
             return 5;
         }
 
-        if (respuesta.Count < 3)
+        if (funcion is 0x05 or 0x06 or 0x0F or 0x10)
         {
-            return 0;
+            return 8;
         }
 
-        int cantidadBytes = respuesta[2];
+        if (funcion is 0x01 or 0x02 or 0x03 or 0x04)
+        {
+            if (respuesta.Count < 3)
+            {
+                return 0;
+            }
 
-        return cantidadBytes + 5;
+            int cantidadBytes = respuesta[2];
+            return cantidadBytes + 5;
+        }
+
+        return 0;
     }
 
-    private SerialPort ObtenerPuertoAbierto()
+    private (SerialPort Puerto, CancellationToken TokenConexion)
+        ObtenerConexionActiva()
     {
-        if (_puertoSerial?.IsOpen != true)
+        lock (_bloqueoEstado)
         {
-            throw new InvalidOperationException(
-                "No existe una conexión serial activa."
+            if (!PuertoAbiertoSeguro(_puertoSerial) ||
+                _conexionCancellation is null ||
+                _conexionCancellation.IsCancellationRequested)
+            {
+                throw new InvalidOperationException(
+                    "No existe una conexión serial activa."
+                );
+            }
+
+            return (
+                _puertoSerial!,
+                _conexionCancellation.Token
             );
         }
-
-        return _puertoSerial;
     }
 
-    private void CerrarPuerto()
+    private void MonitorearConexion(object? state)
     {
-        SerialPort? puerto = _puertoSerial;
-
-        if (puerto is null)
+        if (_disposed || state is not SerialPort puerto)
         {
             return;
         }
 
-        _puertoSerial = null;
+        if (!EsPuertoActual(puerto))
+        {
+            return;
+        }
+
+        bool abierto = PuertoAbiertoSeguro(puerto);
+        bool disponible = PuertoExiste(puerto.PortName);
+
+        if (abierto && disponible)
+        {
+            return;
+        }
+
+        ManejarConexionPerdida(
+            puerto,
+            $"Se perdió la conexión con {puerto.PortName}. " +
+            "El adaptador pudo haberse desconectado físicamente."
+        );
+    }
+
+    private void ManejarConexionPerdida(
+        SerialPort puerto,
+        string mensaje)
+    {
+        if (!EsPuertoActual(puerto))
+        {
+            return;
+        }
+
+        if (Interlocked.CompareExchange(
+                ref _conexionPerdidaNotificada,
+                1,
+                0
+            ) != 0)
+        {
+            return;
+        }
+
+        CerrarPuerto(puerto);
 
         try
+        {
+            ConexionPerdida?.Invoke(this, mensaje);
+        }
+        catch
+        {
+            // Un consumidor no debe derribar el monitor serial.
+        }
+    }
+
+    private void CerrarPuerto(SerialPort? puertoEsperado)
+    {
+        SerialPort? puerto;
+        CancellationTokenSource? conexionCancellation;
+        Timer? monitorConexion;
+
+        lock (_bloqueoEstado)
+        {
+            if (puertoEsperado is not null &&
+                !ReferenceEquals(_puertoSerial, puertoEsperado))
+            {
+                return;
+            }
+
+            puerto = _puertoSerial;
+            conexionCancellation = _conexionCancellation;
+            monitorConexion = _monitorConexion;
+
+            _puertoSerial = null;
+            _conexionCancellation = null;
+            _monitorConexion = null;
+        }
+
+        monitorConexion?.Dispose();
+
+        try
+        {
+            conexionCancellation?.Cancel();
+        }
+        catch (ObjectDisposedException)
+        {
+            // Ya fue liberado por otra ruta de cierre.
+        }
+
+        if (puerto is not null)
         {
             puerto.DataReceived -= PuertoSerial_DataReceived;
             puerto.ErrorReceived -= PuertoSerial_ErrorReceived;
 
-            if (puerto.IsOpen)
+            try
             {
-                puerto.Close();
+                if (puerto.IsOpen)
+                {
+                    puerto.Close();
+                }
+            }
+            catch
+            {
+                // En una extracción USB el controlador puede fallar al cerrar.
+            }
+            finally
+            {
+                puerto.Dispose();
             }
         }
-        finally
+
+    }
+
+    private bool EsPuertoActual(SerialPort puerto)
+    {
+        lock (_bloqueoEstado)
         {
-            puerto.Dispose();
+            return ReferenceEquals(_puertoSerial, puerto);
         }
     }
+
+    private bool EsPuertoActualYAbierto(SerialPort puerto)
+    {
+        lock (_bloqueoEstado)
+        {
+            return ReferenceEquals(_puertoSerial, puerto) &&
+                   PuertoAbiertoSeguro(puerto) &&
+                   _conexionCancellation?.IsCancellationRequested != true;
+        }
+    }
+
+    private static void VerificarPuertoDisponible(SerialPort puerto)
+    {
+        if (!PuertoAbiertoSeguro(puerto))
+        {
+            throw new IOException(
+                "El puerto serial se cerró durante la operación."
+            );
+        }
+
+        if (!PuertoExiste(puerto.PortName))
+        {
+            throw new IOException(
+                $"El puerto {puerto.PortName} dejó de estar disponible."
+            );
+        }
+    }
+
+    private static bool PuertoExiste(string nombrePuerto)
+    {
+        try
+        {
+            return SerialPort.GetPortNames().Contains(
+                nombrePuerto,
+                StringComparer.OrdinalIgnoreCase
+            );
+        }
+        catch
+        {
+            // Una falla temporal de enumeración no debe declarar una
+            // desconexión física por sí sola.
+            return true;
+        }
+    }
+
+    private static bool PuertoAbiertoSeguro(SerialPort? puerto)
+    {
+        if (puerto is null)
+        {
+            return false;
+        }
+
+        try
+        {
+            return puerto.IsOpen;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static bool EsErrorDeConexion(Exception ex) =>
+        ex is IOException or
+        InvalidOperationException or
+        UnauthorizedAccessException or
+        ObjectDisposedException;
+
+    private static string CrearMensajeConexionPerdida(
+        string nombrePuerto,
+        Exception ex) =>
+        $"Se perdió la conexión con {nombrePuerto}: {ex.Message}";
 
     private static int ObtenerNumeroPuerto(string nombrePuerto)
     {
@@ -343,10 +632,7 @@ public sealed class SerialPortService : ISerialPortService
 
     private void ThrowIfDisposed()
     {
-        ObjectDisposedException.ThrowIf(
-            _disposed,
-            this
-        );
+        ObjectDisposedException.ThrowIf(_disposed, this);
     }
 
     public void Dispose()
@@ -356,16 +642,16 @@ public sealed class SerialPortService : ISerialPortService
             return;
         }
 
-        CerrarPuerto();
-
         _disposed = true;
+        CerrarPuerto(null);
     }
 
     private void PuertoSerial_DataReceived(
         object sender,
         SerialDataReceivedEventArgs e)
     {
-        if (_transaccionBinariaEnCurso)
+        if (_transaccionBinariaEnCurso ||
+            sender is not SerialPort puerto)
         {
             return;
         }
@@ -375,8 +661,7 @@ public sealed class SerialPortService : ISerialPortService
             lock (_bloqueoLectura)
             {
                 if (_transaccionBinariaEnCurso ||
-                    sender is not SerialPort puerto ||
-                    !puerto.IsOpen)
+                    !EsPuertoActualYAbierto(puerto))
                 {
                     return;
                 }
@@ -389,7 +674,6 @@ public sealed class SerialPortService : ISerialPortService
                 }
 
                 byte[] buffer = new byte[cantidadDisponible];
-
                 int cantidadLeida = puerto.Read(
                     buffer,
                     0,
@@ -410,6 +694,13 @@ public sealed class SerialPortService : ISerialPortService
                 DatosRecibidos?.Invoke(this, datos);
             }
         }
+        catch (Exception ex) when (EsErrorDeConexion(ex))
+        {
+            ManejarConexionPerdida(
+                puerto,
+                CrearMensajeConexionPerdida(puerto.PortName, ex)
+            );
+        }
         catch (Exception ex)
         {
             ErrorOcurrido?.Invoke(
@@ -423,6 +714,17 @@ public sealed class SerialPortService : ISerialPortService
         object sender,
         SerialErrorReceivedEventArgs e)
     {
+        if (sender is SerialPort puerto &&
+            (!PuertoAbiertoSeguro(puerto) ||
+             !PuertoExiste(puerto.PortName)))
+        {
+            ManejarConexionPerdida(
+                puerto,
+                $"Se perdió la conexión con {puerto.PortName}."
+            );
+            return;
+        }
+
         ErrorOcurrido?.Invoke(
             this,
             $"Error serial detectado: {e.EventType}"

@@ -16,6 +16,8 @@ public interface ISerialPortService : IDisposable
 
     event EventHandler<string>? ErrorOcurrido;
 
+    event EventHandler<string>? ConexionPerdida;
+
     IReadOnlyList<string> ObtenerPuertosDisponibles();
 
     void Conectar(ConfiguracionSerial configuracion);

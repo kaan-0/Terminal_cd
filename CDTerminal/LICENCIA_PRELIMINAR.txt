@@ -1,0 +1,9 @@
+CD TERMINAL LOCAL 1.0
+AVISO PRELIMINAR DE PROPIEDAD
+
+Copyright © 2026 Circuitos y Desarrollos en Tecnología.
+Todos los derechos reservados.
+
+Este software y su código fuente son propiedad de Circuitos y Desarrollos en Tecnología. No se autoriza su redistribución, modificación, ingeniería inversa ni comercialización sin autorización escrita de la empresa.
+
+Este texto es provisional y debe ser revisado legalmente antes de vender o distribuir públicamente el producto.

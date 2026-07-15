@@ -3842,3 +3842,861 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         width: auto;
     }
 }
+
+/* ==========================================
+   CONEXIÓN HTTP REST
+========================================== */
+
+.tools-menu-divider {
+    height: 1px;
+    margin: 6px 5px;
+    background: var(--border-soft);
+}
+
+.session-type-icon.server {
+    color: #83e8d8;
+    border-color: rgba(16, 183, 164, 0.38);
+    background: rgba(16, 183, 164, 0.11);
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.58rem;
+    letter-spacing: -0.02em;
+}
+
+.rest-modal {
+    width: min(820px, calc(100vw - 30px));
+    max-height: min(820px, calc(100vh - 30px));
+}
+
+.rest-modal-header {
+    flex: 0 0 auto;
+}
+
+.rest-form {
+    display: grid;
+    min-height: 0;
+    gap: 15px;
+    padding: 18px;
+    overflow-y: auto;
+}
+
+.rest-connection-banner {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #2d4356;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+    .rest-connection-banner > div:last-child {
+        display: grid;
+        min-width: 0;
+        gap: 3px;
+    }
+
+    .rest-connection-banner strong {
+        color: #edf7fa;
+        font-size: 0.76rem;
+    }
+
+    .rest-connection-banner span {
+        overflow: hidden;
+        color: var(--text-muted);
+        font-size: 0.64rem;
+        line-height: 1.4;
+        text-overflow: ellipsis;
+    }
+
+.rest-connection-icon {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border: 1px solid #385268;
+    border-radius: 10px;
+    color: #a9bcc9;
+    background: rgba(255, 255, 255, 0.035);
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.65rem;
+    font-weight: 900;
+}
+
+.rest-connection-banner.connected {
+    border-color: rgba(16, 183, 164, 0.42);
+    background: rgba(16, 183, 164, 0.075);
+}
+
+    .rest-connection-banner.connected .rest-connection-icon {
+        color: #dcfff8;
+        border-color: rgba(16, 183, 164, 0.58);
+        background: rgba(16, 183, 164, 0.16);
+    }
+
+.rest-connection-banner.failed {
+    border-color: rgba(255, 101, 114, 0.42);
+    background: rgba(255, 101, 114, 0.065);
+}
+
+    .rest-connection-banner.failed .rest-connection-icon {
+        color: #ffd6da;
+        border-color: rgba(255, 101, 114, 0.52);
+        background: rgba(255, 101, 114, 0.14);
+    }
+
+.rest-form-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+}
+
+.rest-wide-field {
+    grid-column: 1 / -1;
+}
+
+.profile-field small {
+    color: var(--text-muted);
+    font-size: 0.58rem;
+    line-height: 1.35;
+}
+
+.rest-input-with-unit {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 34px;
+    align-items: center;
+    border: 1px solid #2c4356;
+    border-radius: 9px;
+    background: #07131e;
+    overflow: hidden;
+}
+
+    .rest-input-with-unit:focus-within {
+        border-color: rgba(16, 183, 164, 0.62);
+        box-shadow: 0 0 0 2px rgba(16, 183, 164, 0.08);
+    }
+
+    .rest-input-with-unit input {
+        min-width: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .rest-input-with-unit > span {
+        display: grid;
+        height: 100%;
+        place-items: center;
+        border-left: 1px solid #2c4356;
+        color: #8fa5b5;
+        background: rgba(255, 255, 255, 0.025);
+        font-family: "Cascadia Code", Consolas, monospace;
+        font-size: 0.62rem;
+    }
+
+.rest-auto-send-option {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+    padding: 11px 12px;
+    border: 1px solid rgba(16, 183, 164, 0.25);
+    border-radius: 10px;
+    background: rgba(16, 183, 164, 0.045);
+    cursor: pointer;
+}
+
+    .rest-auto-send-option input {
+        width: 15px;
+        height: 15px;
+        margin-top: 2px;
+        accent-color: #10b7a4;
+    }
+
+    .rest-auto-send-option > span {
+        display: grid;
+        gap: 3px;
+    }
+
+    .rest-auto-send-option strong {
+        color: #e9f5f7;
+        font-size: 0.69rem;
+    }
+
+    .rest-auto-send-option small {
+        color: var(--text-muted);
+        font-size: 0.6rem;
+        line-height: 1.4;
+    }
+
+.rest-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.rest-stat {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    padding: 9px 10px;
+    border: 1px solid var(--border-soft);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.022);
+}
+
+    .rest-stat span {
+        overflow: hidden;
+        color: var(--text-muted);
+        font-size: 0.56rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .rest-stat strong {
+        overflow: hidden;
+        color: #dcebf0;
+        font-family: "Cascadia Code", Consolas, monospace;
+        font-size: 0.7rem;
+        text-overflow: ellipsis;
+    }
+
+    .rest-stat.error strong {
+        color: #ff9ea6;
+    }
+
+.rest-error {
+    margin: 0;
+}
+
+.rest-payload-note {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid #283f52;
+    border-radius: 10px;
+    background: rgba(2, 8, 14, 0.32);
+}
+
+    .rest-payload-note > span {
+        display: grid;
+        width: 36px;
+        height: 32px;
+        place-items: center;
+        color: #83e8d8;
+        font-family: "Cascadia Code", Consolas, monospace;
+        font-size: 0.65rem;
+        font-weight: 900;
+    }
+
+    .rest-payload-note > div {
+        display: grid;
+        gap: 2px;
+    }
+
+    .rest-payload-note strong {
+        color: #dcebf0;
+        font-size: 0.65rem;
+    }
+
+    .rest-payload-note small {
+        color: var(--text-muted);
+        font-size: 0.58rem;
+        line-height: 1.4;
+    }
+
+.rest-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 2px;
+}
+
+.rest-send-button {
+    min-height: 36px;
+    padding: 0 13px;
+    border: 1px solid rgba(80, 153, 255, 0.42);
+    border-radius: 8px;
+    color: #cfe2ff;
+    background: rgba(80, 153, 255, 0.085);
+    font-size: 0.65rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+    .rest-send-button:hover:not(:disabled) {
+        color: #ffffff;
+        border-color: rgba(80, 153, 255, 0.7);
+        background: rgba(80, 153, 255, 0.16);
+    }
+
+    .rest-send-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.38;
+    }
+
+.rest-statusbar {
+    gap: 6px !important;
+}
+
+    .rest-statusbar i {
+        display: block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #607787;
+    }
+
+    .rest-statusbar.connected {
+        color: #8ce8d8;
+    }
+
+        .rest-statusbar.connected i {
+            background: #10b7a4;
+            box-shadow: 0 0 8px rgba(16, 183, 164, 0.55);
+        }
+
+    .rest-statusbar.failed {
+        color: #ff9ea6;
+    }
+
+        .rest-statusbar.failed i {
+            background: #ff6572;
+        }
+
+@media (max-width: 1120px) {
+    .rest-statusbar {
+        display: none !important;
+    }
+}
+
+@media (max-width: 760px) {
+    .rest-modal {
+        width: calc(100vw - 20px);
+        max-height: calc(100vh - 20px);
+    }
+
+    .rest-form {
+        padding: 14px;
+    }
+
+    .rest-form-grid,
+    .rest-stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rest-wide-field {
+        grid-column: auto;
+    }
+
+    .rest-form-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+        .rest-form-actions button {
+            width: 100%;
+        }
+}
+
+@media (max-height: 720px) and (min-width: 761px) {
+    .rest-modal {
+        max-height: calc(100vh - 20px);
+    }
+
+    .rest-form {
+        gap: 11px;
+        padding: 13px 16px;
+    }
+
+    .rest-connection-banner {
+        padding-top: 9px;
+        padding-bottom: 9px;
+    }
+
+    .rest-stat {
+        padding-top: 7px;
+        padding-bottom: 7px;
+    }
+}
+
+/* ==========================================
+   MODBUS RTU · ESCRITURA FUNCIÓN 06
+========================================== */
+
+.compact-section-icon.write {
+    width: 28px;
+    min-width: 28px;
+    border-color: rgba(255, 178, 76, 0.34);
+    color: #ffc46b;
+    background: rgba(255, 161, 54, 0.09);
+    font-size: 0.58rem;
+    letter-spacing: 0.02em;
+}
+
+.modbus-write-panel {
+    display: grid;
+    gap: 12px;
+    padding: 13px;
+    border: 1px solid rgba(56, 112, 145, 0.32);
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(9, 28, 41, 0.88), rgba(5, 20, 31, 0.94));
+}
+
+    .modbus-write-panel.success {
+        border-color: rgba(27, 194, 154, 0.38);
+    }
+
+    .modbus-write-panel.failed {
+        border-color: rgba(255, 94, 108, 0.38);
+    }
+
+.modbus-write-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+    .modbus-write-header > div {
+        display: grid;
+        gap: 2px;
+    }
+
+    .modbus-write-header strong {
+        color: #e7f4fa;
+        font-size: 0.72rem;
+    }
+
+    .modbus-write-header span {
+        color: #7892a2;
+        font-size: 0.59rem;
+    }
+
+.modbus-write-state {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    border: 1px solid rgba(108, 139, 158, 0.32);
+    border-radius: 999px;
+    color: #8da6b5 !important;
+    background: rgba(80, 112, 132, 0.08);
+    font-size: 0.52rem !important;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+}
+
+    .modbus-write-state.working {
+        color: #ffd18d !important;
+        border-color: rgba(255, 178, 76, 0.42);
+        background: rgba(255, 161, 54, 0.1);
+    }
+
+    .modbus-write-state.success {
+        color: #83ead2 !important;
+        border-color: rgba(27, 194, 154, 0.42);
+        background: rgba(27, 194, 154, 0.1);
+    }
+
+    .modbus-write-state.failed {
+        color: #ff9ca5 !important;
+        border-color: rgba(255, 94, 108, 0.42);
+        background: rgba(255, 94, 108, 0.1);
+    }
+
+.modbus-write-grid {
+    display: grid;
+    grid-template-columns: minmax(160px, 0.8fr) minmax(160px, 0.8fr) minmax(210px, 1.15fr) auto;
+    align-items: end;
+    gap: 10px;
+}
+
+.modbus-write-preview {
+    min-height: 58px;
+    display: grid;
+    align-content: center;
+    gap: 3px;
+    padding: 8px 10px;
+    border: 1px solid rgba(54, 104, 134, 0.3);
+    border-radius: 8px;
+    background: rgba(3, 17, 27, 0.62);
+}
+
+    .modbus-write-preview > span {
+        color: #688494;
+        font-size: 0.52rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+    }
+
+    .modbus-write-preview strong {
+        color: #d8eaf3;
+        font-size: 0.65rem;
+    }
+
+    .modbus-write-preview code {
+        color: #69d7c5;
+        font-size: 0.61rem;
+    }
+
+.modbus-write-prepare,
+.modbus-write-confirm,
+.modbus-write-cancel {
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 0.62rem;
+    font-weight: 850;
+    cursor: pointer;
+}
+
+.modbus-write-prepare {
+    border: 1px solid rgba(255, 178, 76, 0.44);
+    color: #ffd292;
+    background: rgba(255, 161, 54, 0.1);
+    white-space: nowrap;
+}
+
+    .modbus-write-prepare:hover:not(:disabled) {
+        border-color: rgba(255, 190, 100, 0.72);
+        background: rgba(255, 161, 54, 0.18);
+    }
+
+    .modbus-write-prepare:disabled,
+    .modbus-write-confirm:disabled {
+        cursor: not-allowed;
+        opacity: 0.38;
+    }
+
+.modbus-write-confirmation {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 11px;
+    border: 1px solid rgba(255, 178, 76, 0.42);
+    border-radius: 9px;
+    background: rgba(255, 151, 38, 0.075);
+}
+
+.modbus-write-warning-icon {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: #09202d;
+    background: #ffc05e;
+    font-size: 0.76rem;
+    font-weight: 950;
+}
+
+.modbus-write-confirmation-text {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+
+    .modbus-write-confirmation-text strong {
+        color: #ffe0af;
+        font-size: 0.66rem;
+    }
+
+    .modbus-write-confirmation-text span {
+        color: #b5a486;
+        font-size: 0.58rem;
+        line-height: 1.45;
+    }
+
+    .modbus-write-confirmation-text b {
+        color: #ffe0af;
+    }
+
+.modbus-write-confirmation-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.modbus-write-cancel {
+    border: 1px solid rgba(102, 134, 153, 0.34);
+    color: #a8beca;
+    background: rgba(82, 111, 129, 0.08);
+}
+
+.modbus-write-confirm {
+    border: 1px solid rgba(255, 178, 76, 0.52);
+    color: #17212a;
+    background: #ffc05e;
+}
+
+    .modbus-write-confirm:hover:not(:disabled) {
+        filter: brightness(1.06);
+    }
+
+.modbus-write-frames {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+    .modbus-write-frames > div {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border: 1px solid rgba(58, 112, 143, 0.28);
+        border-radius: 8px;
+        background: rgba(2, 16, 25, 0.58);
+    }
+
+        .modbus-write-frames > div.response {
+            border-color: rgba(27, 194, 154, 0.24);
+        }
+
+    .modbus-write-frames span {
+        color: #70a9ca;
+        font-size: 0.53rem;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .modbus-write-frames .response span {
+        color: #5ed2b9;
+    }
+
+    .modbus-write-frames code {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #cfe4ee;
+        font-size: 0.59rem;
+        white-space: nowrap;
+    }
+
+.modbus-write-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    color: #6f8897;
+    font-size: 0.55rem;
+    line-height: 1.45;
+}
+
+    .modbus-write-note span {
+        color: #5bcbb7;
+    }
+
+@media (max-width: 1080px) {
+    .modbus-write-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .modbus-write-prepare {
+        width: 100%;
+    }
+}
+
+@media (max-width: 760px) {
+    .modbus-write-grid,
+    .modbus-write-frames {
+        grid-template-columns: 1fr;
+    }
+
+    .modbus-write-confirmation {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .modbus-write-confirmation-actions {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-height: 720px) and (min-width: 761px) {
+    .modbus-write-panel {
+        gap: 9px;
+        padding: 10px;
+    }
+
+    .modbus-write-preview {
+        min-height: 52px;
+    }
+}
+
+
+/* ==========================================
+   MODBUS - Editor manual de tramas
+========================================== */
+
+.modbus-frame-editor-field {
+    display: grid;
+    gap: 8px;
+}
+
+    .modbus-frame-editor-field > span {
+        color: var(--text-strong, #dbeafe);
+        font-size: 0.79rem;
+        font-weight: 700;
+    }
+
+    .modbus-frame-editor-field textarea {
+        width: 100%;
+        min-height: 84px;
+        resize: vertical;
+        box-sizing: border-box;
+        border: 1px solid rgba(58, 116, 148, 0.48);
+        border-radius: 10px;
+        background: rgba(2, 15, 27, 0.78);
+        color: #b8f7ff;
+        padding: 12px 14px;
+        font-family: Consolas, "Cascadia Mono", monospace;
+        font-size: 0.86rem;
+        line-height: 1.55;
+        letter-spacing: 0.035em;
+        outline: none;
+    }
+
+        .modbus-frame-editor-field textarea:focus {
+            border-color: rgba(25, 196, 210, 0.9);
+            box-shadow: 0 0 0 3px rgba(25, 196, 210, 0.1);
+        }
+
+        .modbus-frame-editor-field textarea:disabled {
+            opacity: 0.68;
+            cursor: not-allowed;
+        }
+
+    .modbus-frame-editor-field small {
+        color: var(--text-muted, #7890a3);
+        font-size: 0.7rem;
+    }
+
+.modbus-frame-toolbar {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) auto;
+    gap: 12px;
+    align-items: stretch;
+    margin-top: 12px;
+}
+
+.modbus-crc-option {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid rgba(37, 107, 132, 0.4);
+    border-radius: 10px;
+    background: rgba(4, 25, 38, 0.66);
+    cursor: pointer;
+}
+
+    .modbus-crc-option input {
+        width: 17px;
+        height: 17px;
+        accent-color: #12b8ae;
+        flex: 0 0 auto;
+    }
+
+    .modbus-crc-option > span {
+        min-width: 0;
+        display: grid;
+        gap: 2px;
+    }
+
+    .modbus-crc-option strong {
+        color: #d8f7f5;
+        font-size: 0.78rem;
+    }
+
+    .modbus-crc-option small {
+        color: var(--text-muted, #7890a3);
+        font-size: 0.67rem;
+        line-height: 1.35;
+    }
+
+.modbus-frame-actions {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.modbus-frame-clear {
+    min-width: 84px;
+    border: 1px solid rgba(70, 116, 143, 0.45);
+    border-radius: 10px;
+    background: rgba(8, 28, 43, 0.82);
+    color: #aebfca;
+    padding: 0 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+    .modbus-frame-clear:hover:not(:disabled) {
+        border-color: rgba(96, 165, 250, 0.7);
+        color: #dbeafe;
+    }
+
+.modbus-frame-summary {
+    display: grid;
+    gap: 4px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px solid rgba(16, 185, 129, 0.28);
+    border-radius: 10px;
+    background: rgba(5, 43, 45, 0.34);
+}
+
+    .modbus-frame-summary > span {
+        color: #6aa9b3;
+        font-size: 0.64rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .modbus-frame-summary strong {
+        color: #b9f5df;
+        font-family: Consolas, "Cascadia Mono", monospace;
+        font-size: 0.76rem;
+        overflow-wrap: anywhere;
+    }
+
+.modbus-write-confirmation-text code {
+    display: block;
+    margin-top: 7px;
+    color: #ffd9a1;
+    font-family: Consolas, "Cascadia Mono", monospace;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 1050px) {
+    .modbus-frame-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .modbus-frame-actions {
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 680px) {
+    .modbus-frame-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+        .modbus-frame-clear,
+        .modbus-frame-actions .modbus-write-prepare {
+            width: 100%;
+            min-height: 42px;
+        }
+}

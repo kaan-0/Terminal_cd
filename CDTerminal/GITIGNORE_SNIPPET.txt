@@ -1,0 +1,8 @@
+# Salidas de publicación e instaladores
+artifacts/
+
+# Archivos temporales de Inno Setup
+Installer/Output/
+
+# Dependencias grandes opcionales
+Installer/Dependencies/*.exe

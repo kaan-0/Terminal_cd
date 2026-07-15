@@ -19,6 +19,7 @@ public partial class MainWindow : Window
         services.AddTransient<ISerialPortService, SerialPortService>();
         services.AddSingleton<IFileExportService, FileExportService>();
         services.AddSingleton<IPerfilDispositivoService, PerfilDispositivoService>();
+        services.AddSingleton<IServidorRestService, ServidorRestService>();
 
         _serviceProvider = services.BuildServiceProvider();
 

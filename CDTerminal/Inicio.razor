@@ -9,6 +9,7 @@
 @inject IJSRuntime JSRuntime
 @inject CDTerminal.Services.IFileExportService FileExportService
 @inject CDTerminal.Services.IPerfilDispositivoService PerfilDispositivoService
+@inject CDTerminal.Services.IServidorRestService ServidorRestService
 @using Microsoft.Extensions.DependencyInjection
 
 <div class="app-shell @(!barraEstadoVisible ? "statusbar-hidden" : string.Empty)">
@@ -175,6 +176,18 @@
                             </span>
                         </button>
 
+                        <div class="tools-menu-divider"></div>
+
+                        <button type="button"
+                                class="session-type-option"
+                                @onclick="AbrirConfiguracionServidorRest">
+                            <span class="session-type-icon server">API</span>
+                            <span>
+                                <strong>Conexión al servidor</strong>
+                                <small>@ResumenServidorRestMenu</small>
+                            </span>
+                        </button>
+
                     </div>
                 }
 
@@ -190,8 +203,8 @@
         </div>
 
         <div class="menu-status @(SerialPortService.EstaConectado
-                                                   ? "connected"
-                                                   : "disconnected")">
+                                                  ? "connected"
+                                                  : "disconnected")">
 
             <span class="status-dot"></span>
 
@@ -311,8 +324,8 @@
                                                 {
                                                     <button type="button"
                                                             class="port-option @(puerto == puertoSeleccionado
-                                                                                                                                            ? "selected"
-                                                                                                                                            : "")"
+                                                                                                                                        ? "selected"
+                                                                                                                                        : "")"
                                                             @onclick="() => SeleccionarPuerto(puerto)">
 
                                                         <span class="port-icon">◉</span>
@@ -580,8 +593,8 @@
                         <div class="connection-value">
 
                             <span class="connection-indicator @(SerialPortService.EstaConectado
-                                                                                                   ? "online"
-                                                                                                   : "offline")">
+                                                                                                 ? "online"
+                                                                                                 : "offline")">
                             </span>
 
                             <strong>
@@ -629,8 +642,8 @@
                             @key="sesion.Id"
                             class="terminal-tab @(sesion.Id == sesionActivaId ? "active" : "")"
                             title="@(sesion.Servicio.EstaConectado
-                                                            ? $"{sesion.Nombre} · {sesion.Servicio.PuertoActual}"
-                                                            : sesion.Nombre)"
+                                                        ? $"{sesion.Nombre} · {sesion.Servicio.PuertoActual}"
+                                                        : sesion.Nombre)"
                             @onclick="() => SeleccionarTerminalAsync(sesion.Id)">
 
                         <span class="terminal-tab-dot @(sesion.Servicio.EstaConectado ? "online" : "offline")"></span>
@@ -843,10 +856,10 @@
                                 <span>Configura y lee los registros del sensor</span>
                             </div>
                             <span class="preview-mode-badge @(SesionActiva.PollingModbusActivo
-                                                                  ? "polling"
-                                                                  : SesionActiva.ConsultaModbusEnCurso
-                                                                      ? "reading"
-                                                                      : SerialPortService.EstaConectado ? "ready" : "")">
+                                                                ? "polling"
+                                                                : SesionActiva.ConsultaModbusEnCurso
+                                                                    ? "reading"
+                                                                    : SerialPortService.EstaConectado ? "ready" : "")">
                                 @(SesionActiva.PollingModbusActivo
                                     ? "AUTOMÁTICO"
                                     : SesionActiva.ConsultaModbusEnCurso
@@ -935,6 +948,140 @@
                         </div>
 
                         <div class="modbus-compact-sections">
+
+                            <details class="modbus-compact-section modbus-write-section">
+                                <summary>
+                                    <span class="compact-section-title">
+                                        <span class="compact-section-icon write">HEX</span>
+                                        <span>
+                                            <strong>Enviar trama Modbus</strong>
+                                            <small>Escritura manual en hexadecimal</small>
+                                        </span>
+                                    </span>
+                                    <span class="compact-section-chevron">⌄</span>
+                                </summary>
+
+                                <div class="compact-section-body">
+                                    <div class="modbus-write-panel @(SesionActiva.UltimaEscrituraModbusExitosa == true ? "success" : SesionActiva.UltimaEscrituraModbusExitosa == false ? "failed" : "")">
+
+                                        <div class="modbus-write-header">
+                                            <div>
+                                                <strong>Trama hexadecimal</strong>
+                                                <span>Escribe los bytes Modbus RTU separados por espacios.</span>
+                                            </div>
+
+                                            <span class="modbus-write-state @(SesionActiva.EscrituraModbusEnCurso ? "working" : SesionActiva.UltimaEscrituraModbusExitosa == true ? "success" : SesionActiva.UltimaEscrituraModbusExitosa == false ? "failed" : "")">
+                                                @(SesionActiva.EscrituraModbusEnCurso
+                                                    ? "ENVIANDO"
+                                                    : SesionActiva.UltimaEscrituraModbusExitosa == true
+                                                        ? "RESPUESTA OK"
+                                                        : SesionActiva.UltimaEscrituraModbusExitosa == false
+                                                            ? "FALLÓ"
+                                                            : "LISTA")
+                                            </span>
+                                        </div>
+
+                                        <label class="modbus-frame-editor-field">
+                                            <span>Trama TX</span>
+                                            <textarea rows="3"
+                                                      spellcheck="false"
+                                                      disabled="@BloquearEscrituraModbus"
+                                                      placeholder="Ejemplo sin CRC: 0D 06 00 00 00 20"
+                                                      @bind="SesionActiva.TramaEscrituraModbus"
+                                                      @bind:event="oninput"></textarea>
+                                            <small>
+                                                Puedes usar espacios, comas, guiones o saltos de línea. También se acepta el prefijo 0x.
+                                            </small>
+                                        </label>
+
+                                        <div class="modbus-frame-toolbar">
+                                            <label class="modbus-crc-option">
+                                                <input type="checkbox"
+                                                       disabled="@BloquearEscrituraModbus"
+                                                       @bind="SesionActiva.AgregarCrcAutomaticoTrama" />
+                                                <span>
+                                                    <strong>CRC automático</strong>
+                                                    <small>
+                                                        Activado: agrega o corrige CRC. Desactivado: envía exactamente la trama escrita.
+                                                    </small>
+                                                </span>
+                                            </label>
+
+                                            <div class="modbus-frame-actions">
+                                                <button type="button"
+                                                        class="modbus-frame-clear"
+                                                        disabled="@SesionActiva.EscrituraModbusEnCurso"
+                                                        @onclick="LimpiarTramaManualModbus">
+                                                    Limpiar
+                                                </button>
+
+                                                <button type="button"
+                                                        class="modbus-write-prepare"
+                                                        disabled="@(!PuedePrepararEscrituraModbus || string.IsNullOrWhiteSpace(SesionActiva.TramaEscrituraModbus))"
+                                                        @onclick="EnviarTramaManualModbusAsync">
+                                                    <span>➤</span>
+                                                    @(SesionActiva.EscrituraModbusEnCurso ? "Enviando..." : "Enviar trama")
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(SesionActiva.ResumenTramaManual))
+                                        {
+                                            <div class="modbus-frame-summary">
+                                                <span>Interpretación</span>
+                                                <strong>@SesionActiva.ResumenTramaManual</strong>
+                                            </div>
+                                        }
+
+                                        @if (SesionActiva.MostrarConfirmacionEscrituraModbus)
+                                        {
+                                            <div class="modbus-write-confirmation" role="alert">
+                                                <div class="modbus-write-warning-icon">!</div>
+                                                <div class="modbus-write-confirmation-text">
+                                                    <strong>La trama contiene una función de escritura</strong>
+                                                    <span>
+                                                        Revisa la trama final antes de modificar el dispositivo:
+                                                        <code>@SesionActiva.TramaPreparadaModbus</code>
+                                                    </span>
+                                                </div>
+                                                <div class="modbus-write-confirmation-actions">
+                                                    <button type="button"
+                                                            class="modbus-write-cancel"
+                                                            @onclick="CancelarEnvioTramaManualModbus">
+                                                        Cancelar
+                                                    </button>
+                                                    <button type="button"
+                                                            class="modbus-write-confirm"
+                                                            disabled="@SesionActiva.EscrituraModbusEnCurso"
+                                                            @onclick="ConfirmarEnvioTramaManualModbusAsync">
+                                                        @(SesionActiva.EscrituraModbusEnCurso ? "Enviando..." : "Sí, enviar")
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(SesionActiva.TramaPreparadaModbus))
+                                        {
+                                            <div class="modbus-write-frames">
+                                                <div>
+                                                    <span>TX final</span>
+                                                    <code>@SesionActiva.TramaPreparadaModbus</code>
+                                                </div>
+                                                <div class="response">
+                                                    <span>RX recibida</span>
+                                                    <code>@(string.IsNullOrWhiteSpace(SesionActiva.RespuestaEscrituraModbus) ? "Esperando respuesta" : SesionActiva.RespuestaEscrituraModbus)</code>
+                                                </div>
+                                            </div>
+                                        }
+
+                                        <div class="modbus-write-note">
+                                            <span>ⓘ</span>
+                                            Las funciones 05, 06, 0F y 10 requieren confirmación. Se admiten respuestas de las funciones 01 a 06, 0F y 10.
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </details>
 
                             <details class="modbus-compact-section">
                                 <summary>
@@ -1525,6 +1672,182 @@
         </div>
     }
 
+    @if (mostrarModalServidorRest)
+    {
+        <div class="profile-modal-backdrop"
+             @onclick="CerrarConfiguracionServidorRest">
+
+            <section class="profile-modal rest-modal"
+                     role="dialog"
+                     aria-modal="true"
+                     aria-label="Conexión HTTP REST"
+                     @onclick:stopPropagation="true">
+
+                <header class="profile-modal-header rest-modal-header">
+                    <div>
+                        <span class="profile-modal-eyebrow">HERRAMIENTAS · HTTP REST</span>
+                        <h2>Conexión al servidor</h2>
+                        <p>Envía las lecturas Modbus RTU como JSON mediante solicitudes HTTP POST.</p>
+                    </div>
+
+                    <button type="button"
+                            class="profile-modal-close"
+                            title="Cerrar"
+                            @onclick="CerrarConfiguracionServidorRest">
+                        ×
+                    </button>
+                </header>
+
+                <div class="rest-form">
+
+                    <div class="rest-connection-banner @ClaseEstadoServidorRest">
+                        <div class="rest-connection-icon">@IconoEstadoServidorRest</div>
+                        <div>
+                            <strong>@TextoEstadoServidorRest</strong>
+                            <span>@MensajeEstadoServidorRest</span>
+                        </div>
+                    </div>
+
+                    <div class="rest-form-grid">
+                        <label class="profile-field rest-wide-field">
+                            <span>URL base del servidor</span>
+                            <input type="url"
+                                   placeholder="https://api.midominio.com"
+                                   disabled="@operacionServidorRestEnCurso"
+                                   @bind="configuracionServidorRest.UrlBase"
+                                   @bind:event="oninput" />
+                            <small>Puede ser una IP local, un dominio o localhost.</small>
+                        </label>
+
+                        <label class="profile-field">
+                            <span>ID del dispositivo</span>
+                            <input type="text"
+                                   maxlength="100"
+                                   placeholder="sensor-tgu-01"
+                                   disabled="@operacionServidorRestEnCurso"
+                                   @bind="configuracionServidorRest.IdDispositivo"
+                                   @bind:event="oninput" />
+                        </label>
+
+                        <label class="profile-field">
+                            <span>Timeout</span>
+                            <div class="rest-input-with-unit">
+                                <input type="number"
+                                       min="1"
+                                       max="60"
+                                       disabled="@operacionServidorRestEnCurso"
+                                       @bind="configuracionServidorRest.TimeoutSegundos" />
+                                <span>s</span>
+                            </div>
+                        </label>
+
+                        <label class="profile-field">
+                            <span>Ruta de prueba</span>
+                            <input type="text"
+                                   placeholder="/health"
+                                   disabled="@operacionServidorRestEnCurso"
+                                   @bind="configuracionServidorRest.RutaPrueba" />
+                            <small>GET usado por el botón Probar conexión.</small>
+                        </label>
+
+                        <label class="profile-field">
+                            <span>Ruta de lecturas</span>
+                            <input type="text"
+                                   placeholder="/api/readings"
+                                   disabled="@operacionServidorRestEnCurso"
+                                   @bind="configuracionServidorRest.RutaLecturas" />
+                            <small>Recibe las lecturas mediante HTTP POST.</small>
+                        </label>
+
+                        <label class="profile-field rest-wide-field">
+                            <span>Token Bearer <small>opcional</small></span>
+                            <input type="password"
+                                   autocomplete="off"
+                                   placeholder="Token de acceso del dispositivo"
+                                   disabled="@operacionServidorRestEnCurso"
+                                   @bind="configuracionServidorRest.TokenBearer" />
+                            <small>Se envía en Authorization: Bearer &lt;token&gt;.</small>
+                        </label>
+                    </div>
+
+                    <label class="rest-auto-send-option">
+                        <input type="checkbox"
+                               disabled="@operacionServidorRestEnCurso"
+                               @bind="configuracionServidorRest.EnvioAutomatico" />
+                        <span>
+                            <strong>Enviar automáticamente cada lectura válida</strong>
+                            <small>Funciona tanto en lecturas manuales como durante el polling.</small>
+                        </span>
+                    </label>
+
+                    <div class="rest-stat-grid">
+                        <div class="rest-stat">
+                            <span>Envíos correctos</span>
+                            <strong>@enviosServidorRestCorrectos</strong>
+                        </div>
+                        <div class="rest-stat error">
+                            <span>Fallidos</span>
+                            <strong>@enviosServidorRestFallidos</strong>
+                        </div>
+                        <div class="rest-stat">
+                            <span>Último envío</span>
+                            <strong>
+                                @(ultimaTransmisionServidorRest is null
+                                    ? "—"
+                                    : ultimaTransmisionServidorRest.Value.ToString("HH:mm:ss"))
+                            </strong>
+                        </div>
+                        <div class="rest-stat">
+                            <span>Último HTTP</span>
+                            <strong>@(ultimoCodigoHttpServidorRest?.ToString() ?? "—")</strong>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(errorServidorRest))
+                    {
+                        <div class="profile-form-error rest-error">
+                            @errorServidorRest
+                        </div>
+                    }
+
+                    <div class="rest-payload-note">
+                        <span>{ }</span>
+                        <div>
+                            <strong>Contenido enviado</strong>
+                            <small>ID del dispositivo, fecha UTC, puerto, esclavo, función, registros, TX, RX y CRC.</small>
+                        </div>
+                    </div>
+
+                    <div class="rest-form-actions">
+                        <button type="button"
+                                class="profile-secondary-button"
+                                disabled="@operacionServidorRestEnCurso"
+                                @onclick="ProbarConexionServidorRestAsync">
+                            @(pruebaServidorRestEnCurso ? "Probando..." : "Probar conexión")
+                        </button>
+
+                        <button type="button"
+                                class="rest-send-button"
+                                disabled="@(!PuedeEnviarUltimaLecturaServidorRest)"
+                                @onclick="EnviarUltimaLecturaServidorRestAsync">
+                            @(envioServidorRestEnCurso ? "Enviando..." : "Enviar última lectura")
+                        </button>
+
+                        <button type="button"
+                                class="profile-primary-button"
+                                disabled="@operacionServidorRestEnCurso"
+                                @onclick="GuardarConfiguracionServidorRestAsync">
+                            Guardar configuración
+                        </button>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+    }
+
     @if (barraEstadoVisible)
     {
         <footer class="app-statusbar">
@@ -1545,6 +1868,9 @@
                     @(EsSesionModbus
                         ? $"Esclavo {SesionActiva.IdEsclavoModbus} · {SesionActiva.FuncionModbus}"
                         : ResumenConfiguracion)
+                </span>
+                <span class="rest-statusbar @ClaseEstadoServidorRest">
+                    <i></i> REST @TextoEstadoServidorRestCorto
                 </span>
                 <span><strong>500</strong> registros máx.</span>
             </div>
@@ -1579,6 +1905,19 @@
     private Guid? perfilConfirmarEliminacionId;
     private IReadOnlyList<PerfilDispositivo> perfilesDispositivo =
         Array.Empty<PerfilDispositivo>();
+    private ConfiguracionServidorRest configuracionServidorRest = new();
+    private bool mostrarModalServidorRest;
+    private bool pruebaServidorRestEnCurso;
+    private bool envioServidorRestEnCurso;
+    private bool? servidorRestDisponible;
+    private int enviosServidorRestCorrectos;
+    private int enviosServidorRestFallidos;
+    private int? ultimoCodigoHttpServidorRest;
+    private DateTime? ultimaTransmisionServidorRest;
+    private string mensajeServidorRest =
+        "Configura el servidor y prueba la conexión.";
+    private string errorServidorRest = string.Empty;
+    private string ultimoErrorServidorRestRegistrado = string.Empty;
     private ElementReference terminalElement;
 
     private TerminalSesion SesionActiva =>
@@ -1617,6 +1956,58 @@
         PerfilEnEdicion is { } perfil
             ? ResumenPerfil(perfil)
             : ResumenPerfilSesionActual;
+
+    private bool operacionServidorRestEnCurso =>
+        pruebaServidorRestEnCurso || envioServidorRestEnCurso;
+
+    private bool PuedeEnviarUltimaLecturaServidorRest =>
+        EsSesionModbus &&
+        SesionActiva.RegistrosModbus.Count > 0 &&
+        !operacionServidorRestEnCurso &&
+        !string.IsNullOrWhiteSpace(configuracionServidorRest.UrlBase) &&
+        !string.IsNullOrWhiteSpace(configuracionServidorRest.RutaLecturas);
+
+    private string ClaseEstadoServidorRest =>
+        servidorRestDisponible switch
+        {
+            true => "connected",
+            false => "failed",
+            _ => "idle"
+        };
+
+    private string IconoEstadoServidorRest =>
+        servidorRestDisponible switch
+        {
+            true => "✓",
+            false => "!",
+            _ => "API"
+        };
+
+    private string TextoEstadoServidorRest =>
+        servidorRestDisponible switch
+        {
+            true => "Servidor disponible",
+            false => "Servidor no disponible",
+            _ => "Conexión sin probar"
+        };
+
+    private string TextoEstadoServidorRestCorto =>
+        servidorRestDisponible switch
+        {
+            true => "conectado",
+            false => "error",
+            _ => "sin probar"
+        };
+
+    private string MensajeEstadoServidorRest =>
+        string.IsNullOrWhiteSpace(mensajeServidorRest)
+            ? "Sin actividad reciente."
+            : mensajeServidorRest;
+
+    private string ResumenServidorRestMenu =>
+        configuracionServidorRest.EnvioAutomatico
+            ? $"Envío automático · {TextoEstadoServidorRestCorto}"
+            : $"HTTP REST · {TextoEstadoServidorRestCorto}";
 
     private IReadOnlyList<string> puertos
     {
@@ -1687,18 +2078,33 @@
 
     private bool BloquearParametrosModbus =>
         SesionActiva.ConsultaModbusEnCurso ||
+        SesionActiva.EscrituraModbusEnCurso ||
+        SesionActiva.PollingModbusActivo;
+
+    private bool BloquearEscrituraModbus =>
+        SesionActiva.ConsultaModbusEnCurso ||
+        SesionActiva.EscrituraModbusEnCurso ||
         SesionActiva.PollingModbusActivo;
 
     private bool PuedeLeerModbus =>
         EsSesionModbus &&
         SerialPortService.EstaConectado &&
         !SesionActiva.ConsultaModbusEnCurso &&
+        !SesionActiva.EscrituraModbusEnCurso &&
+        !SesionActiva.PollingModbusActivo;
+
+    private bool PuedePrepararEscrituraModbus =>
+        EsSesionModbus &&
+        SerialPortService.EstaConectado &&
+        !SesionActiva.ConsultaModbusEnCurso &&
+        !SesionActiva.EscrituraModbusEnCurso &&
         !SesionActiva.PollingModbusActivo;
 
     private bool PuedeIniciarPollingModbus =>
         EsSesionModbus &&
         SerialPortService.EstaConectado &&
         !SesionActiva.ConsultaModbusEnCurso &&
+        !SesionActiva.EscrituraModbusEnCurso &&
         SesionActiva.IntervaloPollingModbusMs is >= 250 and <= 60000;
 
     private static readonly IReadOnlyList<OpcionSelector>
@@ -1774,6 +2180,9 @@
         perfilesDispositivo =
             PerfilDispositivoService.ObtenerPerfiles();
 
+        configuracionServidorRest =
+            ServidorRestService.ObtenerConfiguracion();
+
         ActualizarPuertos(primeraSesion);
     }
 
@@ -1830,8 +2239,13 @@
         sesion.ManejadorError = (_, error) =>
             AlOcurrirError(sesion, error);
 
+        sesion.ManejadorConexionPerdida = (_, mensaje) =>
+            AlPerderConexion(sesion, mensaje);
+
         servicio.DatosRecibidos += sesion.ManejadorDatos;
         servicio.ErrorOcurrido += sesion.ManejadorError;
+        servicio.ConexionPerdida +=
+            sesion.ManejadorConexionPerdida;
 
         return sesion;
     }
@@ -1858,6 +2272,305 @@
         mostrarMenuComunicacion = false;
         mostrarMenuVer = false;
         mostrarSelectorNuevaSesion = false;
+    }
+
+    private void AbrirConfiguracionServidorRest()
+    {
+        configuracionServidorRest =
+            ServidorRestService.ObtenerConfiguracion();
+
+        mostrarModalServidorRest = true;
+        mostrarModalPerfiles = false;
+        mostrarMenuHerramientas = false;
+        mostrarMenuComunicacion = false;
+        mostrarMenuVer = false;
+        mostrarSelectorNuevaSesion = false;
+        errorServidorRest = string.Empty;
+    }
+
+    private void CerrarConfiguracionServidorRest()
+    {
+        if (operacionServidorRestEnCurso)
+        {
+            return;
+        }
+
+        mostrarModalServidorRest = false;
+        errorServidorRest = string.Empty;
+    }
+
+    private async Task GuardarConfiguracionServidorRestAsync()
+    {
+        errorServidorRest = string.Empty;
+
+        try
+        {
+            await ServidorRestService.GuardarConfiguracionAsync(
+                configuracionServidorRest
+            );
+
+            configuracionServidorRest =
+                ServidorRestService.ObtenerConfiguracion();
+
+            mensajeServidorRest =
+                "Configuración HTTP REST guardada localmente.";
+            mensajeEstado = mensajeServidorRest;
+        }
+        catch (Exception ex)
+        {
+            errorServidorRest = ex.Message;
+            mensajeEstado =
+                $"No fue posible guardar el servidor: {ex.Message}";
+        }
+    }
+
+    private async Task ProbarConexionServidorRestAsync()
+    {
+        if (pruebaServidorRestEnCurso)
+        {
+            return;
+        }
+
+        pruebaServidorRestEnCurso = true;
+        errorServidorRest = string.Empty;
+        mensajeServidorRest = "Probando endpoint HTTP...";
+
+        try
+        {
+            ResultadoServidorRest resultado =
+                await ServidorRestService.ProbarConexionAsync(
+                    configuracionServidorRest
+                );
+
+            AplicarResultadoServidorRest(
+                resultado,
+                esEnvio: false
+            );
+        }
+        catch (Exception ex)
+        {
+            servidorRestDisponible = false;
+            errorServidorRest = ex.Message;
+            mensajeServidorRest = ex.Message;
+        }
+        finally
+        {
+            pruebaServidorRestEnCurso = false;
+        }
+    }
+
+    private async Task EnviarUltimaLecturaServidorRestAsync()
+    {
+        if (!PuedeEnviarUltimaLecturaServidorRest)
+        {
+            return;
+        }
+
+        await EnviarLecturaServidorRestAsync(
+            SesionActiva,
+            origen: "manual",
+            registrarEnTerminal: true,
+            CancellationToken.None
+        );
+    }
+
+    private async Task EnviarLecturaServidorSiCorrespondeAsync(
+        TerminalSesion sesion,
+        bool esPolling,
+        CancellationToken cancellationToken)
+    {
+        if (!configuracionServidorRest.EnvioAutomatico ||
+            string.IsNullOrWhiteSpace(
+                configuracionServidorRest.UrlBase) ||
+            string.IsNullOrWhiteSpace(
+                configuracionServidorRest.RutaLecturas))
+        {
+            return;
+        }
+
+        await EnviarLecturaServidorRestAsync(
+            sesion,
+            esPolling ? "polling" : "manual",
+            registrarEnTerminal:
+                !esPolling || sesion.RegistrarPollingEnTerminal,
+            cancellationToken
+        );
+    }
+
+    private async Task<bool> EnviarLecturaServidorRestAsync(
+        TerminalSesion sesion,
+        string origen,
+        bool registrarEnTerminal,
+        CancellationToken cancellationToken)
+    {
+        if (sesion.RegistrosModbus.Count == 0)
+        {
+            return false;
+        }
+
+        bool mostrarEnvioEnCurso = !string.Equals(
+            origen,
+            "polling",
+            StringComparison.OrdinalIgnoreCase
+        );
+
+        if (mostrarEnvioEnCurso)
+        {
+            envioServidorRestEnCurso = true;
+        }
+
+        try
+        {
+            LecturaServidorRest lectura =
+                CrearLecturaServidorRest(sesion, origen);
+
+            ResultadoServidorRest resultado =
+                await ServidorRestService.EnviarLecturaAsync(
+                    configuracionServidorRest,
+                    lectura,
+                    cancellationToken
+                );
+
+            AplicarResultadoServidorRest(
+                resultado,
+                esEnvio: true,
+                sesion: sesion
+            );
+
+            if (resultado.Exitoso)
+            {
+                if (registrarEnTerminal)
+                {
+                    AgregarLineaTerminal(
+                        sesion,
+                        "SYS",
+                        $"REST enviado · HTTP " +
+                        $"{resultado.CodigoEstado} · " +
+                        $"{resultado.Duracion.TotalMilliseconds:F0} ms."
+                    );
+                }
+
+                ultimoErrorServidorRestRegistrado = string.Empty;
+                return true;
+            }
+
+            bool errorNuevo = !string.Equals(
+                ultimoErrorServidorRestRegistrado,
+                resultado.Mensaje,
+                StringComparison.Ordinal
+            );
+
+            if (registrarEnTerminal || errorNuevo)
+            {
+                AgregarLineaTerminal(
+                    sesion,
+                    "ERROR",
+                    $"REST: {resultado.Mensaje}"
+                );
+            }
+
+            ultimoErrorServidorRestRegistrado =
+                resultado.Mensaje;
+
+            return false;
+        }
+        catch (OperationCanceledException)
+            when (cancellationToken.IsCancellationRequested)
+        {
+            return false;
+        }
+        finally
+        {
+            if (mostrarEnvioEnCurso)
+            {
+                envioServidorRestEnCurso = false;
+            }
+
+            if (!componenteLiberado)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    private void AplicarResultadoServidorRest(
+        ResultadoServidorRest resultado,
+        bool esEnvio,
+        TerminalSesion? sesion = null)
+    {
+        servidorRestDisponible = resultado.Exitoso;
+        ultimoCodigoHttpServidorRest = resultado.CodigoEstado;
+
+        if (resultado.Exitoso)
+        {
+            errorServidorRest = string.Empty;
+            mensajeServidorRest = esEnvio
+                ? $"Lectura enviada en " +
+                  $"{resultado.Duracion.TotalMilliseconds:F0} ms."
+                : $"Conexión correcta en " +
+                  $"{resultado.Duracion.TotalMilliseconds:F0} ms.";
+
+            if (esEnvio)
+            {
+                enviosServidorRestCorrectos++;
+                ultimaTransmisionServidorRest = DateTime.Now;
+            }
+        }
+        else
+        {
+            errorServidorRest = resultado.Mensaje;
+            mensajeServidorRest = resultado.Mensaje;
+
+            if (esEnvio)
+            {
+                enviosServidorRestFallidos++;
+            }
+        }
+
+        string estado = resultado.Exitoso
+            ? mensajeServidorRest
+            : $"Servidor REST: {resultado.Mensaje}";
+
+        if (sesion is null)
+        {
+            mensajeEstado = estado;
+        }
+        else
+        {
+            sesion.MensajeEstado = estado;
+        }
+    }
+
+    private LecturaServidorRest CrearLecturaServidorRest(
+        TerminalSesion sesion,
+        string origen)
+    {
+        return new LecturaServidorRest
+        {
+            DeviceId = configuracionServidorRest.IdDispositivo.Trim(),
+            TimestampUtc = DateTime.UtcNow,
+            Source = origen,
+            Session = sesion.Nombre,
+            Port = sesion.Servicio.PuertoActual ??
+                   sesion.PuertoSeleccionado,
+            BaudRate = sesion.Configuracion.Velocidad,
+            SlaveId = sesion.IdEsclavoModbus,
+            Function = sesion.FuncionModbus == "04" ? 4 : 3,
+            StartAddress = sesion.DireccionInicialModbus,
+            RequestedQuantity = sesion.CantidadRegistrosModbus,
+            CrcValid = sesion.CrcModbusValido == true,
+            Tx = sesion.TramaModbusPrevia,
+            Rx = sesion.UltimaRespuestaModbus,
+            Registers = sesion.RegistrosModbus
+                .Select(registro => new RegistroServidorRest
+                {
+                    Address = registro.Direccion,
+                    Hex = registro.ValorHex,
+                    Unsigned = registro.ValorSinSigno,
+                    Signed = registro.ValorConSigno
+                })
+                .ToList()
+        };
     }
 
     private void AlternarSelectorNuevaSesion()
@@ -2356,10 +3069,11 @@
             );
         }
 
-        if (sesion.ConsultaModbusEnCurso)
+        if (sesion.ConsultaModbusEnCurso ||
+            sesion.EscrituraModbusEnCurso)
         {
             sesion.MensajeEstado =
-                "Espera a que termine la consulta Modbus antes de cerrar la sesión.";
+                "Espera a que termine la operación Modbus antes de cerrar la sesión.";
             return;
         }
 
@@ -2406,6 +3120,12 @@
         {
             sesion.Servicio.ErrorOcurrido -=
                 sesion.ManejadorError;
+        }
+
+        if (sesion.ManejadorConexionPerdida is not null)
+        {
+            sesion.Servicio.ConexionPerdida -=
+                sesion.ManejadorConexionPerdida;
         }
 
         sesion.Servicio.Dispose();
@@ -2516,6 +3236,35 @@
 
         try
         {
+            IReadOnlyList<string> puertosDisponibles =
+                sesion.Servicio.ObtenerPuertosDisponibles();
+
+            sesion.Puertos = puertosDisponibles;
+
+            if (string.IsNullOrWhiteSpace(
+                    sesion.PuertoSeleccionado))
+            {
+                sesion.MensajeEstado =
+                    "Selecciona un puerto COM antes de conectar.";
+                return;
+            }
+
+            if (!puertosDisponibles.Contains(
+                    sesion.PuertoSeleccionado,
+                    StringComparer.OrdinalIgnoreCase))
+            {
+                sesion.MensajeEstado =
+                    $"El puerto {sesion.PuertoSeleccionado} ya no está disponible. " +
+                    "Actualiza la lista y vuelve a seleccionarlo.";
+
+                AgregarLineaTerminal(
+                    sesion,
+                    "ERROR",
+                    sesion.MensajeEstado
+                );
+                return;
+            }
+
             sesion.Configuracion.NombrePuerto =
                 sesion.PuertoSeleccionado;
 
@@ -2523,6 +3272,7 @@
                 sesion.Configuracion
             );
 
+            sesion.ConexionPerdidaNotificada = false;
             sesion.MostrarListaPuertos = false;
             sesion.MensajeEstado =
                 $"Conexión establecida en " +
@@ -2567,10 +3317,11 @@
             );
         }
 
-        if (sesion.ConsultaModbusEnCurso)
+        if (sesion.ConsultaModbusEnCurso ||
+            sesion.EscrituraModbusEnCurso)
         {
             sesion.MensajeEstado =
-                "Espera a que termine la consulta Modbus antes de desconectar.";
+                "Espera a que termine la operación Modbus antes de desconectar.";
             return;
         }
 
@@ -2691,6 +3442,57 @@
             );
 
             sesion.MensajeEstado = error;
+            StateHasChanged();
+        });
+    }
+
+
+    private void AlPerderConexion(
+        TerminalSesion sesion,
+        string mensaje)
+    {
+        _ = InvokeAsync(() =>
+        {
+            if (componenteLiberado ||
+                sesion.ConexionPerdidaNotificada)
+            {
+                return;
+            }
+
+            sesion.ConexionPerdidaNotificada = true;
+            sesion.PollingCancellation?.Cancel();
+            sesion.PollingModbusActivo = false;
+            sesion.MostrarConfirmacionEscrituraModbus = false;
+            sesion.UltimoErrorPolling = mensaje;
+
+            if (sesion.RegistroCsvActivo)
+            {
+                DetenerRegistroCsv(
+                    sesion,
+                    "Registro CSV detenido porque se perdió la conexión serial."
+                );
+            }
+
+            try
+            {
+                sesion.Puertos =
+                    sesion.Servicio.ObtenerPuertosDisponibles();
+            }
+            catch
+            {
+                sesion.Puertos = Array.Empty<string>();
+            }
+
+            sesion.MensajeEstado =
+                mensaje + " Reconecta el adaptador, actualiza los puertos " +
+                "y conecta nuevamente.";
+
+            AgregarLineaTerminal(
+                sesion,
+                "ERROR",
+                sesion.MensajeEstado
+            );
+
             StateHasChanged();
         });
     }
@@ -3321,6 +4123,584 @@
         );
     }
 
+    private async Task EnviarTramaManualModbusAsync()
+    {
+        TerminalSesion sesion = SesionActiva;
+
+        if (!ValidarDisponibilidadTramaManual(sesion))
+        {
+            return;
+        }
+
+        if (!TryPrepararTramaManual(
+                sesion,
+                out byte[] trama,
+                out string descripcion,
+                out string error))
+        {
+            sesion.UltimaEscrituraModbusExitosa = false;
+            sesion.ResumenTramaManual = string.Empty;
+            sesion.MensajeEstado = error;
+            return;
+        }
+
+        sesion.TramaPreparadaModbus = ConvertirAHex(trama);
+        sesion.RespuestaEscrituraModbus = string.Empty;
+        sesion.CrcEscrituraModbusValido = null;
+        sesion.UltimaEscrituraModbusExitosa = null;
+        sesion.ResumenTramaManual = descripcion;
+
+        byte funcion = trama[1];
+
+        if (EsFuncionEscrituraModbus(funcion))
+        {
+            sesion.MostrarConfirmacionEscrituraModbus = true;
+            sesion.MensajeEstado =
+                "Revisa la trama final antes de confirmar la escritura.";
+            return;
+        }
+
+        await TransmitirTramaManualModbusAsync(sesion, trama);
+    }
+
+    private void CancelarEnvioTramaManualModbus()
+    {
+        TerminalSesion sesion = SesionActiva;
+        sesion.MostrarConfirmacionEscrituraModbus = false;
+        sesion.MensajeEstado = "Envío de trama cancelado.";
+    }
+
+    private async Task ConfirmarEnvioTramaManualModbusAsync()
+    {
+        TerminalSesion sesion = SesionActiva;
+
+        if (!TryParsearBytesHexadecimales(
+                sesion.TramaPreparadaModbus,
+                out byte[] trama,
+                out string error))
+        {
+            sesion.MostrarConfirmacionEscrituraModbus = false;
+            sesion.MensajeEstado =
+                $"No se pudo recuperar la trama preparada: {error}";
+            return;
+        }
+
+        sesion.MostrarConfirmacionEscrituraModbus = false;
+        await TransmitirTramaManualModbusAsync(sesion, trama);
+    }
+
+    private void LimpiarTramaManualModbus()
+    {
+        TerminalSesion sesion = SesionActiva;
+
+        if (sesion.EscrituraModbusEnCurso)
+        {
+            return;
+        }
+
+        sesion.TramaEscrituraModbus = string.Empty;
+        sesion.TramaPreparadaModbus = string.Empty;
+        sesion.RespuestaEscrituraModbus = string.Empty;
+        sesion.ResumenTramaManual = string.Empty;
+        sesion.CrcEscrituraModbusValido = null;
+        sesion.UltimaEscrituraModbusExitosa = null;
+        sesion.MostrarConfirmacionEscrituraModbus = false;
+        sesion.MensajeEstado = "Editor de trama Modbus limpio.";
+    }
+
+    private async Task TransmitirTramaManualModbusAsync(
+        TerminalSesion sesion,
+        byte[] solicitud)
+    {
+        if (!ValidarDisponibilidadTramaManual(sesion))
+        {
+            return;
+        }
+
+        sesion.TramaPreparadaModbus = ConvertirAHex(solicitud);
+        sesion.RespuestaEscrituraModbus = string.Empty;
+        sesion.CrcEscrituraModbusValido = null;
+        sesion.UltimaEscrituraModbusExitosa = null;
+        sesion.EscrituraModbusEnCurso = true;
+        sesion.MensajeEstado =
+            $"Enviando función Modbus 0x{solicitud[1]:X2}...";
+
+        AgregarLineaTerminal(
+            sesion,
+            "SYS",
+            $"Trama manual preparada · Función 0x{solicitud[1]:X2}."
+        );
+
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            int reintentos = Math.Clamp(
+                sesion.ReintentosModbus,
+                0,
+                10
+            );
+
+            int intentosTotales = reintentos + 1;
+            Exception? ultimoError = null;
+
+            for (int intento = 1;
+                 intento <= intentosTotales;
+                 intento++)
+            {
+                if (intento > 1)
+                {
+                    AgregarLineaTerminal(
+                        sesion,
+                        "SYS",
+                        $"Reintento de trama {intento - 1} de {reintentos}."
+                    );
+                }
+
+                AgregarLineaTerminal(
+                    sesion,
+                    "TX",
+                    sesion.TramaPreparadaModbus
+                );
+
+                await InvokeAsync(StateHasChanged);
+
+                try
+                {
+                    byte[] respuesta = await sesion.Servicio
+                        .TransaccionModbusAsync(
+                            solicitud,
+                            Math.Clamp(
+                                sesion.TimeoutModbusMs,
+                                100,
+                                10000
+                            ),
+                            CancellationToken.None
+                        );
+
+                    ProcesarRespuestaTramaManual(
+                        sesion,
+                        solicitud,
+                        respuesta
+                    );
+
+                    sesion.UltimaEscrituraModbusExitosa = true;
+                    sesion.UltimaEscrituraModbus = DateTime.Now;
+                    sesion.MensajeEstado =
+                        $"Respuesta Modbus recibida para función 0x{solicitud[1]:X2}.";
+
+                    AgregarLineaTerminal(
+                        sesion,
+                        "SYS",
+                        $"Trama manual confirmada · CRC correcto."
+                    );
+
+                    return;
+                }
+                catch (TimeoutException ex)
+                {
+                    ultimoError = ex;
+
+                    if (intento < intentosTotales)
+                    {
+                        AgregarLineaTerminal(
+                            sesion,
+                            "SYS",
+                            "Sin respuesta. Se repetirá el envío."
+                        );
+                    }
+                }
+            }
+
+            throw ultimoError ?? new TimeoutException(
+                "El dispositivo no respondió a la trama manual."
+            );
+        }
+        catch (Exception ex)
+        {
+            sesion.UltimaEscrituraModbusExitosa = false;
+            sesion.MensajeEstado =
+                $"El envío de la trama falló: {ex.Message}";
+
+            AgregarLineaTerminal(
+                sesion,
+                "ERROR",
+                $"Trama manual · {ex.Message}"
+            );
+        }
+        finally
+        {
+            sesion.EscrituraModbusEnCurso = false;
+
+            if (!componenteLiberado)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    private static bool ValidarDisponibilidadTramaManual(
+        TerminalSesion sesion)
+    {
+        if (!sesion.Servicio.EstaConectado)
+        {
+            sesion.MensajeEstado =
+                "Conecta el puerto RS-485 antes de enviar una trama.";
+            return false;
+        }
+
+        if (sesion.PollingModbusActivo)
+        {
+            sesion.MensajeEstado =
+                "Detén el polling antes de enviar una trama manual.";
+            return false;
+        }
+
+        if (sesion.ConsultaModbusEnCurso ||
+            sesion.EscrituraModbusEnCurso)
+        {
+            sesion.MensajeEstado =
+                "Espera a que termine la operación Modbus actual.";
+            return false;
+        }
+
+        if (sesion.TimeoutModbusMs is < 100 or > 10000)
+        {
+            sesion.MensajeEstado =
+                "El tiempo de espera debe estar entre 100 y 10000 ms.";
+            return false;
+        }
+
+        if (sesion.ReintentosModbus is < 0 or > 10)
+        {
+            sesion.MensajeEstado =
+                "Los reintentos deben estar entre 0 y 10.";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool TryPrepararTramaManual(
+        TerminalSesion sesion,
+        out byte[] trama,
+        out string descripcion,
+        out string error)
+    {
+        trama = Array.Empty<byte>();
+        descripcion = string.Empty;
+
+        if (!TryParsearBytesHexadecimales(
+                sesion.TramaEscrituraModbus,
+                out byte[] bytesIngresados,
+                out error))
+        {
+            return false;
+        }
+
+        if (bytesIngresados.Length < 2)
+        {
+            error =
+                "La trama debe incluir al menos el ID del esclavo y la función.";
+            return false;
+        }
+
+        byte esclavo = bytesIngresados[0];
+        byte funcion = bytesIngresados[1];
+
+        if (esclavo is < 1 or > 247)
+        {
+            error =
+                "El ID del esclavo debe estar entre 1 y 247. El broadcast 0 todavía no se admite.";
+            return false;
+        }
+
+        if (!EsFuncionModbusAdmitida(funcion))
+        {
+            error =
+                $"La función 0x{funcion:X2} todavía no está admitida por el lector de respuestas.";
+            return false;
+        }
+
+        if (sesion.AgregarCrcAutomaticoTrama)
+        {
+            ReadOnlySpan<byte> datosSinCrc = bytesIngresados;
+            int longitudSinCrcEsperada =
+                ObtenerLongitudSolicitudSinCrc(bytesIngresados);
+
+            bool incluyeCrcValido =
+                bytesIngresados.Length >= 4 &&
+                EsCrcModbusValido(bytesIngresados);
+
+            if (incluyeCrcValido)
+            {
+                trama = bytesIngresados;
+            }
+            else
+            {
+                if (longitudSinCrcEsperada > 0 &&
+                    bytesIngresados.Length == longitudSinCrcEsperada + 2)
+                {
+                    datosSinCrc = bytesIngresados.AsSpan(0, bytesIngresados.Length - 2);
+                }
+
+                ushort crc = CalcularCrcModbus(datosSinCrc);
+                trama = new byte[datosSinCrc.Length + 2];
+                datosSinCrc.CopyTo(trama);
+                trama[^2] = (byte)(crc & 0xFF);
+                trama[^1] = (byte)(crc >> 8);
+            }
+        }
+        else
+        {
+            trama = bytesIngresados;
+
+            if (trama.Length < 4)
+            {
+                error =
+                    "En modo exacto la trama debe incluir los dos bytes CRC.";
+                return false;
+            }
+        }
+
+        string estadoCrc = EsCrcModbusValido(trama)
+            ? "CRC válido"
+            : "CRC no válido, envío exacto";
+
+        descripcion =
+            $"Esclavo {esclavo} · Función 0x{funcion:X2} · " +
+            $"{trama.Length} bytes · {estadoCrc}";
+
+        if (funcion == 0x06 && trama.Length >= 8)
+        {
+            ushort direccion = (ushort)(
+                (trama[2] << 8) |
+                trama[3]
+            );
+
+            ushort valor = (ushort)(
+                (trama[4] << 8) |
+                trama[5]
+            );
+
+            descripcion +=
+                $" · Registro {direccion} = {valor} (0x{valor:X4})";
+        }
+        else if (funcion == 0x10 && trama.Length >= 8)
+        {
+            ushort direccion = (ushort)(
+                (trama[2] << 8) |
+                trama[3]
+            );
+
+            ushort cantidad = (ushort)(
+                (trama[4] << 8) |
+                trama[5]
+            );
+
+            descripcion +=
+                $" · Inicio {direccion} · {cantidad} registro(s)";
+        }
+
+        error = string.Empty;
+        return true;
+    }
+
+    private static bool TryParsearBytesHexadecimales(
+        string texto,
+        out byte[] bytes,
+        out string error)
+    {
+        bytes = Array.Empty<byte>();
+        error = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(texto))
+        {
+            error = "Escribe una trama hexadecimal antes de enviarla.";
+            return false;
+        }
+
+        string normalizado = texto
+            .Replace("0x", string.Empty, StringComparison.OrdinalIgnoreCase)
+            .Replace(',', ' ')
+            .Replace(';', ' ')
+            .Replace('-', ' ')
+            .Replace(':', ' ')
+            .Replace('\r', ' ')
+            .Replace('\n', ' ')
+            .Replace('\t', ' ');
+
+        string[] partes = normalizado.Split(
+            ' ',
+            StringSplitOptions.RemoveEmptyEntries |
+            StringSplitOptions.TrimEntries
+        );
+
+        List<byte> resultado = new(partes.Length);
+
+        for (int indice = 0; indice < partes.Length; indice++)
+        {
+            string parte = partes[indice];
+
+            if (parte.Length != 2 ||
+                !byte.TryParse(
+                    parte,
+                    System.Globalization.NumberStyles.HexNumber,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out byte valor))
+            {
+                error =
+                    $"El byte #{indice + 1} ('{parte}') no es hexadecimal válido. Usa pares como 0D, 06 o FF.";
+                return false;
+            }
+
+            resultado.Add(valor);
+        }
+
+        bytes = resultado.ToArray();
+        return true;
+    }
+
+    private static int ObtenerLongitudSolicitudSinCrc(
+        IReadOnlyList<byte> trama)
+    {
+        if (trama.Count < 2)
+        {
+            return 0;
+        }
+
+        byte funcion = trama[1];
+
+        if (funcion is >= 0x01 and <= 0x06)
+        {
+            return 6;
+        }
+
+        if (funcion is 0x0F or 0x10)
+        {
+            if (trama.Count < 7)
+            {
+                return 0;
+            }
+
+            return 7 + trama[6];
+        }
+
+        return 0;
+    }
+
+    private static bool EsFuncionModbusAdmitida(byte funcion)
+    {
+        return funcion is
+            0x01 or 0x02 or 0x03 or 0x04 or
+            0x05 or 0x06 or 0x0F or 0x10;
+    }
+
+    private static bool EsFuncionEscrituraModbus(byte funcion)
+    {
+        return funcion is 0x05 or 0x06 or 0x0F or 0x10;
+    }
+
+    private static bool EsCrcModbusValido(
+        IReadOnlyList<byte> trama)
+    {
+        if (trama.Count < 4)
+        {
+            return false;
+        }
+
+        byte[] datos = trama.ToArray();
+        ushort calculado = CalcularCrcModbus(
+            datos.AsSpan(0, datos.Length - 2)
+        );
+
+        ushort recibido = (ushort)(
+            datos[^2] |
+            (datos[^1] << 8)
+        );
+
+        return calculado == recibido;
+    }
+
+    private static void ProcesarRespuestaTramaManual(
+        TerminalSesion sesion,
+        byte[] solicitud,
+        byte[] respuesta)
+    {
+        sesion.RespuestaEscrituraModbus =
+            ConvertirAHex(respuesta);
+
+        AgregarLineaTerminal(
+            sesion,
+            "RX",
+            sesion.RespuestaEscrituraModbus
+        );
+
+        if (respuesta.Length < 5)
+        {
+            throw new InvalidDataException(
+                "La respuesta Modbus está incompleta."
+            );
+        }
+
+        sesion.CrcEscrituraModbusValido =
+            EsCrcModbusValido(respuesta);
+
+        if (sesion.CrcEscrituraModbusValido != true)
+        {
+            throw new InvalidDataException(
+                "La respuesta contiene un CRC incorrecto."
+            );
+        }
+
+        if (respuesta[0] != solicitud[0])
+        {
+            throw new InvalidDataException(
+                $"Respondió el esclavo {respuesta[0]}, pero se esperaba el {solicitud[0]}."
+            );
+        }
+
+        byte funcionSolicitud = solicitud[1];
+        byte funcionRespuesta = respuesta[1];
+
+        if (funcionRespuesta == (byte)(funcionSolicitud | 0x80))
+        {
+            byte codigoExcepcion = respuesta[2];
+
+            throw new InvalidOperationException(
+                $"Excepción Modbus 0x{codigoExcepcion:X2}: " +
+                DescribirExcepcionModbus(codigoExcepcion)
+            );
+        }
+
+        if (funcionRespuesta != funcionSolicitud)
+        {
+            throw new InvalidDataException(
+                $"La respuesta usa la función 0x{funcionRespuesta:X2}, pero se envió 0x{funcionSolicitud:X2}."
+            );
+        }
+
+        if (funcionSolicitud is 0x05 or 0x06 or 0x0F or 0x10)
+        {
+            if (solicitud.Length < 6 || respuesta.Length < 8)
+            {
+                throw new InvalidDataException(
+                    "La confirmación de escritura Modbus está incompleta."
+                );
+            }
+
+            for (int indice = 0; indice < 6; indice++)
+            {
+                if (respuesta[indice] != solicitud[indice])
+                {
+                    throw new InvalidDataException(
+                        "La confirmación no coincide con la dirección o los datos enviados."
+                    );
+                }
+            }
+        }
+    }
+
     private async Task AlternarPollingModbusAsync()
     {
         TerminalSesion sesion = SesionActiva;
@@ -3639,6 +5019,12 @@
                     RegistrarMuestraGrafica(sesion);
 
                     await RegistrarLecturaCsvAsync(sesion);
+
+                    await EnviarLecturaServidorSiCorrespondeAsync(
+                        sesion,
+                        esPolling,
+                        cancellationToken
+                    );
 
                     return true;
                 }
@@ -4042,6 +5428,134 @@
         return true;
     }
 
+    private static bool ValidarParametrosEscrituraModbus(
+        TerminalSesion sesion)
+    {
+        if (sesion.IdEsclavoModbus is < 1 or > 247)
+        {
+            sesion.MensajeEstado =
+                "El ID del esclavo debe estar entre 1 y 247.";
+            return false;
+        }
+
+        if (sesion.DireccionEscrituraModbus is < 0 or > 65535)
+        {
+            sesion.MensajeEstado =
+                "La dirección de escritura debe estar entre 0 y 65535.";
+            return false;
+        }
+
+        if (sesion.ValorEscrituraModbus is < 0 or > 65535)
+        {
+            sesion.MensajeEstado =
+                "El valor debe estar entre 0 y 65535.";
+            return false;
+        }
+
+        if (sesion.TimeoutModbusMs is < 100 or > 10000)
+        {
+            sesion.MensajeEstado =
+                "El tiempo de espera debe estar entre 100 y 10000 ms.";
+            return false;
+        }
+
+        if (sesion.ReintentosModbus is < 0 or > 10)
+        {
+            sesion.MensajeEstado =
+                "Los reintentos deben estar entre 0 y 10.";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void ProcesarRespuestaEscrituraModbus(
+        TerminalSesion sesion,
+        byte[] solicitud,
+        byte[] respuesta)
+    {
+        sesion.RespuestaEscrituraModbus =
+            ConvertirAHex(respuesta);
+
+        AgregarLineaTerminal(
+            sesion,
+            "RX",
+            sesion.RespuestaEscrituraModbus
+        );
+
+        if (respuesta.Length < 5)
+        {
+            throw new InvalidDataException(
+                "La respuesta de escritura Modbus está incompleta."
+            );
+        }
+
+        ushort crcCalculado = CalcularCrcModbus(
+            respuesta.AsSpan(0, respuesta.Length - 2)
+        );
+
+        ushort crcRecibido = (ushort)(
+            respuesta[^2] |
+            (respuesta[^1] << 8)
+        );
+
+        sesion.CrcEscrituraModbusValido =
+            crcCalculado == crcRecibido;
+
+        if (sesion.CrcEscrituraModbusValido != true)
+        {
+            throw new InvalidDataException(
+                $"CRC de escritura incorrecto. Recibido " +
+                $"0x{crcRecibido:X4}, calculado 0x{crcCalculado:X4}."
+            );
+        }
+
+        if (respuesta[0] != (byte)sesion.IdEsclavoModbus)
+        {
+            throw new InvalidDataException(
+                $"Respondió el esclavo {respuesta[0]}, " +
+                $"pero se esperaba el {sesion.IdEsclavoModbus}."
+            );
+        }
+
+        byte funcionRespuesta = respuesta[1];
+
+        if (funcionRespuesta == 0x86)
+        {
+            byte codigoExcepcion = respuesta[2];
+
+            throw new InvalidOperationException(
+                $"Excepción Modbus 0x{codigoExcepcion:X2}: " +
+                DescribirExcepcionModbus(codigoExcepcion)
+            );
+        }
+
+        if (funcionRespuesta != 0x06)
+        {
+            throw new InvalidDataException(
+                $"La función recibida 0x{funcionRespuesta:X2} " +
+                "no corresponde a la función 06."
+            );
+        }
+
+        if (respuesta.Length != 8)
+        {
+            throw new InvalidDataException(
+                $"La respuesta F06 debe contener 8 bytes y se " +
+                $"recibieron {respuesta.Length}."
+            );
+        }
+
+        if (!respuesta.AsSpan(0, 6)
+            .SequenceEqual(solicitud.AsSpan(0, 6)))
+        {
+            throw new InvalidDataException(
+                "El dispositivo respondió con una dirección o valor " +
+                "diferente al solicitado."
+            );
+        }
+    }
+
     private static void ProcesarRespuestaModbus(
         TerminalSesion sesion,
         byte[] respuesta,
@@ -4220,6 +5734,30 @@
         return trama;
     }
 
+    private static byte[] ConstruirTramaEscrituraRegistroModbus(
+        byte idEsclavo,
+        ushort direccionRegistro,
+        ushort valor)
+    {
+        byte[] trama = new byte[8];
+
+        trama[0] = idEsclavo;
+        trama[1] = 0x06;
+        trama[2] = (byte)(direccionRegistro >> 8);
+        trama[3] = (byte)direccionRegistro;
+        trama[4] = (byte)(valor >> 8);
+        trama[5] = (byte)valor;
+
+        ushort crc = CalcularCrcModbus(
+            trama.AsSpan(0, 6)
+        );
+
+        trama[6] = (byte)(crc & 0xFF);
+        trama[7] = (byte)(crc >> 8);
+
+        return trama;
+    }
+
     private static ushort CalcularCrcModbus(
         ReadOnlySpan<byte> datos)
     {
@@ -4361,6 +5899,23 @@
         public bool ConsultaModbusEnCurso { get; set; }
         public bool? CrcModbusValido { get; set; }
 
+        public int DireccionEscrituraModbus { get; set; }
+        public int ValorEscrituraModbus { get; set; }
+        public bool EscrituraModbusEnCurso { get; set; }
+        public bool MostrarConfirmacionEscrituraModbus { get; set; }
+        public string TramaEscrituraModbus { get; set; } =
+            string.Empty;
+        public bool AgregarCrcAutomaticoTrama { get; set; } = true;
+        public string TramaPreparadaModbus { get; set; } =
+            string.Empty;
+        public string ResumenTramaManual { get; set; } =
+            string.Empty;
+        public string RespuestaEscrituraModbus { get; set; } =
+            string.Empty;
+        public bool? CrcEscrituraModbusValido { get; set; }
+        public bool? UltimaEscrituraModbusExitosa { get; set; }
+        public DateTime? UltimaEscrituraModbus { get; set; }
+
         public bool PollingModbusActivo { get; set; }
         public int IntervaloPollingModbusMs { get; set; } = 1000;
         public bool RegistrarPollingEnTerminal { get; set; }
@@ -4394,7 +5949,10 @@
         public StringBuilder BufferLineaRecepcion { get; } =
             new();
 
+        public bool ConexionPerdidaNotificada { get; set; }
+
         public EventHandler<string>? ManejadorDatos { get; set; }
         public EventHandler<string>? ManejadorError { get; set; }
+        public EventHandler<string>? ManejadorConexionPerdida { get; set; }
     }
 }
