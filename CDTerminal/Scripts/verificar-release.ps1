@@ -1,12 +1,12 @@
 [CmdletBinding()]
 param(
-    [string]$Version = "1.0.0"
+    [string]$Version = "1.1.0"
 )
 
 $ErrorActionPreference = "Stop"
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $publish = Join-Path $root "artifacts\publish\win-x64"
-$installer = Join-Path $root "artifacts\installer\CDTerminal-Local-Setup-$Version-x64.exe"
+$installer = Join-Path $root "artifacts\installer\CDTerminal-Setup-$Version-x64.exe"
 
 $required = @(
     (Join-Path $publish "CDTerminal.exe"),
@@ -28,5 +28,5 @@ if (Test-Path $installer) {
     Write-Host "Instalador: OK" -ForegroundColor Green
     Write-Host "SHA-256: $($hash.Hash)"
 } else {
-    Write-Warning "No se encontró el Setup.exe. Puede que todavía no hayas instalado/ejecutado Inno Setup."
+    Write-Warning "No se encontró el Setup.exe. Revisa la instalación de Inno Setup 6."
 }

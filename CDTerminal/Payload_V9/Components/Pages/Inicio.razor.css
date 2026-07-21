@@ -1,4 +1,4 @@
-﻿.app-shell {
+.app-shell {
     --bg-app: #07111d;
     --bg-deep: #050d16;
     --bg-panel: #0d1927;
@@ -38,10 +38,10 @@ button {
     color: inherit;
 }
 
-    button:disabled,
-    input:disabled {
-        -webkit-text-fill-color: currentColor;
-    }
+button:disabled,
+input:disabled {
+    -webkit-text-fill-color: currentColor;
+}
 
 h1, h2, h3, strong, dt, dd, label, span, p {
     color: inherit;
@@ -54,7 +54,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     height: 100%;
     min-height: 0;
     overflow: hidden;
-    background: radial-gradient(circle at 82% 0%, rgba(15, 183, 164, 0.08), transparent 26%), linear-gradient(145deg, #08131f 0%, #07111d 56%, #050d16 100%);
+    background:
+        radial-gradient(circle at 82% 0%, rgba(15, 183, 164, 0.08), transparent 26%),
+        linear-gradient(145deg, #08131f 0%, #07111d 56%, #050d16 100%);
 }
 
 /* Menú principal */
@@ -87,33 +89,33 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .menu-item:hover:not(:disabled) {
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.035);
-    }
+.menu-item:hover:not(:disabled) {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.035);
+}
 
-    .menu-item.active {
-        color: white;
-    }
+.menu-item.active {
+    color: white;
+}
 
-        .menu-item.active::after {
-            position: absolute;
-            right: 12px;
-            bottom: 0;
-            left: 12px;
-            height: 2px;
-            border-radius: 2px 2px 0 0;
-            background: var(--accent-strong);
-            content: "";
-            box-shadow: 0 0 12px rgba(13, 214, 189, 0.45);
-        }
+.menu-item.active::after {
+    position: absolute;
+    right: 12px;
+    bottom: 0;
+    left: 12px;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: var(--accent-strong);
+    content: "";
+    box-shadow: 0 0 12px rgba(13, 214, 189, 0.45);
+}
 
-    .menu-item:disabled {
-        color: #8193a3;
-        -webkit-text-fill-color: #8193a3;
-        cursor: default;
-        opacity: 0.82;
-    }
+.menu-item:disabled {
+    color: #8193a3;
+    -webkit-text-fill-color: #8193a3;
+    cursor: default;
+    opacity: 0.82;
+}
 
 .menu-status {
     display: flex;
@@ -146,10 +148,10 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(16, 183, 164, 0.1);
 }
 
-    .menu-status.connected .status-dot {
-        background: var(--success);
-        box-shadow: 0 0 0 4px rgba(69, 223, 115, 0.1), 0 0 10px rgba(69, 223, 115, 0.55);
-    }
+.menu-status.connected .status-dot {
+    background: var(--success);
+    box-shadow: 0 0 0 4px rgba(69, 223, 115, 0.1), 0 0 10px rgba(69, 223, 115, 0.55);
+}
 
 /* Área de trabajo */
 .workspace {
@@ -201,17 +203,17 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .sidebar-tab:hover {
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.035);
-    }
+.sidebar-tab:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.035);
+}
 
-    .sidebar-tab.active {
-        color: #dffef9;
-        border-color: rgba(16, 183, 164, 0.28);
-        background: linear-gradient(135deg, rgba(16, 183, 164, 0.2), rgba(47, 158, 232, 0.09));
-        box-shadow: inset 0 -2px 0 var(--accent);
-    }
+.sidebar-tab.active {
+    color: #dffef9;
+    border-color: rgba(16, 183, 164, 0.28);
+    background: linear-gradient(135deg, rgba(16, 183, 164, 0.2), rgba(47, 158, 232, 0.09));
+    box-shadow: inset 0 -2px 0 var(--accent);
+}
 
 .sidebar-tab-icon {
     color: var(--accent-strong);
@@ -227,20 +229,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     scrollbar-color: #2b455b transparent;
 }
 
-    .panel-body::-webkit-scrollbar,
-    .terminal-screen::-webkit-scrollbar,
-    .port-options::-webkit-scrollbar {
-        width: 8px;
-    }
+.panel-body::-webkit-scrollbar,
+.terminal-screen::-webkit-scrollbar,
+.port-options::-webkit-scrollbar {
+    width: 8px;
+}
 
-    .panel-body::-webkit-scrollbar-thumb,
-    .terminal-screen::-webkit-scrollbar-thumb,
-    .port-options::-webkit-scrollbar-thumb {
-        border: 2px solid transparent;
-        border-radius: 10px;
-        background: #2b455b;
-        background-clip: padding-box;
-    }
+.panel-body::-webkit-scrollbar-thumb,
+.terminal-screen::-webkit-scrollbar-thumb,
+.port-options::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background: #2b455b;
+    background-clip: padding-box;
+}
 
 .panel-section {
     min-width: 0;
@@ -253,12 +255,12 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     margin-bottom: 14px;
 }
 
-    .section-header > div {
-        display: flex;
-        align-items: center;
-        min-width: 0;
-        gap: 10px;
-    }
+.section-header > div {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 10px;
+}
 
 .section-icon {
     display: grid;
@@ -303,29 +305,29 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .icon-button:hover:not(:disabled) {
-        color: white;
-        border-color: var(--accent);
-        background: rgba(16, 183, 164, 0.16);
-        box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.08);
-    }
+.icon-button:hover:not(:disabled) {
+    color: white;
+    border-color: var(--accent);
+    background: rgba(16, 183, 164, 0.16);
+    box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.08);
+}
 
-    .icon-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.42;
-    }
+.icon-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.42;
+}
 
 .field-group {
     margin-bottom: 12px;
 }
 
-    .field-group > label {
-        display: block;
-        margin-bottom: 7px;
-        color: var(--text-soft);
-        font-size: 0.72rem;
-        font-weight: 750;
-    }
+.field-group > label {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--text-soft);
+    font-size: 0.72rem;
+    font-weight: 750;
+}
 
 .port-selector {
     position: relative;
@@ -346,16 +348,16 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
-    .port-selector-button:hover:not(:disabled) {
-        border-color: var(--accent);
-        background: #0d1c2b;
-        box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.08);
-    }
+.port-selector-button:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: #0d1c2b;
+    box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.08);
+}
 
-    .port-selector-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.55;
-    }
+.port-selector-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
 
 .port-button-content {
     display: flex;
@@ -364,12 +366,12 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 10px;
 }
 
-    .port-button-content strong {
-        overflow: hidden;
-        font-size: 0.82rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.port-button-content strong {
+    overflow: hidden;
+    font-size: 0.82rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .port-symbol {
     color: var(--text-muted);
@@ -413,15 +415,15 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .port-option:hover {
-        color: white;
-        background: var(--bg-hover);
-    }
+.port-option:hover {
+    color: white;
+    background: var(--bg-hover);
+}
 
-    .port-option.selected {
-        color: #e4fff9;
-        background: rgba(16, 183, 164, 0.16);
-    }
+.port-option.selected {
+    color: #e4fff9;
+    background: rgba(16, 183, 164, 0.16);
+}
 
 .port-icon,
 .option-check {
@@ -447,28 +449,28 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(13, 27, 41, 0.76);
 }
 
-    .information-card > div {
-        min-width: 0;
-    }
+.information-card > div {
+    min-width: 0;
+}
 
-    .information-card span:not(.info-icon) {
-        display: block;
-        margin-bottom: 3px;
-        overflow: hidden;
-        color: var(--text-muted);
-        font-size: 0.61rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.information-card span:not(.info-icon) {
+    display: block;
+    margin-bottom: 3px;
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.61rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-    .information-card strong {
-        display: block;
-        overflow: hidden;
-        color: var(--text);
-        font-size: 0.82rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.information-card strong {
+    display: block;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 0.82rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .info-icon {
     display: grid;
@@ -518,36 +520,36 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     padding: 5px 12px 11px;
 }
 
-    .configuration-list > div,
-    .device-list > div {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(95px, auto);
-        align-items: center;
-        gap: 12px;
-    }
+.configuration-list > div,
+.device-list > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(95px, auto);
+    align-items: center;
+    gap: 12px;
+}
 
-    .configuration-list dt,
-    .device-list dt {
-        color: var(--text-muted);
-        font-size: 0.66rem;
-    }
+.configuration-list dt,
+.device-list dt {
+    color: var(--text-muted);
+    font-size: 0.66rem;
+}
 
-    .configuration-list dd,
-    .device-list dd {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        min-width: 0;
-        gap: 6px;
-        margin: 0;
-        overflow: hidden;
-        color: var(--text-soft);
-        font-size: 0.68rem;
-        font-weight: 650;
-        text-align: right;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.configuration-list dd,
+.device-list dd {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 0;
+    gap: 6px;
+    margin: 0;
+    overflow: hidden;
+    color: var(--text-soft);
+    font-size: 0.68rem;
+    font-weight: 650;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .card-action {
     width: 100%;
@@ -561,15 +563,15 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .card-action:hover:not(:disabled) {
-        color: #dffff9;
-        background: rgba(16, 183, 164, 0.12);
-    }
+.card-action:hover:not(:disabled) {
+    color: #dffff9;
+    background: rgba(16, 183, 164, 0.12);
+}
 
-    .card-action:disabled {
-        cursor: not-allowed;
-        opacity: 0.45;
-    }
+.card-action:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
 
 .mini-status-dot {
     width: 7px;
@@ -577,14 +579,14 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     border-radius: 50%;
 }
 
-    .mini-status-dot.online {
-        background: var(--success);
-        box-shadow: 0 0 8px rgba(69, 223, 115, 0.5);
-    }
+.mini-status-dot.online {
+    background: var(--success);
+    box-shadow: 0 0 8px rgba(69, 223, 115, 0.5);
+}
 
-    .mini-status-dot.offline {
-        background: #6f8191;
-    }
+.mini-status-dot.offline {
+    background: #6f8191;
+}
 
 .empty-state {
     display: grid;
@@ -655,31 +657,31 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .toggle-option:hover {
-        border-color: #2b4b60;
-        background: rgba(15, 31, 47, 0.82);
-    }
+.toggle-option:hover {
+    border-color: #2b4b60;
+    background: rgba(15, 31, 47, 0.82);
+}
 
-    .toggle-option input {
-        width: 16px;
-        height: 16px;
-        accent-color: var(--accent);
-    }
+.toggle-option input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+}
 
-    .toggle-option span {
-        display: grid;
-        gap: 2px;
-    }
+.toggle-option span {
+    display: grid;
+    gap: 2px;
+}
 
-    .toggle-option strong {
-        color: var(--text);
-        font-size: 0.72rem;
-    }
+.toggle-option strong {
+    color: var(--text);
+    font-size: 0.72rem;
+}
 
-    .toggle-option small {
-        color: var(--text-muted);
-        font-size: 0.61rem;
-    }
+.toggle-option small {
+    color: var(--text-muted);
+    font-size: 0.61rem;
+}
 
 .connection-footer {
     padding: 12px;
@@ -708,11 +710,11 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-size: 0.68rem;
 }
 
-    .connection-value strong {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.connection-value strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .connection-indicator {
     flex: 0 0 auto;
@@ -721,14 +723,14 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     border-radius: 50%;
 }
 
-    .connection-indicator.online {
-        background: var(--success);
-        box-shadow: 0 0 0 3px rgba(69, 223, 115, 0.1), 0 0 8px rgba(69, 223, 115, 0.45);
-    }
+.connection-indicator.online {
+    background: var(--success);
+    box-shadow: 0 0 0 3px rgba(69, 223, 115, 0.1), 0 0 8px rgba(69, 223, 115, 0.45);
+}
 
-    .connection-indicator.offline {
-        background: #6f8191;
-    }
+.connection-indicator.offline {
+    background: #6f8191;
+}
 
 .primary-action {
     display: flex;
@@ -745,29 +747,29 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     transition: filter 0.15s ease, transform 0.15s ease;
 }
 
-    .primary-action.connect {
-        color: white;
-        border-color: rgba(13, 214, 189, 0.55);
-        background: linear-gradient(135deg, #0c857d, #0cae9e);
-        box-shadow: 0 8px 18px rgba(12, 174, 158, 0.17);
-    }
+.primary-action.connect {
+    color: white;
+    border-color: rgba(13, 214, 189, 0.55);
+    background: linear-gradient(135deg, #0c857d, #0cae9e);
+    box-shadow: 0 8px 18px rgba(12, 174, 158, 0.17);
+}
 
-    .primary-action.disconnect {
-        color: #ffdfe2;
-        border-color: rgba(255, 101, 114, 0.3);
-        background: rgba(255, 101, 114, 0.11);
-    }
+.primary-action.disconnect {
+    color: #ffdfe2;
+    border-color: rgba(255, 101, 114, 0.3);
+    background: rgba(255, 101, 114, 0.11);
+}
 
-    .primary-action:hover:not(:disabled) {
-        filter: brightness(1.09);
-        transform: translateY(-1px);
-    }
+.primary-action:hover:not(:disabled) {
+    filter: brightness(1.09);
+    transform: translateY(-1px);
+}
 
-    .primary-action:disabled {
-        cursor: not-allowed;
-        opacity: 0.4;
-        box-shadow: none;
-    }
+.primary-action:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+    box-shadow: none;
+}
 
 /* Terminal */
 .terminal-workspace {
@@ -804,12 +806,12 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-weight: 750;
 }
 
-    .terminal-tab.active {
-        color: var(--text);
-        border-color: var(--border);
-        background: #0d1927;
-        box-shadow: inset 0 2px 0 var(--accent);
-    }
+.terminal-tab.active {
+    color: var(--text);
+    border-color: var(--border);
+    background: #0d1927;
+    box-shadow: inset 0 2px 0 var(--accent);
+}
 
 .terminal-tab-dot {
     width: 8px;
@@ -834,10 +836,10 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-size: 1.15rem;
 }
 
-    .new-terminal-tab:disabled {
-        cursor: default;
-        opacity: 0.72;
-    }
+.new-terminal-tab:disabled {
+    cursor: default;
+    opacity: 0.72;
+}
 
 .terminal-panel {
     display: grid;
@@ -921,11 +923,11 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     white-space: nowrap;
 }
 
-    .auto-scroll-option input {
-        width: 15px;
-        height: 15px;
-        accent-color: var(--accent);
-    }
+.auto-scroll-option input {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent);
+}
 
 .clear-button {
     display: flex;
@@ -942,16 +944,16 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .clear-button:hover:not(:disabled) {
-        color: white;
-        border-color: var(--accent);
-        background: rgba(16, 183, 164, 0.12);
-    }
+.clear-button:hover:not(:disabled) {
+    color: white;
+    border-color: var(--accent);
+    background: rgba(16, 183, 164, 0.12);
+}
 
-    .clear-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.4;
-    }
+.clear-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
 
 .terminal-screen {
     min-width: 0;
@@ -959,7 +961,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     padding: 13px 15px;
     overflow: auto;
     color: #cdd9e4;
-    background: radial-gradient(circle at 80% 0%, rgba(16, 183, 164, 0.035), transparent 28%), linear-gradient(180deg, #050f19 0%, #06111b 100%);
+    background:
+        radial-gradient(circle at 80% 0%, rgba(16, 183, 164, 0.035), transparent 28%),
+        linear-gradient(180deg, #050f19 0%, #06111b 100%);
     font-family: "Cascadia Code", Consolas, "Courier New", monospace;
     font-size: 0.78rem;
     line-height: 1.55;
@@ -1057,20 +1061,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     margin-bottom: 8px;
 }
 
-    .send-header > div {
-        display: grid;
-        gap: 2px;
-    }
+.send-header > div {
+    display: grid;
+    gap: 2px;
+}
 
-    .send-header strong {
-        color: var(--text);
-        font-size: 0.72rem;
-    }
+.send-header strong {
+    color: var(--text);
+    font-size: 0.72rem;
+}
 
-    .send-header span:not(.raw-mode-badge) {
-        color: var(--text-muted);
-        font-size: 0.61rem;
-    }
+.send-header span:not(.raw-mode-badge) {
+    color: var(--text-muted);
+    font-size: 0.61rem;
+}
 
 .raw-mode-badge {
     padding: 3px 7px;
@@ -1102,10 +1106,10 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     transition: border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
-    .send-input-wrapper:focus-within {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.08);
-    }
+.send-input-wrapper:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.08);
+}
 
 .send-prefix {
     display: grid;
@@ -1133,14 +1137,14 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-size: 0.75rem;
 }
 
-    .send-input::placeholder {
-        color: #617587;
-    }
+.send-input::placeholder {
+    color: #617587;
+}
 
-    .send-input:disabled {
-        cursor: not-allowed;
-        opacity: 0.5;
-    }
+.send-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
 
 .send-button {
     display: flex;
@@ -1160,15 +1164,15 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     box-shadow: 0 7px 17px rgba(11, 185, 165, 0.17);
 }
 
-    .send-button:hover:not(:disabled) {
-        filter: brightness(1.08);
-    }
+.send-button:hover:not(:disabled) {
+    filter: brightness(1.08);
+}
 
-    .send-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.38;
-        box-shadow: none;
-    }
+.send-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.38;
+    box-shadow: none;
+}
 
 /* Barra inferior */
 .app-statusbar {
@@ -1196,11 +1200,11 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 7px;
 }
 
-    .statusbar-message span:last-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.statusbar-message span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .statusbar-icon {
     flex: 0 0 auto;
@@ -1212,14 +1216,14 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 18px;
 }
 
-    .statusbar-data span {
-        gap: 4px;
-        white-space: nowrap;
-    }
+.statusbar-data span {
+    gap: 4px;
+    white-space: nowrap;
+}
 
-    .statusbar-data strong {
-        color: var(--text-soft);
-    }
+.statusbar-data strong {
+    color: var(--text-soft);
+}
 
 @media (max-width: 1100px) {
     .workspace {
@@ -1351,14 +1355,16 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     flex: 0 0 auto;
     max-width: 220px;
     cursor: pointer;
-    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+    transition: border-color 0.15s ease,
+                background 0.15s ease,
+                color 0.15s ease;
 }
 
-    .terminal-tab:hover {
-        color: var(--text);
-        border-color: rgba(16, 183, 164, 0.44);
-        background: rgba(14, 31, 47, 0.94);
-    }
+.terminal-tab:hover {
+    color: var(--text);
+    border-color: rgba(16, 183, 164, 0.44);
+    background: rgba(14, 31, 47, 0.94);
+}
 
 .terminal-tab-name {
     overflow: hidden;
@@ -1384,25 +1390,28 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     place-items: center;
     border-radius: 5px;
     cursor: pointer;
-    transition: color 0.15s ease, background 0.15s ease;
+    transition: color 0.15s ease,
+                background 0.15s ease;
 }
 
-    .terminal-tab-close:hover {
-        color: #ffffff;
-        background: rgba(235, 83, 104, 0.78);
-    }
+.terminal-tab-close:hover {
+    color: #ffffff;
+    background: rgba(235, 83, 104, 0.78);
+}
 
 .new-terminal-tab {
     flex: 0 0 auto;
     cursor: pointer;
-    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+    transition: border-color 0.15s ease,
+                background 0.15s ease,
+                color 0.15s ease;
 }
 
-    .new-terminal-tab:hover {
-        color: #ffffff;
-        border-color: rgba(16, 183, 164, 0.65);
-        background: rgba(16, 183, 164, 0.18);
-    }
+.new-terminal-tab:hover {
+    color: #ffffff;
+    border-color: rgba(16, 183, 164, 0.65);
+    background: rgba(16, 183, 164, 0.18);
+}
 
 /* ==========================================
    Selector de comunicación y sesiones
@@ -1423,10 +1432,10 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 7px;
 }
 
-    .menu-item.communication.open {
-        color: #ffffff;
-        background: rgba(16, 183, 164, 0.09);
-    }
+.menu-item.communication.open {
+    color: #ffffff;
+    background: rgba(16, 183, 164, 0.09);
+}
 
 .menu-arrow {
     color: var(--accent-strong);
@@ -1479,27 +1488,27 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .session-type-option:hover {
-        border-color: rgba(16, 183, 164, 0.3);
-        background: rgba(16, 183, 164, 0.09);
-    }
+.session-type-option:hover {
+    border-color: rgba(16, 183, 164, 0.3);
+    background: rgba(16, 183, 164, 0.09);
+}
 
-    .session-type-option > span:last-child {
-        display: grid;
-        min-width: 0;
-        gap: 3px;
-    }
+.session-type-option > span:last-child {
+    display: grid;
+    min-width: 0;
+    gap: 3px;
+}
 
-    .session-type-option strong {
-        color: #f2f8fb;
-        font-size: 0.74rem;
-    }
+.session-type-option strong {
+    color: #f2f8fb;
+    font-size: 0.74rem;
+}
 
-    .session-type-option small {
-        color: var(--text-muted);
-        font-size: 0.62rem;
-        line-height: 1.35;
-    }
+.session-type-option small {
+    color: var(--text-muted);
+    font-size: 0.62rem;
+    line-height: 1.35;
+}
 
 .session-type-icon {
     display: grid;
@@ -1513,17 +1522,17 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-weight: 900;
 }
 
-    .session-type-icon.serial {
-        color: var(--accent-strong);
-        border-color: rgba(16, 183, 164, 0.35);
-        background: rgba(16, 183, 164, 0.08);
-    }
+.session-type-icon.serial {
+    color: var(--accent-strong);
+    border-color: rgba(16, 183, 164, 0.35);
+    background: rgba(16, 183, 164, 0.08);
+}
 
-    .session-type-icon.modbus {
-        color: #83bfff;
-        border-color: rgba(47, 158, 232, 0.38);
-        background: rgba(47, 158, 232, 0.09);
-    }
+.session-type-icon.modbus {
+    color: #83bfff;
+    border-color: rgba(47, 158, 232, 0.38);
+    background: rgba(47, 158, 232, 0.09);
+}
 
 /* El menú del botón + debe poder salir de la fila de pestañas. */
 .terminal-tabs {
@@ -1536,9 +1545,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     margin-left: 4px;
 }
 
-    .new-session-wrapper .new-terminal-tab {
-        margin-left: 0;
-    }
+.new-session-wrapper .new-terminal-tab {
+    margin-left: 0;
+}
 
 .new-terminal-tab.open {
     color: #ffffff;
@@ -1557,17 +1566,17 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     letter-spacing: 0.04em;
 }
 
-    .terminal-tab-protocol.serial {
-        color: #55e8d5;
-        border-color: rgba(16, 183, 164, 0.3);
-        background: rgba(16, 183, 164, 0.08);
-    }
+.terminal-tab-protocol.serial {
+    color: #55e8d5;
+    border-color: rgba(16, 183, 164, 0.3);
+    background: rgba(16, 183, 164, 0.08);
+}
 
-    .terminal-tab-protocol.modbus {
-        color: #8cc5ff;
-        border-color: rgba(47, 158, 232, 0.32);
-        background: rgba(47, 158, 232, 0.09);
-    }
+.terminal-tab-protocol.modbus {
+    color: #8cc5ff;
+    border-color: rgba(47, 158, 232, 0.32);
+    background: rgba(47, 158, 232, 0.09);
+}
 
 .terminal-icon.modbus {
     color: #8cc5ff;
@@ -1594,20 +1603,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 10px;
 }
 
-    .modbus-section-heading > div {
-        display: grid;
-        gap: 2px;
-    }
+.modbus-section-heading > div {
+    display: grid;
+    gap: 2px;
+}
 
-    .modbus-section-heading strong {
-        color: var(--text);
-        font-size: 0.74rem;
-    }
+.modbus-section-heading strong {
+    color: var(--text);
+    font-size: 0.74rem;
+}
 
-    .modbus-section-heading small {
-        color: var(--text-muted);
-        font-size: 0.61rem;
-    }
+.modbus-section-heading small {
+    color: var(--text-muted);
+    font-size: 0.61rem;
+}
 
 .modbus-config-grid {
     display: grid;
@@ -1621,35 +1630,35 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     color: var(--text-soft);
 }
 
-    .numeric-field > span:first-child {
-        color: var(--text-soft);
-        font-size: 0.68rem;
-        font-weight: 750;
-    }
+.numeric-field > span:first-child {
+    color: var(--text-soft);
+    font-size: 0.68rem;
+    font-weight: 750;
+}
 
-    .numeric-field input {
-        width: 100%;
-        min-width: 0;
-        min-height: 40px;
-        padding: 0 11px;
-        border: 1px solid #294157;
-        border-radius: 8px;
-        outline: none;
-        color: var(--text);
-        background: #091522;
-        font-family: "Cascadia Code", Consolas, monospace;
-        font-size: 0.73rem;
-    }
+.numeric-field input {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    padding: 0 11px;
+    border: 1px solid #294157;
+    border-radius: 8px;
+    outline: none;
+    color: var(--text);
+    background: #091522;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.73rem;
+}
 
-        .numeric-field input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.1);
-        }
+.numeric-field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.1);
+}
 
-    .numeric-field small {
-        color: var(--text-muted);
-        font-size: 0.58rem;
-    }
+.numeric-field small {
+    color: var(--text-muted);
+    font-size: 0.58rem;
+}
 
 .input-with-unit {
     display: grid;
@@ -1661,26 +1670,26 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: #091522;
 }
 
-    .input-with-unit:focus-within {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.1);
-    }
+.input-with-unit:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.1);
+}
 
-    .input-with-unit input {
-        border: 0;
-        border-radius: 0;
-        box-shadow: none;
-    }
+.input-with-unit input {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
 
-        .input-with-unit input:focus {
-            box-shadow: none;
-        }
+.input-with-unit input:focus {
+    box-shadow: none;
+}
 
-    .input-with-unit > span {
-        padding: 0 10px;
-        color: var(--text-muted);
-        font-size: 0.64rem;
-    }
+.input-with-unit > span {
+    padding: 0 10px;
+    color: var(--text-muted);
+    font-size: 0.64rem;
+}
 
 /* ==========================================
    Constructor de consultas Modbus
@@ -1701,20 +1710,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 12px;
 }
 
-    .modbus-builder-header > div {
-        display: grid;
-        gap: 2px;
-    }
+.modbus-builder-header > div {
+    display: grid;
+    gap: 2px;
+}
 
-    .modbus-builder-header strong {
-        color: var(--text);
-        font-size: 0.76rem;
-    }
+.modbus-builder-header strong {
+    color: var(--text);
+    font-size: 0.76rem;
+}
 
-    .modbus-builder-header span:not(.preview-mode-badge) {
-        color: var(--text-muted);
-        font-size: 0.62rem;
-    }
+.modbus-builder-header span:not(.preview-mode-badge) {
+    color: var(--text-muted);
+    font-size: 0.62rem;
+}
 
 .preview-mode-badge {
     flex: 0 0 auto;
@@ -1753,10 +1762,10 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     white-space: nowrap;
 }
 
-    .generate-frame-button:hover {
-        filter: brightness(1.09);
-        transform: translateY(-1px);
-    }
+.generate-frame-button:hover {
+    filter: brightness(1.09);
+    transform: translateY(-1px);
+}
 
 .frame-preview {
     display: grid;
@@ -1769,21 +1778,21 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(47, 158, 232, 0.06);
 }
 
-    .frame-preview > span {
-        color: #8cc5ff;
-        font-size: 0.62rem;
-        font-weight: 800;
-        white-space: nowrap;
-    }
+.frame-preview > span {
+    color: #8cc5ff;
+    font-size: 0.62rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
 
-    .frame-preview code {
-        min-width: 0;
-        overflow-x: auto;
-        color: #d8eaff;
-        font-family: "Cascadia Code", Consolas, monospace;
-        font-size: 0.72rem;
-        white-space: nowrap;
-    }
+.frame-preview code {
+    min-width: 0;
+    overflow-x: auto;
+    color: #d8eaff;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.72rem;
+    white-space: nowrap;
+}
 
 .modbus-stage-note {
     display: flex;
@@ -1794,9 +1803,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     line-height: 1.4;
 }
 
-    .modbus-stage-note > span {
-        color: var(--warning);
-    }
+.modbus-stage-note > span {
+    color: var(--warning);
+}
 
 @media (max-width: 1150px) {
     .modbus-query-grid {
@@ -1884,13 +1893,13 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(69, 223, 115, 0.055);
 }
 
-    .frame-preview.response > span {
-        color: #76e7a3;
-    }
+.frame-preview.response > span {
+    color: #76e7a3;
+}
 
-    .frame-preview.response code {
-        color: #d8ffe7;
-    }
+.frame-preview.response code {
+    color: #d8ffe7;
+}
 
 .modbus-results {
     display: grid;
@@ -1911,20 +1920,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(16, 183, 164, 0.055);
 }
 
-    .modbus-results-header > div {
-        display: grid;
-        gap: 1px;
-    }
+.modbus-results-header > div {
+    display: grid;
+    gap: 1px;
+}
 
-    .modbus-results-header strong {
-        color: var(--text);
-        font-size: 0.68rem;
-    }
+.modbus-results-header strong {
+    color: var(--text);
+    font-size: 0.68rem;
+}
 
-    .modbus-results-header div > span {
-        color: var(--text-muted);
-        font-size: 0.57rem;
-    }
+.modbus-results-header div > span {
+    color: var(--text-muted);
+    font-size: 0.57rem;
+}
 
 .crc-status {
     flex: 0 0 auto;
@@ -1935,11 +1944,11 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-weight: 850;
 }
 
-    .crc-status.valid {
-        color: #91f1b7;
-        border: 1px solid rgba(69, 223, 115, 0.3);
-        background: rgba(69, 223, 115, 0.08);
-    }
+.crc-status.valid {
+    color: #91f1b7;
+    border: 1px solid rgba(69, 223, 115, 0.3);
+    background: rgba(69, 223, 115, 0.08);
+}
 
 .modbus-register-table {
     min-height: 0;
@@ -1956,43 +1965,43 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     border-bottom: 1px solid rgba(34, 54, 74, 0.58);
 }
 
-    .modbus-register-row:last-child {
-        border-bottom: 0;
-    }
+.modbus-register-row:last-child {
+    border-bottom: 0;
+}
 
-    .modbus-register-row > * {
-        padding: 7px 10px;
-        color: #cbd8e3;
-        font-size: 0.64rem;
-    }
+.modbus-register-row > * {
+    padding: 7px 10px;
+    color: #cbd8e3;
+    font-size: 0.64rem;
+}
 
-        .modbus-register-row > * + * {
-            border-left: 1px solid rgba(34, 54, 74, 0.48);
-        }
+.modbus-register-row > * + * {
+    border-left: 1px solid rgba(34, 54, 74, 0.48);
+}
 
-    .modbus-register-row.header {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-        background: #0c1b2a;
-    }
+.modbus-register-row.header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #0c1b2a;
+}
 
-        .modbus-register-row.header span {
-            color: var(--text-muted);
-            font-size: 0.56rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.035em;
-        }
+.modbus-register-row.header span {
+    color: var(--text-muted);
+    font-size: 0.56rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.035em;
+}
 
-    .modbus-register-row strong {
-        color: var(--accent-strong);
-    }
+.modbus-register-row strong {
+    color: var(--accent-strong);
+}
 
-    .modbus-register-row code {
-        color: #8cc5ff;
-        font-family: "Cascadia Code", Consolas, monospace;
-    }
+.modbus-register-row code {
+    color: #8cc5ff;
+    font-family: "Cascadia Code", Consolas, monospace;
+}
 
 .modbus-stage-note.active > span {
     color: var(--accent-strong);
@@ -2033,14 +2042,17 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     border: 1px solid rgba(58, 91, 120, 0.46);
     border-radius: 9px;
     background: rgba(10, 25, 39, 0.68);
-    transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+    transition:
+        border-color 160ms ease,
+        background 160ms ease,
+        box-shadow 160ms ease;
 }
 
-    .modbus-polling-panel.active {
-        border-color: rgba(69, 223, 115, 0.35);
-        background: rgba(22, 86, 68, 0.11);
-        box-shadow: inset 0 0 24px rgba(69, 223, 115, 0.025);
-    }
+.modbus-polling-panel.active {
+    border-color: rgba(69, 223, 115, 0.35);
+    background: rgba(22, 86, 68, 0.11);
+    box-shadow: inset 0 0 24px rgba(69, 223, 115, 0.025);
+}
 
 .polling-panel-header {
     display: flex;
@@ -2049,20 +2061,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 12px;
 }
 
-    .polling-panel-header > div {
-        display: grid;
-        gap: 2px;
-    }
+.polling-panel-header > div {
+    display: grid;
+    gap: 2px;
+}
 
-    .polling-panel-header strong {
-        color: var(--text);
-        font-size: 0.68rem;
-    }
+.polling-panel-header strong {
+    color: var(--text);
+    font-size: 0.68rem;
+}
 
-    .polling-panel-header div > span {
-        color: var(--text-muted);
-        font-size: 0.58rem;
-    }
+.polling-panel-header div > span {
+    color: var(--text-muted);
+    font-size: 0.58rem;
+}
 
 .polling-action {
     display: inline-flex;
@@ -2076,34 +2088,41 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-size: 0.63rem;
     font-weight: 850;
     cursor: pointer;
-    transition: filter 150ms ease, transform 150ms ease;
+    transition:
+        filter 150ms ease,
+        transform 150ms ease;
 }
 
-    .polling-action.start {
-        color: #d9ffea;
-        border: 1px solid rgba(69, 223, 115, 0.38);
-        background: rgba(23, 139, 91, 0.22);
-    }
+.polling-action.start {
+    color: #d9ffea;
+    border: 1px solid rgba(69, 223, 115, 0.38);
+    background: rgba(23, 139, 91, 0.22);
+}
 
-    .polling-action.stop {
-        color: #ffd9dd;
-        border: 1px solid rgba(239, 92, 105, 0.42);
-        background: rgba(172, 51, 68, 0.2);
-    }
+.polling-action.stop {
+    color: #ffd9dd;
+    border: 1px solid rgba(239, 92, 105, 0.42);
+    background: rgba(172, 51, 68, 0.2);
+}
 
-    .polling-action:hover:not(:disabled) {
-        filter: brightness(1.12);
-        transform: translateY(-1px);
-    }
+.polling-action:hover:not(:disabled) {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
 
-    .polling-action:disabled {
-        cursor: not-allowed;
-        opacity: 0.42;
-    }
+.polling-action:disabled {
+    cursor: not-allowed;
+    opacity: 0.42;
+}
 
 .polling-controls {
     display: grid;
-    grid-template-columns: minmax(150px, 0.85fr) minmax(210px, 1.25fr) minmax(85px, 0.52fr) minmax(85px, 0.52fr) minmax(105px, 0.66fr);
+    grid-template-columns:
+        minmax(150px, 0.85fr)
+        minmax(210px, 1.25fr)
+        minmax(85px, 0.52fr)
+        minmax(85px, 0.52fr)
+        minmax(105px, 0.66fr);
     align-items: end;
     gap: 9px;
 }
@@ -2124,27 +2143,27 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .polling-log-option input {
-        width: 15px;
-        height: 15px;
-        flex: 0 0 auto;
-        accent-color: var(--accent);
-    }
+.polling-log-option input {
+    width: 15px;
+    height: 15px;
+    flex: 0 0 auto;
+    accent-color: var(--accent);
+}
 
-    .polling-log-option > span {
-        display: grid;
-        gap: 1px;
-    }
+.polling-log-option > span {
+    display: grid;
+    gap: 1px;
+}
 
-    .polling-log-option strong {
-        color: var(--text);
-        font-size: 0.61rem;
-    }
+.polling-log-option strong {
+    color: var(--text);
+    font-size: 0.61rem;
+}
 
-    .polling-log-option small {
-        color: var(--text-muted);
-        font-size: 0.54rem;
-    }
+.polling-log-option small {
+    color: var(--text-muted);
+    font-size: 0.54rem;
+}
 
 .polling-stat {
     display: grid;
@@ -2157,26 +2176,26 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(7, 18, 29, 0.7);
 }
 
-    .polling-stat span {
-        color: var(--text-muted);
-        font-size: 0.53rem;
-        text-transform: uppercase;
-        letter-spacing: 0.035em;
-    }
+.polling-stat span {
+    color: var(--text-muted);
+    font-size: 0.53rem;
+    text-transform: uppercase;
+    letter-spacing: 0.035em;
+}
 
-    .polling-stat strong {
-        color: #8df1bd;
-        font-family: "Cascadia Code", Consolas, monospace;
-        font-size: 0.7rem;
-    }
+.polling-stat strong {
+    color: #8df1bd;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.7rem;
+}
 
-    .polling-stat.error strong {
-        color: #ff9ca6;
-    }
+.polling-stat.error strong {
+    color: #ff9ca6;
+}
 
-    .polling-stat.last strong {
-        color: #9de8ff;
-    }
+.polling-stat.last strong {
+    color: #9de8ff;
+}
 
 @media (max-width: 1250px) {
     .polling-controls {
@@ -2240,31 +2259,38 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     transition: 0.18s ease;
 }
 
-    .export-terminal-button:hover:not(:disabled) {
-        color: #e7fbff;
-        border-color: rgba(41, 196, 187, 0.72);
-        background: rgba(21, 106, 109, 0.38);
-        transform: translateY(-1px);
-    }
+.export-terminal-button:hover:not(:disabled) {
+    color: #e7fbff;
+    border-color: rgba(41, 196, 187, 0.72);
+    background: rgba(21, 106, 109, 0.38);
+    transform: translateY(-1px);
+}
 
-    .export-terminal-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.38;
-    }
+.export-terminal-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.38;
+}
 
 .data-export-panel {
     margin-top: 14px;
     padding: 14px;
     border: 1px solid rgba(82, 125, 151, 0.22);
     border-radius: 12px;
-    background: linear-gradient( 145deg, rgba(10, 27, 42, 0.88), rgba(7, 20, 33, 0.94) );
+    background:
+        linear-gradient(
+            145deg,
+            rgba(10, 27, 42, 0.88),
+            rgba(7, 20, 33, 0.94)
+        );
     transition: 0.2s ease;
 }
 
-    .data-export-panel.active {
-        border-color: rgba(49, 209, 148, 0.48);
-        box-shadow: inset 0 0 0 1px rgba(49, 209, 148, 0.06), 0 0 24px rgba(29, 174, 121, 0.07);
-    }
+.data-export-panel.active {
+    border-color: rgba(49, 209, 148, 0.48);
+    box-shadow:
+        inset 0 0 0 1px rgba(49, 209, 148, 0.06),
+        0 0 24px rgba(29, 174, 121, 0.07);
+}
 
 .data-export-header {
     display: flex;
@@ -2273,20 +2299,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 14px;
 }
 
-    .data-export-header > div:first-child {
-        display: grid;
-        gap: 3px;
-    }
+.data-export-header > div:first-child {
+    display: grid;
+    gap: 3px;
+}
 
-    .data-export-header strong {
-        color: #e7f1f7;
-        font-size: 0.8rem;
-    }
+.data-export-header strong {
+    color: #e7f1f7;
+    font-size: 0.8rem;
+}
 
-    .data-export-header span {
-        color: #7894a6;
-        font-size: 0.67rem;
-    }
+.data-export-header span {
+    color: #7894a6;
+    font-size: 0.67rem;
+}
 
 .csv-action {
     display: inline-flex;
@@ -2305,20 +2331,22 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     transition: 0.18s ease;
 }
 
-    .csv-action.start {
-        border-color: rgba(50, 213, 151, 0.32);
-        background: linear-gradient(135deg, #087f77, #0c6d78);
-    }
+.csv-action.start {
+    border-color: rgba(50, 213, 151, 0.32);
+    background:
+        linear-gradient(135deg, #087f77, #0c6d78);
+}
 
-    .csv-action.stop {
-        border-color: rgba(255, 105, 116, 0.36);
-        background: linear-gradient(135deg, #b84152, #8f3142);
-    }
+.csv-action.stop {
+    border-color: rgba(255, 105, 116, 0.36);
+    background:
+        linear-gradient(135deg, #b84152, #8f3142);
+}
 
-    .csv-action:hover {
-        filter: brightness(1.08);
-        transform: translateY(-1px);
-    }
+.csv-action:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
 
 .data-export-status {
     display: grid;
@@ -2337,26 +2365,26 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(4, 15, 26, 0.5);
 }
 
-    .export-status-item span {
-        color: #718b9c;
-        font-size: 0.62rem;
-        text-transform: uppercase;
-        letter-spacing: 0.055em;
-    }
+.export-status-item span {
+    color: #718b9c;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.055em;
+}
 
-    .export-status-item strong {
-        min-width: 0;
-        overflow: hidden;
-        color: #d9e8f1;
-        font-family: "Cascadia Code", Consolas, monospace;
-        font-size: 0.72rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.export-status-item strong {
+    min-width: 0;
+    overflow: hidden;
+    color: #d9e8f1;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.72rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-        .export-status-item strong.recording {
-            color: #4fe19c;
-        }
+.export-status-item strong.recording {
+    color: #4fe19c;
+}
 
 .csv-error-message {
     margin-top: 10px;
@@ -2378,9 +2406,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     line-height: 1.45;
 }
 
-    .data-export-note > span {
-        color: #2dc9bd;
-    }
+.data-export-note > span {
+    color: #2dc9bd;
+}
 
 @media (max-width: 1120px) {
     .data-export-status {
@@ -2416,41 +2444,48 @@ h1, h2, h3, strong, dt, dd, label, span, p {
 ========================================== */
 
 .terminal-panel.modbus-mode {
-    grid-template-rows: auto clamp(115px, 21vh, 185px) minmax(0, 1fr);
+    grid-template-rows:
+        auto
+        clamp(115px, 21vh, 185px)
+        minmax(0, 1fr);
 }
 
-    .terminal-panel.modbus-mode .terminal-screen {
-        border-bottom: 1px solid var(--border-soft);
-    }
+.terminal-panel.modbus-mode .terminal-screen {
+    border-bottom: 1px solid var(--border-soft);
+}
 
-    .terminal-panel.modbus-mode .modbus-builder {
-        min-height: 0;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        scrollbar-width: thin;
-        scrollbar-color: #2b455b transparent;
-    }
+.terminal-panel.modbus-mode .modbus-builder {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #2b455b transparent;
+}
 
-        .terminal-panel.modbus-mode .modbus-builder::-webkit-scrollbar {
-            width: 8px;
-        }
+.terminal-panel.modbus-mode .modbus-builder::-webkit-scrollbar {
+    width: 8px;
+}
 
-        .terminal-panel.modbus-mode .modbus-builder::-webkit-scrollbar-thumb {
-            border: 2px solid transparent;
-            border-radius: 10px;
-            background: #2b455b;
-            background-clip: padding-box;
-        }
+.terminal-panel.modbus-mode .modbus-builder::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background: #2b455b;
+    background-clip: padding-box;
+}
 
 .modbus-query-grid.compact {
-    grid-template-columns: minmax(190px, 1.45fr) minmax(112px, 0.72fr) minmax(112px, 0.72fr) minmax(92px, auto);
+    grid-template-columns:
+        minmax(190px, 1.45fr)
+        minmax(112px, 0.72fr)
+        minmax(112px, 0.72fr)
+        minmax(92px, auto);
     gap: 8px;
 }
 
-    .modbus-query-grid.compact .generate-frame-button {
-        min-height: 38px;
-        padding: 0 13px;
-    }
+.modbus-query-grid.compact .generate-frame-button {
+    min-height: 38px;
+    padding: 0 13px;
+}
 
 .modbus-summary-strip {
     display: grid;
@@ -2470,32 +2505,32 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(7, 18, 29, 0.68);
 }
 
-    .summary-chip span {
-        overflow: hidden;
-        color: var(--text-muted);
-        font-size: 0.52rem;
-        letter-spacing: 0.045em;
-        text-overflow: ellipsis;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
+.summary-chip span {
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.52rem;
+    letter-spacing: 0.045em;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
 
-    .summary-chip strong {
-        overflow: hidden;
-        color: #dce8f1;
-        font-family: "Cascadia Code", Consolas, monospace;
-        font-size: 0.69rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.summary-chip strong {
+    overflow: hidden;
+    color: #dce8f1;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.69rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-        .summary-chip strong.ok {
-            color: #7fe9a9;
-        }
+.summary-chip strong.ok {
+    color: #7fe9a9;
+}
 
-        .summary-chip strong.bad {
-            color: #ff929e;
-        }
+.summary-chip strong.bad {
+    color: #ff929e;
+}
 
 .modbus-compact-sections {
     display: grid;
@@ -2509,30 +2544,30 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(8, 21, 34, 0.72);
 }
 
-    .modbus-compact-section[open] {
-        border-color: rgba(16, 183, 164, 0.3);
-        background: rgba(9, 24, 38, 0.9);
-    }
+.modbus-compact-section[open] {
+    border-color: rgba(16, 183, 164, 0.3);
+    background: rgba(9, 24, 38, 0.9);
+}
 
-    .modbus-compact-section > summary {
-        display: flex;
-        min-height: 43px;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 7px 10px;
-        list-style: none;
-        cursor: pointer;
-        user-select: none;
-    }
+.modbus-compact-section > summary {
+    display: flex;
+    min-height: 43px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 10px;
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+}
 
-        .modbus-compact-section > summary::-webkit-details-marker {
-            display: none;
-        }
+.modbus-compact-section > summary::-webkit-details-marker {
+    display: none;
+}
 
-        .modbus-compact-section > summary:hover {
-            background: rgba(16, 183, 164, 0.055);
-        }
+.modbus-compact-section > summary:hover {
+    background: rgba(16, 183, 164, 0.055);
+}
 
 .compact-section-title {
     display: flex;
@@ -2541,27 +2576,27 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 9px;
 }
 
-    .compact-section-title > span:last-child {
-        display: grid;
-        min-width: 0;
-        gap: 1px;
-    }
+.compact-section-title > span:last-child {
+    display: grid;
+    min-width: 0;
+    gap: 1px;
+}
 
-    .compact-section-title strong {
-        overflow: hidden;
-        color: var(--text);
-        font-size: 0.67rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.compact-section-title strong {
+    overflow: hidden;
+    color: var(--text);
+    font-size: 0.67rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-    .compact-section-title small {
-        overflow: hidden;
-        color: var(--text-muted);
-        font-size: 0.55rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.compact-section-title small {
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.55rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .compact-section-icon {
     display: grid;
@@ -2594,13 +2629,16 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     border-top: 1px solid rgba(34, 54, 74, 0.5);
 }
 
-    .compact-section-body .modbus-polling-panel,
-    .compact-section-body .data-export-panel {
-        margin: 8px 0 0;
-    }
+.compact-section-body .modbus-polling-panel,
+.compact-section-body .data-export-panel {
+    margin: 8px 0 0;
+}
 
 .polling-controls.compact {
-    grid-template-columns: minmax(130px, 0.85fr) minmax(190px, 1.25fr) repeat(3, minmax(75px, 0.55fr));
+    grid-template-columns:
+        minmax(130px, 0.85fr)
+        minmax(190px, 1.25fr)
+        repeat(3, minmax(75px, 0.55fr));
 }
 
 .data-export-panel.compact {
@@ -2613,9 +2651,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     margin-top: 8px;
 }
 
-    .data-export-status.compact .export-status-item {
-        padding: 7px 9px;
-    }
+.data-export-status.compact .export-status-item {
+    padding: 7px 9px;
+}
 
 .compact-results-body {
     display: grid;
@@ -2623,13 +2661,13 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     padding-top: 8px;
 }
 
-    .compact-results-body .frame-preview {
-        padding: 7px 9px;
-    }
+.compact-results-body .frame-preview {
+    padding: 7px 9px;
+}
 
-    .compact-results-body .modbus-results {
-        max-height: 210px;
-    }
+.compact-results-body .modbus-results {
+    max-height: 210px;
+}
 
 .modbus-stage-note.compact {
     padding: 0 2px 2px;
@@ -2665,9 +2703,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         grid-template-columns: 1fr 1fr;
     }
 
-        .modbus-query-grid.compact .generate-frame-button {
-            width: 100%;
-        }
+    .modbus-query-grid.compact .generate-frame-button {
+        width: 100%;
+    }
 
     .polling-controls.compact {
         grid-template-columns: 1fr 1fr;
@@ -2768,9 +2806,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         grid-template-rows: auto 170px minmax(460px, auto);
     }
 
-        .terminal-panel.modbus-mode .modbus-builder {
-            overflow-y: visible;
-        }
+    .terminal-panel.modbus-mode .modbus-builder {
+        overflow-y: visible;
+    }
 
     .modbus-summary-strip {
         grid-template-columns: 1fr 1fr;
@@ -2804,16 +2842,22 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     padding: 10px;
     border: 1px solid rgba(58, 91, 120, 0.4);
     border-radius: 8px;
-    background: radial-gradient( circle at top right, rgba(39, 139, 208, 0.08), transparent 36% ), rgba(5, 16, 27, 0.76);
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(39, 139, 208, 0.08),
+            transparent 36%
+        ),
+        rgba(5, 16, 27, 0.76);
 }
 
-    .realtime-chart-panel.active {
-        border-color: rgba(16, 183, 164, 0.34);
-    }
+.realtime-chart-panel.active {
+    border-color: rgba(16, 183, 164, 0.34);
+}
 
-    .realtime-chart-panel.paused {
-        opacity: 0.88;
-    }
+.realtime-chart-panel.paused {
+    opacity: 0.88;
+}
 
 .chart-toolbar {
     display: grid;
@@ -2830,24 +2874,24 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 10px;
 }
 
-    .chart-heading > div {
-        display: grid;
-        min-width: 0;
-        gap: 2px;
-    }
+.chart-heading > div {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+}
 
-    .chart-heading strong {
-        color: var(--text);
-        font-size: 0.72rem;
-    }
+.chart-heading strong {
+    color: var(--text);
+    font-size: 0.72rem;
+}
 
-    .chart-heading div > span {
-        overflow: hidden;
-        color: var(--text-muted);
-        font-size: 0.56rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.chart-heading div > span {
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.56rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .chart-live-badge {
     display: inline-flex;
@@ -2864,24 +2908,24 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     letter-spacing: 0.05em;
 }
 
-    .chart-live-badge > span {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #738493;
-    }
+.chart-live-badge > span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #738493;
+}
 
-    .chart-live-badge.live {
-        color: #7fe9a9;
-        border-color: rgba(70, 210, 128, 0.34);
-        background: rgba(30, 121, 73, 0.12);
-    }
+.chart-live-badge.live {
+    color: #7fe9a9;
+    border-color: rgba(70, 210, 128, 0.34);
+    background: rgba(30, 121, 73, 0.12);
+}
 
-        .chart-live-badge.live > span {
-            background: #45e78d;
-            box-shadow: 0 0 0 4px rgba(69, 231, 141, 0.1);
-            animation: chart-live-pulse 1.45s ease-in-out infinite;
-        }
+.chart-live-badge.live > span {
+    background: #45e78d;
+    box-shadow: 0 0 0 4px rgba(69, 231, 141, 0.1);
+    animation: chart-live-pulse 1.45s ease-in-out infinite;
+}
 
 @keyframes chart-live-pulse {
     50% {
@@ -2901,34 +2945,34 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 4px;
 }
 
-    .chart-number-field > span {
-        color: var(--text-muted);
-        font-size: 0.51rem;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
+.chart-number-field > span {
+    color: var(--text-muted);
+    font-size: 0.51rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
 
-    .chart-number-field input {
-        width: 86px;
-        min-height: 32px;
-        padding: 0 8px;
-        border: 1px solid rgba(58, 91, 120, 0.55);
-        border-radius: 7px;
-        outline: none;
-        color: var(--text);
-        background: #081827;
-        font-family: "Cascadia Code", Consolas, monospace;
-        font-size: 0.65rem;
-    }
+.chart-number-field input {
+    width: 86px;
+    min-height: 32px;
+    padding: 0 8px;
+    border: 1px solid rgba(58, 91, 120, 0.55);
+    border-radius: 7px;
+    outline: none;
+    color: var(--text);
+    background: #081827;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.65rem;
+}
 
-    .chart-number-field.points input {
-        width: 74px;
-    }
+.chart-number-field.points input {
+    width: 74px;
+}
 
-    .chart-number-field input:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.08);
-    }
+.chart-number-field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.08);
+}
 
 .chart-action-button {
     display: inline-flex;
@@ -2946,27 +2990,27 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .chart-action-button.start {
-        color: #82efb0;
-        border-color: rgba(65, 205, 125, 0.4);
-        background: rgba(28, 123, 73, 0.16);
-    }
+.chart-action-button.start {
+    color: #82efb0;
+    border-color: rgba(65, 205, 125, 0.4);
+    background: rgba(28, 123, 73, 0.16);
+}
 
-    .chart-action-button.pause {
-        color: #f0d477;
-        border-color: rgba(225, 188, 72, 0.36);
-        background: rgba(126, 98, 26, 0.14);
-    }
+.chart-action-button.pause {
+    color: #f0d477;
+    border-color: rgba(225, 188, 72, 0.36);
+    background: rgba(126, 98, 26, 0.14);
+}
 
-    .chart-action-button.clear:hover:not(:disabled),
-    .chart-action-button:hover:not(:disabled) {
-        filter: brightness(1.16);
-    }
+.chart-action-button.clear:hover:not(:disabled),
+.chart-action-button:hover:not(:disabled) {
+    filter: brightness(1.16);
+}
 
-    .chart-action-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.42;
-    }
+.chart-action-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.42;
+}
 
 .chart-stat-grid {
     display: grid;
@@ -2984,30 +3028,30 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(7, 19, 31, 0.68);
 }
 
-    .chart-stat.current {
-        border-color: rgba(16, 183, 164, 0.34);
-        background: rgba(16, 130, 119, 0.09);
-    }
+.chart-stat.current {
+    border-color: rgba(16, 183, 164, 0.34);
+    background: rgba(16, 130, 119, 0.09);
+}
 
-    .chart-stat span {
-        color: var(--text-muted);
-        font-size: 0.5rem;
-        letter-spacing: 0.045em;
-        text-transform: uppercase;
-    }
+.chart-stat span {
+    color: var(--text-muted);
+    font-size: 0.5rem;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+}
 
-    .chart-stat strong {
-        overflow: hidden;
-        color: #dbe8f2;
-        font-family: "Cascadia Code", Consolas, monospace;
-        font-size: 0.72rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.chart-stat strong {
+    overflow: hidden;
+    color: #dbe8f2;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.72rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-    .chart-stat.current strong {
-        color: #72ead8;
-    }
+.chart-stat.current strong {
+    color: #72ead8;
+}
 
 .chart-empty-state {
     display: grid;
@@ -3051,15 +3095,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     overflow: hidden;
     border: 1px solid rgba(58, 91, 120, 0.36);
     border-radius: 8px;
-    background: linear-gradient( 180deg, rgba(7, 22, 35, 0.96), rgba(4, 14, 24, 0.98) );
+    background:
+        linear-gradient(
+            180deg,
+            rgba(7, 22, 35, 0.96),
+            rgba(4, 14, 24, 0.98)
+        );
 }
 
-    .chart-viewport svg {
-        display: block;
-        width: 100%;
-        height: 170px;
-        overflow: visible;
-    }
+.chart-viewport svg {
+    display: block;
+    width: 100%;
+    height: 170px;
+    overflow: visible;
+}
 
 .chart-grid-line {
     stroke: rgba(96, 126, 150, 0.14);
@@ -3102,13 +3151,13 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-size: 0.49rem;
 }
 
-    .chart-axis-label.y-max {
-        top: 8px;
-    }
+.chart-axis-label.y-max {
+    top: 8px;
+}
 
-    .chart-axis-label.y-min {
-        bottom: 24px;
-    }
+.chart-axis-label.y-min {
+    bottom: 24px;
+}
 
 .chart-time-axis {
     position: absolute;
@@ -3130,9 +3179,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-size: 0.52rem;
 }
 
-    .chart-footnote > span {
-        color: var(--accent);
-    }
+.chart-footnote > span {
+    color: var(--accent);
+}
 
 @media (max-width: 1120px) {
     .chart-toolbar {
@@ -3165,9 +3214,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         min-height: 170px;
     }
 
-        .chart-viewport svg {
-            height: 150px;
-        }
+    .chart-viewport svg {
+        height: 150px;
+    }
 }
 
 @media (max-height: 720px) and (min-width: 861px) {
@@ -3180,9 +3229,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         min-height: 155px;
     }
 
-        .chart-viewport svg {
-            height: 135px;
-        }
+    .chart-viewport svg {
+        height: 135px;
+    }
 }
 
 
@@ -3197,10 +3246,10 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 7px;
 }
 
-    .menu-item.tools.open {
-        color: #ffffff;
-        background: rgba(47, 158, 232, 0.09);
-    }
+.menu-item.tools.open {
+    color: #ffffff;
+    background: rgba(47, 158, 232, 0.09);
+}
 
 .tools-options {
     top: calc(100% + 7px);
@@ -3242,7 +3291,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     overflow: hidden;
     border: 1px solid #2a4358;
     border-radius: 16px;
-    background: radial-gradient(circle at 90% 0%, rgba(47, 158, 232, 0.1), transparent 30%), linear-gradient(180deg, #0d1b2a, #08131f);
+    background:
+        radial-gradient(circle at 90% 0%, rgba(47, 158, 232, 0.1), transparent 30%),
+        linear-gradient(180deg, #0d1b2a, #08131f);
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.58);
 }
 
@@ -3256,9 +3307,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(13, 27, 42, 0.92);
 }
 
-    .profile-modal-header > div {
-        min-width: 0;
-    }
+.profile-modal-header > div {
+    min-width: 0;
+}
 
 .profile-modal-eyebrow {
     display: block;
@@ -3295,11 +3346,11 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .profile-modal-close:hover {
-        color: #ffffff;
-        border-color: rgba(255, 101, 114, 0.48);
-        background: rgba(255, 101, 114, 0.11);
-    }
+.profile-modal-close:hover {
+    color: #ffffff;
+    border-color: rgba(255, 101, 114, 0.48);
+    background: rgba(255, 101, 114, 0.11);
+}
 
 .profile-form {
     display: grid;
@@ -3313,45 +3364,45 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 7px;
 }
 
-    .profile-field > span {
-        color: var(--text-soft);
-        font-size: 0.72rem;
-        font-weight: 750;
-    }
+.profile-field > span {
+    color: var(--text-soft);
+    font-size: 0.72rem;
+    font-weight: 750;
+}
 
-    .profile-field small {
-        color: var(--text-muted);
-        font-weight: 500;
-    }
+.profile-field small {
+    color: var(--text-muted);
+    font-weight: 500;
+}
 
-    .profile-field input,
-    .profile-field textarea {
-        width: 100%;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        outline: none;
-        color: var(--text);
-        background: var(--bg-input);
-        font: inherit;
-    }
+.profile-field input,
+.profile-field textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    outline: none;
+    color: var(--text);
+    background: var(--bg-input);
+    font: inherit;
+}
 
-    .profile-field input {
-        min-height: 42px;
-        padding: 0 12px;
-    }
+.profile-field input {
+    min-height: 42px;
+    padding: 0 12px;
+}
 
-    .profile-field textarea {
-        min-height: 82px;
-        padding: 11px 12px;
-        resize: vertical;
-        line-height: 1.45;
-    }
+.profile-field textarea {
+    min-height: 82px;
+    padding: 11px 12px;
+    resize: vertical;
+    line-height: 1.45;
+}
 
-        .profile-field input:focus,
-        .profile-field textarea:focus {
-            border-color: rgba(16, 183, 164, 0.72);
-            box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.09);
-        }
+.profile-field input:focus,
+.profile-field textarea:focus {
+    border-color: rgba(16, 183, 164, 0.72);
+    box-shadow: 0 0 0 3px rgba(16, 183, 164, 0.09);
+}
 
 .profile-current-summary {
     display: grid;
@@ -3379,19 +3430,19 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     height: 42px;
 }
 
-    .profile-type-mark.serial,
-    .profile-card-icon.serial {
-        color: var(--accent-strong);
-        border-color: rgba(16, 183, 164, 0.34);
-        background: rgba(16, 183, 164, 0.08);
-    }
+.profile-type-mark.serial,
+.profile-card-icon.serial {
+    color: var(--accent-strong);
+    border-color: rgba(16, 183, 164, 0.34);
+    background: rgba(16, 183, 164, 0.08);
+}
 
-    .profile-type-mark.modbus,
-    .profile-card-icon.modbus {
-        color: #8cc5ff;
-        border-color: rgba(47, 158, 232, 0.36);
-        background: rgba(47, 158, 232, 0.09);
-    }
+.profile-type-mark.modbus,
+.profile-card-icon.modbus {
+    color: #8cc5ff;
+    border-color: rgba(47, 158, 232, 0.36);
+    background: rgba(47, 158, 232, 0.09);
+}
 
 .profile-current-summary > div:last-child {
     display: grid;
@@ -3448,20 +3499,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: linear-gradient(135deg, #0d897d, #087b9a);
 }
 
-    .profile-primary-button:hover:not(:disabled),
-    .profile-load-button:hover {
-        filter: brightness(1.08);
-    }
+.profile-primary-button:hover:not(:disabled),
+.profile-load-button:hover {
+    filter: brightness(1.08);
+}
 
-    .profile-primary-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.45;
-    }
+.profile-primary-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
 
-    .profile-primary-button.compact {
-        min-height: 33px;
-        padding: 0 11px;
-    }
+.profile-primary-button.compact {
+    min-height: 33px;
+    padding: 0 11px;
+}
 
 .profile-secondary-button,
 .profile-link-button {
@@ -3470,12 +3521,12 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(255, 255, 255, 0.025);
 }
 
-    .profile-secondary-button:hover,
-    .profile-link-button:hover {
-        color: #ffffff;
-        border-color: #3b5870;
-        background: rgba(255, 255, 255, 0.055);
-    }
+.profile-secondary-button:hover,
+.profile-link-button:hover {
+    color: #ffffff;
+    border-color: #3b5870;
+    background: rgba(255, 255, 255, 0.055);
+}
 
 .profile-manager-toolbar {
     display: flex;
@@ -3489,9 +3540,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-size: 0.68rem;
 }
 
-    .profile-manager-toolbar strong {
-        color: var(--text);
-    }
+.profile-manager-toolbar strong {
+    color: var(--text);
+}
 
 .profile-list {
     display: grid;
@@ -3511,28 +3562,28 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     text-align: center;
 }
 
-    .profile-empty-state > span {
-        display: grid;
-        width: 56px;
-        height: 56px;
-        margin-bottom: 13px;
-        place-items: center;
-        border: 1px solid var(--border);
-        border-radius: 15px;
-        color: #8cc5ff;
-        background: rgba(47, 158, 232, 0.07);
-        font-size: 1.25rem;
-    }
+.profile-empty-state > span {
+    display: grid;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 13px;
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    color: #8cc5ff;
+    background: rgba(47, 158, 232, 0.07);
+    font-size: 1.25rem;
+}
 
-    .profile-empty-state strong {
-        color: var(--text);
-        font-size: 0.86rem;
-    }
+.profile-empty-state strong {
+    color: var(--text);
+    font-size: 0.86rem;
+}
 
-    .profile-empty-state p {
-        margin: 5px 0 16px;
-        font-size: 0.7rem;
-    }
+.profile-empty-state p {
+    margin: 5px 0 16px;
+    font-size: 0.7rem;
+}
 
 .profile-card {
     display: grid;
@@ -3543,14 +3594,16 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     border: 1px solid var(--border-soft);
     border-radius: 12px;
     background: rgba(11, 24, 38, 0.82);
-    transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+    transition: border-color 0.15s ease,
+                transform 0.15s ease,
+                background 0.15s ease;
 }
 
-    .profile-card:hover {
-        border-color: #304b62;
-        background: rgba(14, 30, 46, 0.92);
-        transform: translateY(-1px);
-    }
+.profile-card:hover {
+    border-color: #304b62;
+    background: rgba(14, 30, 46, 0.92);
+    transform: translateY(-1px);
+}
 
 .profile-card-icon {
     width: 42px;
@@ -3571,29 +3624,29 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 12px;
 }
 
-    .profile-card-title > div {
-        display: grid;
-        min-width: 0;
-        gap: 3px;
-    }
+.profile-card-title > div {
+    display: grid;
+    min-width: 0;
+    gap: 3px;
+}
 
-    .profile-card-title strong {
-        overflow: hidden;
-        color: #f3f8fb;
-        font-size: 0.8rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.profile-card-title strong {
+    overflow: hidden;
+    color: #f3f8fb;
+    font-size: 0.8rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-    .profile-card-title span,
-    .profile-card-title small {
-        color: var(--text-muted);
-        font-size: 0.61rem;
-    }
+.profile-card-title span,
+.profile-card-title small {
+    color: var(--text-muted);
+    font-size: 0.61rem;
+}
 
-    .profile-card-title small {
-        flex: 0 0 auto;
-    }
+.profile-card-title small {
+    flex: 0 0 auto;
+}
 
 .profile-card-content > p {
     display: -webkit-box;
@@ -3612,15 +3665,15 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 6px;
 }
 
-    .profile-card-tags span {
-        padding: 4px 7px;
-        border: 1px solid var(--border-soft);
-        border-radius: 999px;
-        color: #9fb4c5;
-        background: rgba(255, 255, 255, 0.025);
-        font-family: "Cascadia Code", Consolas, monospace;
-        font-size: 0.57rem;
-    }
+.profile-card-tags span {
+    padding: 4px 7px;
+    border: 1px solid var(--border-soft);
+    border-radius: 999px;
+    color: #9fb4c5;
+    background: rgba(255, 255, 255, 0.025);
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.57rem;
+}
 
 .profile-card-actions {
     display: flex;
@@ -3628,11 +3681,11 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 7px;
 }
 
-    .profile-card-actions button {
-        min-height: 31px;
-        padding: 0 10px;
-        font-size: 0.64rem;
-    }
+.profile-card-actions button {
+    min-height: 31px;
+    padding: 0 10px;
+    font-size: 0.64rem;
+}
 
 .profile-delete-button {
     margin-left: auto;
@@ -3641,12 +3694,12 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(255, 101, 114, 0.055);
 }
 
-    .profile-delete-button:hover,
-    .profile-delete-button.confirm {
-        color: #ffffff;
-        border-color: rgba(255, 101, 114, 0.62);
-        background: rgba(255, 101, 114, 0.18);
-    }
+.profile-delete-button:hover,
+.profile-delete-button.confirm {
+    color: #ffffff;
+    border-color: rgba(255, 101, 114, 0.62);
+    background: rgba(255, 101, 114, 0.18);
+}
 
 @media (max-width: 760px) {
     .profile-modal-backdrop {
@@ -3707,10 +3760,10 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 7px;
 }
 
-    .menu-item.view.open {
-        color: #ffffff;
-        background: rgba(16, 183, 164, 0.09);
-    }
+.menu-item.view.open {
+    color: #ffffff;
+    background: rgba(16, 183, 164, 0.09);
+}
 
 .view-options {
     top: calc(100% + 7px);
@@ -3733,27 +3786,27 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .view-option:hover {
-        border-color: rgba(16, 183, 164, 0.28);
-        background: rgba(16, 183, 164, 0.075);
-    }
+.view-option:hover {
+    border-color: rgba(16, 183, 164, 0.28);
+    background: rgba(16, 183, 164, 0.075);
+}
 
-    .view-option > span:last-child {
-        display: grid;
-        min-width: 0;
-        gap: 3px;
-    }
+.view-option > span:last-child {
+    display: grid;
+    min-width: 0;
+    gap: 3px;
+}
 
-    .view-option strong {
-        color: #f2f8fb;
-        font-size: 0.73rem;
-    }
+.view-option strong {
+    color: #f2f8fb;
+    font-size: 0.73rem;
+}
 
-    .view-option small {
-        color: var(--text-muted);
-        font-size: 0.61rem;
-        line-height: 1.35;
-    }
+.view-option small {
+    color: var(--text-muted);
+    font-size: 0.61rem;
+    line-height: 1.35;
+}
 
 .view-check {
     display: grid;
@@ -3768,12 +3821,12 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-weight: 900;
 }
 
-    .view-check.checked {
-        color: #eafffa;
-        border-color: rgba(16, 183, 164, 0.56);
-        background: rgba(16, 183, 164, 0.16);
-        box-shadow: inset 0 0 12px rgba(16, 183, 164, 0.08);
-    }
+.view-check.checked {
+    color: #eafffa;
+    border-color: rgba(16, 183, 164, 0.56);
+    background: rgba(16, 183, 164, 0.16);
+    box-shadow: inset 0 0 12px rgba(16, 183, 164, 0.08);
+}
 
 .view-menu-divider {
     height: 1px;
@@ -3798,16 +3851,16 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .view-reset-option span {
-        color: var(--accent-strong);
-        font-size: 0.9rem;
-    }
+.view-reset-option span {
+    color: var(--accent-strong);
+    font-size: 0.9rem;
+}
 
-    .view-reset-option:hover {
-        color: #ffffff;
-        border-color: #304b60;
-        background: rgba(255, 255, 255, 0.045);
-    }
+.view-reset-option:hover {
+    color: #ffffff;
+    border-color: #304b60;
+    background: rgba(255, 255, 255, 0.045);
+}
 
 .app-shell.statusbar-hidden {
     grid-template-rows: 48px minmax(0, 1fr);
@@ -3822,10 +3875,10 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     grid-template-rows: minmax(0, 1fr);
 }
 
-    .terminal-panel.terminal-view-hidden .send-container,
-    .terminal-panel.terminal-view-hidden .modbus-builder {
-        min-height: 0;
-    }
+.terminal-panel.terminal-view-hidden .send-container,
+.terminal-panel.terminal-view-hidden .modbus-builder {
+    min-height: 0;
+}
 
 @media (max-width: 860px) {
     .workspace.without-control-panel {
@@ -3890,24 +3943,24 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(255, 255, 255, 0.025);
 }
 
-    .rest-connection-banner > div:last-child {
-        display: grid;
-        min-width: 0;
-        gap: 3px;
-    }
+.rest-connection-banner > div:last-child {
+    display: grid;
+    min-width: 0;
+    gap: 3px;
+}
 
-    .rest-connection-banner strong {
-        color: #edf7fa;
-        font-size: 0.76rem;
-    }
+.rest-connection-banner strong {
+    color: #edf7fa;
+    font-size: 0.76rem;
+}
 
-    .rest-connection-banner span {
-        overflow: hidden;
-        color: var(--text-muted);
-        font-size: 0.64rem;
-        line-height: 1.4;
-        text-overflow: ellipsis;
-    }
+.rest-connection-banner span {
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.64rem;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+}
 
 .rest-connection-icon {
     display: grid;
@@ -3928,22 +3981,22 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(16, 183, 164, 0.075);
 }
 
-    .rest-connection-banner.connected .rest-connection-icon {
-        color: #dcfff8;
-        border-color: rgba(16, 183, 164, 0.58);
-        background: rgba(16, 183, 164, 0.16);
-    }
+.rest-connection-banner.connected .rest-connection-icon {
+    color: #dcfff8;
+    border-color: rgba(16, 183, 164, 0.58);
+    background: rgba(16, 183, 164, 0.16);
+}
 
 .rest-connection-banner.failed {
     border-color: rgba(255, 101, 114, 0.42);
     background: rgba(255, 101, 114, 0.065);
 }
 
-    .rest-connection-banner.failed .rest-connection-icon {
-        color: #ffd6da;
-        border-color: rgba(255, 101, 114, 0.52);
-        background: rgba(255, 101, 114, 0.14);
-    }
+.rest-connection-banner.failed .rest-connection-icon {
+    color: #ffd6da;
+    border-color: rgba(255, 101, 114, 0.52);
+    background: rgba(255, 101, 114, 0.14);
+}
 
 .rest-form-grid {
     display: grid;
@@ -3971,28 +4024,28 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     overflow: hidden;
 }
 
-    .rest-input-with-unit:focus-within {
-        border-color: rgba(16, 183, 164, 0.62);
-        box-shadow: 0 0 0 2px rgba(16, 183, 164, 0.08);
-    }
+.rest-input-with-unit:focus-within {
+    border-color: rgba(16, 183, 164, 0.62);
+    box-shadow: 0 0 0 2px rgba(16, 183, 164, 0.08);
+}
 
-    .rest-input-with-unit input {
-        min-width: 0;
-        border: 0;
-        border-radius: 0;
-        box-shadow: none;
-    }
+.rest-input-with-unit input {
+    min-width: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
 
-    .rest-input-with-unit > span {
-        display: grid;
-        height: 100%;
-        place-items: center;
-        border-left: 1px solid #2c4356;
-        color: #8fa5b5;
-        background: rgba(255, 255, 255, 0.025);
-        font-family: "Cascadia Code", Consolas, monospace;
-        font-size: 0.62rem;
-    }
+.rest-input-with-unit > span {
+    display: grid;
+    height: 100%;
+    place-items: center;
+    border-left: 1px solid #2c4356;
+    color: #8fa5b5;
+    background: rgba(255, 255, 255, 0.025);
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.62rem;
+}
 
 .rest-auto-send-option {
     display: grid;
@@ -4006,28 +4059,28 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .rest-auto-send-option input {
-        width: 15px;
-        height: 15px;
-        margin-top: 2px;
-        accent-color: #10b7a4;
-    }
+.rest-auto-send-option input {
+    width: 15px;
+    height: 15px;
+    margin-top: 2px;
+    accent-color: #10b7a4;
+}
 
-    .rest-auto-send-option > span {
-        display: grid;
-        gap: 3px;
-    }
+.rest-auto-send-option > span {
+    display: grid;
+    gap: 3px;
+}
 
-    .rest-auto-send-option strong {
-        color: #e9f5f7;
-        font-size: 0.69rem;
-    }
+.rest-auto-send-option strong {
+    color: #e9f5f7;
+    font-size: 0.69rem;
+}
 
-    .rest-auto-send-option small {
-        color: var(--text-muted);
-        font-size: 0.6rem;
-        line-height: 1.4;
-    }
+.rest-auto-send-option small {
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    line-height: 1.4;
+}
 
 .rest-stat-grid {
     display: grid;
@@ -4045,25 +4098,25 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(255, 255, 255, 0.022);
 }
 
-    .rest-stat span {
-        overflow: hidden;
-        color: var(--text-muted);
-        font-size: 0.56rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.rest-stat span {
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.56rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-    .rest-stat strong {
-        overflow: hidden;
-        color: #dcebf0;
-        font-family: "Cascadia Code", Consolas, monospace;
-        font-size: 0.7rem;
-        text-overflow: ellipsis;
-    }
+.rest-stat strong {
+    overflow: hidden;
+    color: #dcebf0;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.7rem;
+    text-overflow: ellipsis;
+}
 
-    .rest-stat.error strong {
-        color: #ff9ea6;
-    }
+.rest-stat.error strong {
+    color: #ff9ea6;
+}
 
 .rest-error {
     margin: 0;
@@ -4080,32 +4133,32 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(2, 8, 14, 0.32);
 }
 
-    .rest-payload-note > span {
-        display: grid;
-        width: 36px;
-        height: 32px;
-        place-items: center;
-        color: #83e8d8;
-        font-family: "Cascadia Code", Consolas, monospace;
-        font-size: 0.65rem;
-        font-weight: 900;
-    }
+.rest-payload-note > span {
+    display: grid;
+    width: 36px;
+    height: 32px;
+    place-items: center;
+    color: #83e8d8;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.65rem;
+    font-weight: 900;
+}
 
-    .rest-payload-note > div {
-        display: grid;
-        gap: 2px;
-    }
+.rest-payload-note > div {
+    display: grid;
+    gap: 2px;
+}
 
-    .rest-payload-note strong {
-        color: #dcebf0;
-        font-size: 0.65rem;
-    }
+.rest-payload-note strong {
+    color: #dcebf0;
+    font-size: 0.65rem;
+}
 
-    .rest-payload-note small {
-        color: var(--text-muted);
-        font-size: 0.58rem;
-        line-height: 1.4;
-    }
+.rest-payload-note small {
+    color: var(--text-muted);
+    font-size: 0.58rem;
+    line-height: 1.4;
+}
 
 .rest-form-actions {
     display: flex;
@@ -4128,45 +4181,45 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .rest-send-button:hover:not(:disabled) {
-        color: #ffffff;
-        border-color: rgba(80, 153, 255, 0.7);
-        background: rgba(80, 153, 255, 0.16);
-    }
+.rest-send-button:hover:not(:disabled) {
+    color: #ffffff;
+    border-color: rgba(80, 153, 255, 0.7);
+    background: rgba(80, 153, 255, 0.16);
+}
 
-    .rest-send-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.38;
-    }
+.rest-send-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.38;
+}
 
 .rest-statusbar {
     gap: 6px !important;
 }
 
-    .rest-statusbar i {
-        display: block;
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #607787;
-    }
+.rest-statusbar i {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #607787;
+}
 
-    .rest-statusbar.connected {
-        color: #8ce8d8;
-    }
+.rest-statusbar.connected {
+    color: #8ce8d8;
+}
 
-        .rest-statusbar.connected i {
-            background: #10b7a4;
-            box-shadow: 0 0 8px rgba(16, 183, 164, 0.55);
-        }
+.rest-statusbar.connected i {
+    background: #10b7a4;
+    box-shadow: 0 0 8px rgba(16, 183, 164, 0.55);
+}
 
-    .rest-statusbar.failed {
-        color: #ff9ea6;
-    }
+.rest-statusbar.failed {
+    color: #ff9ea6;
+}
 
-        .rest-statusbar.failed i {
-            background: #ff6572;
-        }
+.rest-statusbar.failed i {
+    background: #ff6572;
+}
 
 @media (max-width: 1120px) {
     .rest-statusbar {
@@ -4198,9 +4251,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         grid-template-columns: 1fr;
     }
 
-        .rest-form-actions button {
-            width: 100%;
-        }
+    .rest-form-actions button {
+        width: 100%;
+    }
 }
 
 @media (max-height: 720px) and (min-width: 761px) {
@@ -4244,16 +4297,17 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     padding: 13px;
     border: 1px solid rgba(56, 112, 145, 0.32);
     border-radius: 10px;
-    background: linear-gradient(180deg, rgba(9, 28, 41, 0.88), rgba(5, 20, 31, 0.94));
+    background:
+        linear-gradient(180deg, rgba(9, 28, 41, 0.88), rgba(5, 20, 31, 0.94));
 }
 
-    .modbus-write-panel.success {
-        border-color: rgba(27, 194, 154, 0.38);
-    }
+.modbus-write-panel.success {
+    border-color: rgba(27, 194, 154, 0.38);
+}
 
-    .modbus-write-panel.failed {
-        border-color: rgba(255, 94, 108, 0.38);
-    }
+.modbus-write-panel.failed {
+    border-color: rgba(255, 94, 108, 0.38);
+}
 
 .modbus-write-header {
     display: flex;
@@ -4262,20 +4316,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 12px;
 }
 
-    .modbus-write-header > div {
-        display: grid;
-        gap: 2px;
-    }
+.modbus-write-header > div {
+    display: grid;
+    gap: 2px;
+}
 
-    .modbus-write-header strong {
-        color: #e7f4fa;
-        font-size: 0.72rem;
-    }
+.modbus-write-header strong {
+    color: #e7f4fa;
+    font-size: 0.72rem;
+}
 
-    .modbus-write-header span {
-        color: #7892a2;
-        font-size: 0.59rem;
-    }
+.modbus-write-header span {
+    color: #7892a2;
+    font-size: 0.59rem;
+}
 
 .modbus-write-state {
     flex: 0 0 auto;
@@ -4289,23 +4343,23 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     letter-spacing: 0.08em;
 }
 
-    .modbus-write-state.working {
-        color: #ffd18d !important;
-        border-color: rgba(255, 178, 76, 0.42);
-        background: rgba(255, 161, 54, 0.1);
-    }
+.modbus-write-state.working {
+    color: #ffd18d !important;
+    border-color: rgba(255, 178, 76, 0.42);
+    background: rgba(255, 161, 54, 0.1);
+}
 
-    .modbus-write-state.success {
-        color: #83ead2 !important;
-        border-color: rgba(27, 194, 154, 0.42);
-        background: rgba(27, 194, 154, 0.1);
-    }
+.modbus-write-state.success {
+    color: #83ead2 !important;
+    border-color: rgba(27, 194, 154, 0.42);
+    background: rgba(27, 194, 154, 0.1);
+}
 
-    .modbus-write-state.failed {
-        color: #ff9ca5 !important;
-        border-color: rgba(255, 94, 108, 0.42);
-        background: rgba(255, 94, 108, 0.1);
-    }
+.modbus-write-state.failed {
+    color: #ff9ca5 !important;
+    border-color: rgba(255, 94, 108, 0.42);
+    background: rgba(255, 94, 108, 0.1);
+}
 
 .modbus-write-grid {
     display: grid;
@@ -4325,23 +4379,23 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(3, 17, 27, 0.62);
 }
 
-    .modbus-write-preview > span {
-        color: #688494;
-        font-size: 0.52rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-    }
+.modbus-write-preview > span {
+    color: #688494;
+    font-size: 0.52rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
 
-    .modbus-write-preview strong {
-        color: #d8eaf3;
-        font-size: 0.65rem;
-    }
+.modbus-write-preview strong {
+    color: #d8eaf3;
+    font-size: 0.65rem;
+}
 
-    .modbus-write-preview code {
-        color: #69d7c5;
-        font-size: 0.61rem;
-    }
+.modbus-write-preview code {
+    color: #69d7c5;
+    font-size: 0.61rem;
+}
 
 .modbus-write-prepare,
 .modbus-write-confirm,
@@ -4361,16 +4415,16 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     white-space: nowrap;
 }
 
-    .modbus-write-prepare:hover:not(:disabled) {
-        border-color: rgba(255, 190, 100, 0.72);
-        background: rgba(255, 161, 54, 0.18);
-    }
+.modbus-write-prepare:hover:not(:disabled) {
+    border-color: rgba(255, 190, 100, 0.72);
+    background: rgba(255, 161, 54, 0.18);
+}
 
-    .modbus-write-prepare:disabled,
-    .modbus-write-confirm:disabled {
-        cursor: not-allowed;
-        opacity: 0.38;
-    }
+.modbus-write-prepare:disabled,
+.modbus-write-confirm:disabled {
+    cursor: not-allowed;
+    opacity: 0.38;
+}
 
 .modbus-write-confirmation {
     display: grid;
@@ -4401,20 +4455,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     min-width: 0;
 }
 
-    .modbus-write-confirmation-text strong {
-        color: #ffe0af;
-        font-size: 0.66rem;
-    }
+.modbus-write-confirmation-text strong {
+    color: #ffe0af;
+    font-size: 0.66rem;
+}
 
-    .modbus-write-confirmation-text span {
-        color: #b5a486;
-        font-size: 0.58rem;
-        line-height: 1.45;
-    }
+.modbus-write-confirmation-text span {
+    color: #b5a486;
+    font-size: 0.58rem;
+    line-height: 1.45;
+}
 
-    .modbus-write-confirmation-text b {
-        color: #ffe0af;
-    }
+.modbus-write-confirmation-text b {
+    color: #ffe0af;
+}
 
 .modbus-write-confirmation-actions {
     display: flex;
@@ -4434,9 +4488,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: #ffc05e;
 }
 
-    .modbus-write-confirm:hover:not(:disabled) {
-        filter: brightness(1.06);
-    }
+.modbus-write-confirm:hover:not(:disabled) {
+    filter: brightness(1.06);
+}
 
 .modbus-write-frames {
     display: grid;
@@ -4444,41 +4498,41 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 8px;
 }
 
-    .modbus-write-frames > div {
-        min-width: 0;
-        display: grid;
-        grid-template-columns: auto minmax(0, 1fr);
-        align-items: center;
-        gap: 8px;
-        padding: 8px 10px;
-        border: 1px solid rgba(58, 112, 143, 0.28);
-        border-radius: 8px;
-        background: rgba(2, 16, 25, 0.58);
-    }
+.modbus-write-frames > div {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid rgba(58, 112, 143, 0.28);
+    border-radius: 8px;
+    background: rgba(2, 16, 25, 0.58);
+}
 
-        .modbus-write-frames > div.response {
-            border-color: rgba(27, 194, 154, 0.24);
-        }
+.modbus-write-frames > div.response {
+    border-color: rgba(27, 194, 154, 0.24);
+}
 
-    .modbus-write-frames span {
-        color: #70a9ca;
-        font-size: 0.53rem;
-        font-weight: 900;
-        white-space: nowrap;
-    }
+.modbus-write-frames span {
+    color: #70a9ca;
+    font-size: 0.53rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
 
-    .modbus-write-frames .response span {
-        color: #5ed2b9;
-    }
+.modbus-write-frames .response span {
+    color: #5ed2b9;
+}
 
-    .modbus-write-frames code {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        color: #cfe4ee;
-        font-size: 0.59rem;
-        white-space: nowrap;
-    }
+.modbus-write-frames code {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #cfe4ee;
+    font-size: 0.59rem;
+    white-space: nowrap;
+}
 
 .modbus-write-note {
     display: flex;
@@ -4489,9 +4543,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     line-height: 1.45;
 }
 
-    .modbus-write-note span {
-        color: #5bcbb7;
-    }
+.modbus-write-note span {
+    color: #5bcbb7;
+}
 
 @media (max-width: 1080px) {
     .modbus-write-grid {
@@ -4541,43 +4595,43 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 8px;
 }
 
-    .modbus-frame-editor-field > span {
-        color: var(--text-strong, #dbeafe);
-        font-size: 0.79rem;
-        font-weight: 700;
-    }
+.modbus-frame-editor-field > span {
+    color: var(--text-strong, #dbeafe);
+    font-size: 0.79rem;
+    font-weight: 700;
+}
 
-    .modbus-frame-editor-field textarea {
-        width: 100%;
-        min-height: 84px;
-        resize: vertical;
-        box-sizing: border-box;
-        border: 1px solid rgba(58, 116, 148, 0.48);
-        border-radius: 10px;
-        background: rgba(2, 15, 27, 0.78);
-        color: #b8f7ff;
-        padding: 12px 14px;
-        font-family: Consolas, "Cascadia Mono", monospace;
-        font-size: 0.86rem;
-        line-height: 1.55;
-        letter-spacing: 0.035em;
-        outline: none;
-    }
+.modbus-frame-editor-field textarea {
+    width: 100%;
+    min-height: 84px;
+    resize: vertical;
+    box-sizing: border-box;
+    border: 1px solid rgba(58, 116, 148, 0.48);
+    border-radius: 10px;
+    background: rgba(2, 15, 27, 0.78);
+    color: #b8f7ff;
+    padding: 12px 14px;
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    letter-spacing: 0.035em;
+    outline: none;
+}
 
-        .modbus-frame-editor-field textarea:focus {
-            border-color: rgba(25, 196, 210, 0.9);
-            box-shadow: 0 0 0 3px rgba(25, 196, 210, 0.1);
-        }
+.modbus-frame-editor-field textarea:focus {
+    border-color: rgba(25, 196, 210, 0.9);
+    box-shadow: 0 0 0 3px rgba(25, 196, 210, 0.1);
+}
 
-        .modbus-frame-editor-field textarea:disabled {
-            opacity: 0.68;
-            cursor: not-allowed;
-        }
+.modbus-frame-editor-field textarea:disabled {
+    opacity: 0.68;
+    cursor: not-allowed;
+}
 
-    .modbus-frame-editor-field small {
-        color: var(--text-muted, #7890a3);
-        font-size: 0.7rem;
-    }
+.modbus-frame-editor-field small {
+    color: var(--text-muted, #7890a3);
+    font-size: 0.7rem;
+}
 
 .modbus-frame-toolbar {
     display: grid;
@@ -4599,29 +4653,29 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .modbus-crc-option input {
-        width: 17px;
-        height: 17px;
-        accent-color: #12b8ae;
-        flex: 0 0 auto;
-    }
+.modbus-crc-option input {
+    width: 17px;
+    height: 17px;
+    accent-color: #12b8ae;
+    flex: 0 0 auto;
+}
 
-    .modbus-crc-option > span {
-        min-width: 0;
-        display: grid;
-        gap: 2px;
-    }
+.modbus-crc-option > span {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+}
 
-    .modbus-crc-option strong {
-        color: #d8f7f5;
-        font-size: 0.78rem;
-    }
+.modbus-crc-option strong {
+    color: #d8f7f5;
+    font-size: 0.78rem;
+}
 
-    .modbus-crc-option small {
-        color: var(--text-muted, #7890a3);
-        font-size: 0.67rem;
-        line-height: 1.35;
-    }
+.modbus-crc-option small {
+    color: var(--text-muted, #7890a3);
+    font-size: 0.67rem;
+    line-height: 1.35;
+}
 
 .modbus-frame-actions {
     display: flex;
@@ -4640,10 +4694,10 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .modbus-frame-clear:hover:not(:disabled) {
-        border-color: rgba(96, 165, 250, 0.7);
-        color: #dbeafe;
-    }
+.modbus-frame-clear:hover:not(:disabled) {
+    border-color: rgba(96, 165, 250, 0.7);
+    color: #dbeafe;
+}
 
 .modbus-frame-summary {
     display: grid;
@@ -4655,20 +4709,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(5, 43, 45, 0.34);
 }
 
-    .modbus-frame-summary > span {
-        color: #6aa9b3;
-        font-size: 0.64rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-    }
+.modbus-frame-summary > span {
+    color: #6aa9b3;
+    font-size: 0.64rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
 
-    .modbus-frame-summary strong {
-        color: #b9f5df;
-        font-family: Consolas, "Cascadia Mono", monospace;
-        font-size: 0.76rem;
-        overflow-wrap: anywhere;
-    }
+.modbus-frame-summary strong {
+    color: #b9f5df;
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 0.76rem;
+    overflow-wrap: anywhere;
+}
 
 .modbus-write-confirmation-text code {
     display: block;
@@ -4694,11 +4748,11 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         grid-template-columns: 1fr 1fr;
     }
 
-        .modbus-frame-clear,
-        .modbus-frame-actions .modbus-write-prepare {
-            width: 100%;
-            min-height: 42px;
-        }
+    .modbus-frame-clear,
+    .modbus-frame-actions .modbus-write-prepare {
+        width: 100%;
+        min-height: 42px;
+    }
 }
 
 
@@ -4735,30 +4789,30 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 14px;
 }
 
-    .rest-sidebar-header > div,
-    .rest-editor-title-row > div {
-        display: grid;
-        gap: 3px;
-    }
+.rest-sidebar-header > div,
+.rest-editor-title-row > div {
+    display: grid;
+    gap: 3px;
+}
 
-    .rest-sidebar-header strong,
-    .rest-editor-title-row h3 {
-        margin: 0;
-        color: #edf8fb;
-    }
+.rest-sidebar-header strong,
+.rest-editor-title-row h3 {
+    margin: 0;
+    color: #edf8fb;
+}
 
-    .rest-sidebar-header span,
-    .rest-editor-title-row > div > span {
-        color: #6f899c;
-        font-size: 11px;
-    }
+.rest-sidebar-header span,
+.rest-editor-title-row > div > span {
+    color: #6f899c;
+    font-size: 11px;
+}
 
-    .rest-editor-title-row > div > span {
-        color: #34d1c0;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: .09em;
-    }
+.rest-editor-title-row > div > span {
+    color: #34d1c0;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .09em;
+}
 
 .rest-new-destination {
     min-height: 34px;
@@ -4771,9 +4825,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .rest-new-destination:hover:not(:disabled) {
-        background: rgba(17, 151, 140, 0.28);
-    }
+.rest-new-destination:hover:not(:disabled) {
+    background: rgba(17, 151, 140, 0.28);
+}
 
 .rest-destination-list {
     display: grid;
@@ -4797,11 +4851,11 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     transition: border-color .15s ease, background .15s ease;
 }
 
-    .rest-destination-card.selected {
-        border-color: rgba(53, 214, 196, 0.64);
-        background: rgba(9, 63, 69, 0.35);
-        box-shadow: inset 0 0 0 1px rgba(52, 209, 192, 0.1);
-    }
+.rest-destination-card.selected {
+    border-color: rgba(53, 214, 196, 0.64);
+    background: rgba(9, 63, 69, 0.35);
+    box-shadow: inset 0 0 0 1px rgba(52, 209, 192, 0.1);
+}
 
 .rest-destination-select {
     display: grid;
@@ -4825,15 +4879,15 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     box-shadow: 0 0 0 3px rgba(99, 123, 141, 0.12);
 }
 
-    .rest-destination-status.connected {
-        background: #2bd4a7;
-        box-shadow: 0 0 0 3px rgba(43, 212, 167, 0.12);
-    }
+.rest-destination-status.connected {
+    background: #2bd4a7;
+    box-shadow: 0 0 0 3px rgba(43, 212, 167, 0.12);
+}
 
-    .rest-destination-status.failed {
-        background: #ff6f7f;
-        box-shadow: 0 0 0 3px rgba(255, 111, 127, 0.12);
-    }
+.rest-destination-status.failed {
+    background: #ff6f7f;
+    box-shadow: 0 0 0 3px rgba(255, 111, 127, 0.12);
+}
 
 .rest-destination-copy {
     display: grid;
@@ -4841,22 +4895,22 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     min-width: 0;
 }
 
-    .rest-destination-copy strong,
-    .rest-destination-copy small {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.rest-destination-copy strong,
+.rest-destination-copy small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-    .rest-destination-copy strong {
-        color: #e9f4f8;
-        font-size: 12px;
-    }
+.rest-destination-copy strong {
+    color: #e9f4f8;
+    font-size: 12px;
+}
 
-    .rest-destination-copy small {
-        color: #718a9d;
-        font-size: 10px;
-    }
+.rest-destination-copy small {
+    color: #718a9d;
+    font-size: 10px;
+}
 
 .rest-destination-toggle {
     min-width: 62px;
@@ -4867,17 +4921,17 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .rest-destination-toggle.enabled {
-        border: 1px solid rgba(43, 212, 167, 0.38);
-        background: rgba(43, 212, 167, 0.12);
-        color: #65e5c1;
-    }
+.rest-destination-toggle.enabled {
+    border: 1px solid rgba(43, 212, 167, 0.38);
+    background: rgba(43, 212, 167, 0.12);
+    color: #65e5c1;
+}
 
-    .rest-destination-toggle.disabled {
-        border: 1px solid rgba(130, 151, 166, 0.28);
-        background: rgba(90, 112, 128, 0.1);
-        color: #8297a6;
-    }
+.rest-destination-toggle.disabled {
+    border: 1px solid rgba(130, 151, 166, 0.28);
+    background: rgba(90, 112, 128, 0.1);
+    color: #8297a6;
+}
 
 .rest-empty-destinations {
     display: grid;
@@ -4890,25 +4944,25 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     text-align: center;
 }
 
-    .rest-empty-destinations > span {
-        display: grid;
-        place-items: center;
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
-        background: rgba(38, 190, 175, 0.1);
-        color: #4bd9c8;
-        font-size: 11px;
-        font-weight: 900;
-    }
+.rest-empty-destinations > span {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(38, 190, 175, 0.1);
+    color: #4bd9c8;
+    font-size: 11px;
+    font-weight: 900;
+}
 
-    .rest-empty-destinations strong {
-        color: #c9d9e1;
-    }
+.rest-empty-destinations strong {
+    color: #c9d9e1;
+}
 
-    .rest-empty-destinations small {
-        font-size: 10px;
-    }
+.rest-empty-destinations small {
+    font-size: 10px;
+}
 
 .rest-sidebar-summary {
     display: flex;
@@ -4920,9 +4974,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-size: 10px;
 }
 
-    .rest-sidebar-summary strong {
-        color: #41d5c4;
-    }
+.rest-sidebar-summary strong {
+    color: #41d5c4;
+}
 
 .rest-destination-editor {
     min-height: 0;
@@ -4939,9 +4993,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-weight: 800;
 }
 
-    .rest-enabled-switch input {
-        accent-color: #21b9aa;
-    }
+.rest-enabled-switch input {
+    accent-color: #21b9aa;
+}
 
 .rest-token-field {
     grid-column: span 1;
@@ -5056,20 +5110,20 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(7, 22, 35, 0.75);
 }
 
-    .iot-status-banner.connected {
-        border-color: rgba(45, 206, 175, 0.35);
-        background: rgba(7, 58, 55, 0.3);
-    }
+.iot-status-banner.connected {
+    border-color: rgba(45, 206, 175, 0.35);
+    background: rgba(7, 58, 55, 0.3);
+}
 
-    .iot-status-banner.busy {
-        border-color: rgba(69, 165, 226, 0.38);
-        background: rgba(10, 48, 77, 0.33);
-    }
+.iot-status-banner.busy {
+    border-color: rgba(69, 165, 226, 0.38);
+    background: rgba(10, 48, 77, 0.33);
+}
 
-    .iot-status-banner.disconnected {
-        border-color: rgba(255, 116, 128, 0.3);
-        background: rgba(74, 24, 36, 0.25);
-    }
+.iot-status-banner.disconnected {
+    border-color: rgba(255, 116, 128, 0.3);
+    background: rgba(74, 24, 36, 0.25);
+}
 
 .iot-status-icon {
     display: grid;
@@ -5115,27 +5169,27 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(8, 31, 48, 0.5);
 }
 
-    .iot-config-note > span {
-        display: grid;
-        place-items: center;
-        min-height: 34px;
-        border-radius: 9px;
-        background: rgba(37, 139, 181, 0.13);
-        color: #70c6e8;
-        font-family: Consolas, "Cascadia Mono", monospace;
-        font-size: 10px;
-        font-weight: 900;
-    }
+.iot-config-note > span {
+    display: grid;
+    place-items: center;
+    min-height: 34px;
+    border-radius: 9px;
+    background: rgba(37, 139, 181, 0.13);
+    color: #70c6e8;
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 10px;
+    font-weight: 900;
+}
 
-    .iot-config-note strong {
-        color: #c9dce5;
-        font-size: 11px;
-    }
+.iot-config-note strong {
+    color: #c9dce5;
+    font-size: 11px;
+}
 
-    .iot-config-note small {
-        color: #7590a1;
-        line-height: 1.45;
-    }
+.iot-config-note small {
+    color: #7590a1;
+    line-height: 1.45;
+}
 
 .iot-config-grid {
     display: grid;
@@ -5198,14 +5252,14 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .iot-field-control > button:hover:not(:disabled) {
-        filter: brightness(1.12);
-    }
+.iot-field-control > button:hover:not(:disabled) {
+    filter: brightness(1.12);
+}
 
-    .iot-field-control > button:disabled {
-        opacity: .43;
-        cursor: not-allowed;
-    }
+.iot-field-control > button:disabled {
+    opacity: .43;
+    cursor: not-allowed;
+}
 
 .iot-field input:focus {
     border-color: rgba(47, 205, 187, 0.68);
@@ -5274,14 +5328,14 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .iot-secondary-button:hover:not(:disabled) {
-        filter: brightness(1.1);
-    }
+.iot-secondary-button:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
 
-    .iot-secondary-button:disabled {
-        opacity: .48;
-        cursor: not-allowed;
-    }
+.iot-secondary-button:disabled {
+    opacity: .48;
+    cursor: not-allowed;
+}
 
 .iot-live-terminal {
     display: grid;
@@ -5302,33 +5356,33 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(7, 23, 35, 0.96);
 }
 
-    .iot-terminal-header > div {
-        display: grid;
-        gap: 3px;
-    }
+.iot-terminal-header > div {
+    display: grid;
+    gap: 3px;
+}
 
-    .iot-terminal-header span {
-        color: #34cdbb;
-        font-size: 9px;
-        font-weight: 900;
-        letter-spacing: .1em;
-    }
+.iot-terminal-header span {
+    color: #34cdbb;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .1em;
+}
 
-    .iot-terminal-header strong {
-        color: #d6e7ed;
-        font-size: 12px;
-    }
+.iot-terminal-header strong {
+    color: #d6e7ed;
+    font-size: 12px;
+}
 
-    .iot-terminal-header button {
-        padding: 6px 9px;
-        border: 1px solid rgba(70, 110, 135, 0.35);
-        border-radius: 7px;
-        background: rgba(13, 38, 54, 0.8);
-        color: #819cab;
-        font-size: 9px;
-        font-weight: 800;
-        cursor: pointer;
-    }
+.iot-terminal-header button {
+    padding: 6px 9px;
+    border: 1px solid rgba(70, 110, 135, 0.35);
+    border-radius: 7px;
+    background: rgba(13, 38, 54, 0.8);
+    color: #819cab;
+    font-size: 9px;
+    font-weight: 800;
+    cursor: pointer;
+}
 
 .iot-terminal-header-actions {
     display: flex;
@@ -5345,22 +5399,24 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .iot-terminal-autoscroll input {
-        accent-color: #22b9aa;
-    }
+.iot-terminal-autoscroll input {
+    accent-color: #22b9aa;
+}
 
-    .iot-terminal-autoscroll span {
-        color: inherit;
-        font-size: 9px;
-        font-weight: 700;
-        letter-spacing: 0;
-    }
+.iot-terminal-autoscroll span {
+    color: inherit;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0;
+}
 
 .iot-terminal-screen {
     min-height: 0;
     padding: 12px;
     overflow: auto;
-    background: linear-gradient(rgba(5, 25, 35, .14) 1px, transparent 1px), #020a10;
+    background:
+        linear-gradient(rgba(5, 25, 35, .14) 1px, transparent 1px),
+        #020a10;
     background-size: 100% 24px;
     font-family: Consolas, "Cascadia Mono", monospace;
 }
@@ -5376,28 +5432,28 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     text-align: center;
 }
 
-    .iot-terminal-empty > span {
-        display: grid;
-        place-items: center;
-        width: 46px;
-        height: 46px;
-        border: 1px solid rgba(56, 148, 155, .25);
-        border-radius: 12px;
-        color: #3ea9aa;
-        font-size: 10px;
-        font-weight: 900;
-    }
+.iot-terminal-empty > span {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border: 1px solid rgba(56, 148, 155, .25);
+    border-radius: 12px;
+    color: #3ea9aa;
+    font-size: 10px;
+    font-weight: 900;
+}
 
-    .iot-terminal-empty strong {
-        color: #6b8998;
-        font-size: 11px;
-    }
+.iot-terminal-empty strong {
+    color: #6b8998;
+    font-size: 11px;
+}
 
-    .iot-terminal-empty small {
-        max-width: 260px;
-        font-size: 9px;
-        line-height: 1.5;
-    }
+.iot-terminal-empty small {
+    max-width: 260px;
+    font-size: 9px;
+    line-height: 1.5;
+}
 
 .iot-terminal-line {
     display: grid;
@@ -5445,9 +5501,7 @@ h1, h2, h3, strong, dt, dd, label, span, p {
 }
 
 @keyframes iot-terminal-cursor {
-    50% {
-        opacity: 0;
-    }
+    50% { opacity: 0; }
 }
 
 .iot-terminal-line.system .iot-terminal-kind {
@@ -5489,10 +5543,10 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-size: 10px;
 }
 
-    .iot-terminal-send input:focus {
-        border-color: rgba(43, 204, 187, 0.72);
-        box-shadow: 0 0 0 2px rgba(43, 204, 187, 0.08);
-    }
+.iot-terminal-send input:focus {
+    border-color: rgba(43, 204, 187, 0.72);
+    box-shadow: 0 0 0 2px rgba(43, 204, 187, 0.08);
+}
 
 .iot-terminal-send button {
     min-height: 34px;
@@ -5506,11 +5560,11 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .iot-terminal-send button:disabled,
-    .iot-terminal-send input:disabled {
-        opacity: .45;
-        cursor: not-allowed;
-    }
+.iot-terminal-send button:disabled,
+.iot-terminal-send input:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
 
 .iot-terminal-footer {
     display: grid;
@@ -5522,31 +5576,31 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(6, 19, 29, 0.96);
 }
 
-    .iot-terminal-footer > span {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-    }
+.iot-terminal-footer > span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
 
-        .iot-terminal-footer > span.online {
-            background: #31d2a5;
-            box-shadow: 0 0 0 3px rgba(49, 210, 165, .1);
-        }
+.iot-terminal-footer > span.online {
+    background: #31d2a5;
+    box-shadow: 0 0 0 3px rgba(49, 210, 165, .1);
+}
 
-        .iot-terminal-footer > span.offline {
-            background: #ef6675;
-            box-shadow: 0 0 0 3px rgba(239, 102, 117, .1);
-        }
+.iot-terminal-footer > span.offline {
+    background: #ef6675;
+    box-shadow: 0 0 0 3px rgba(239, 102, 117, .1);
+}
 
-    .iot-terminal-footer strong {
-        color: #9eb5c0;
-        font-size: 10px;
-    }
+.iot-terminal-footer strong {
+    color: #9eb5c0;
+    font-size: 10px;
+}
 
-    .iot-terminal-footer small {
-        color: #526d7c;
-        font-size: 9px;
-    }
+.iot-terminal-footer small {
+    color: #526d7c;
+    font-size: 9px;
+}
 
 @media (max-width: 980px) {
     .iot-config-modal {
@@ -5603,7 +5657,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
 .empty-workspace {
     min-width: 0;
     min-height: 0;
-    background: radial-gradient(circle at 50% 42%, rgba(16, 183, 164, 0.025), transparent 32%), linear-gradient(145deg, rgba(7, 17, 29, 0.2), rgba(5, 13, 22, 0.55));
+    background:
+        radial-gradient(circle at 50% 42%, rgba(16, 183, 164, 0.025), transparent 32%),
+        linear-gradient(145deg, rgba(7, 17, 29, 0.2), rgba(5, 13, 22, 0.55));
 }
 
 .menu-status.idle {
@@ -5643,30 +5699,30 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: rgba(8, 22, 35, 0.94);
 }
 
-    .iot-page-header > div {
-        display: grid;
-        gap: 4px;
-    }
+.iot-page-header > div {
+    display: grid;
+    gap: 4px;
+}
 
-        .iot-page-header > div > span {
-            color: #32cfbe;
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: 0.09em;
-        }
+.iot-page-header > div > span {
+    color: #32cfbe;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.09em;
+}
 
-    .iot-page-header h2 {
-        margin: 0;
-        color: #eef8fb;
-        font-size: 1.08rem;
-    }
+.iot-page-header h2 {
+    margin: 0;
+    color: #eef8fb;
+    font-size: 1.08rem;
+}
 
-    .iot-page-header p {
-        margin: 0;
-        color: #7d95a5;
-        font-size: 0.69rem;
-        line-height: 1.45;
-    }
+.iot-page-header p {
+    margin: 0;
+    color: #7d95a5;
+    font-size: 0.69rem;
+    line-height: 1.45;
+}
 
 .iot-page-close {
     display: grid;
@@ -5682,11 +5738,11 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .iot-page-close:hover:not(:disabled) {
-        color: #ffffff;
-        border-color: rgba(255, 101, 114, 0.45);
-        background: rgba(104, 31, 44, 0.34);
-    }
+.iot-page-close:hover:not(:disabled) {
+    color: #ffffff;
+    border-color: rgba(255, 101, 114, 0.45);
+    background: rgba(104, 31, 44, 0.34);
+}
 
 .iot-direct-connection {
     position: relative;
@@ -5707,25 +5763,25 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     align-self: center;
 }
 
-    .iot-direct-connection-copy span,
-    .iot-serial-field > span,
-    .iot-serial-parameters > span {
-        color: #668394;
-        font-size: 9px;
-        font-weight: 900;
-        letter-spacing: 0.08em;
-    }
+.iot-direct-connection-copy span,
+.iot-serial-field > span,
+.iot-serial-parameters > span {
+    color: #668394;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+}
 
-    .iot-direct-connection-copy strong {
-        color: #d7e8ed;
-        font-size: 12px;
-    }
+.iot-direct-connection-copy strong {
+    color: #d7e8ed;
+    font-size: 12px;
+}
 
-    .iot-direct-connection-copy small {
-        color: #667f8f;
-        font-size: 9px;
-        line-height: 1.4;
-    }
+.iot-direct-connection-copy small {
+    color: #667f8f;
+    font-size: 9px;
+    line-height: 1.4;
+}
 
 .iot-selector-field {
     position: relative;
@@ -5735,12 +5791,12 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     z-index: 30;
 }
 
-    .iot-selector-field > span {
-        color: #668394;
-        font-size: 9px;
-        font-weight: 900;
-        letter-spacing: 0.08em;
-    }
+.iot-selector-field > span {
+    color: #668394;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+}
 
 .iot-dropdown {
     position: relative;
@@ -5764,29 +5820,29 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .iot-dropdown-button strong {
-        overflow: hidden;
-        font-size: 11px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.iot-dropdown-button strong {
+    overflow: hidden;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-    .iot-dropdown-button > span {
-        flex: 0 0 auto;
-        color: #5fcfc2;
-        font-size: 9px;
-    }
+.iot-dropdown-button > span {
+    flex: 0 0 auto;
+    color: #5fcfc2;
+    font-size: 9px;
+}
 
-    .iot-dropdown.open .iot-dropdown-button,
-    .iot-dropdown-button:focus-visible {
-        border-color: rgba(47, 205, 187, 0.72);
-        box-shadow: 0 0 0 3px rgba(47, 205, 187, 0.08);
-    }
+.iot-dropdown.open .iot-dropdown-button,
+.iot-dropdown-button:focus-visible {
+    border-color: rgba(47, 205, 187, 0.72);
+    box-shadow: 0 0 0 3px rgba(47, 205, 187, 0.08);
+}
 
-    .iot-dropdown-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.62;
-    }
+.iot-dropdown-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.62;
+}
 
 .iot-dropdown-options {
     position: absolute;
@@ -5820,27 +5876,27 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     cursor: pointer;
 }
 
-    .iot-dropdown-option:hover,
-    .iot-dropdown-option.selected {
-        border-color: rgba(49, 204, 187, 0.32);
-        color: #efffff;
-        background: rgba(18, 116, 111, 0.25);
-    }
+.iot-dropdown-option:hover,
+.iot-dropdown-option.selected {
+    border-color: rgba(49, 204, 187, 0.32);
+    color: #efffff;
+    background: rgba(18, 116, 111, 0.25);
+}
 
-    .iot-dropdown-option > span {
-        color: #42cdbd;
-        font-family: Consolas, "Cascadia Mono", monospace;
-        font-size: 8px;
-        font-weight: 900;
-    }
+.iot-dropdown-option > span {
+    color: #42cdbd;
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 8px;
+    font-weight: 900;
+}
 
-    .iot-dropdown-option strong {
-        overflow: hidden;
-        font-family: Consolas, "Cascadia Mono", monospace;
-        font-size: 11px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.iot-dropdown-option strong {
+    overflow: hidden;
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .iot-dropdown-empty {
     padding: 13px 10px;
@@ -5854,9 +5910,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     min-width: 190px;
 }
 
-    .iot-dropdown-options.baud-options .iot-dropdown-option {
-        grid-template-columns: 28px minmax(0, 1fr);
-    }
+.iot-dropdown-options.baud-options .iot-dropdown-option {
+    grid-template-columns: 28px minmax(0, 1fr);
+}
 
 .iot-control-lines {
     display: grid;
@@ -5864,12 +5920,12 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     min-width: 0;
 }
 
-    .iot-control-lines > span {
-        color: #668394;
-        font-size: 9px;
-        font-weight: 900;
-        letter-spacing: 0.08em;
-    }
+.iot-control-lines > span {
+    color: #668394;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+}
 
 .iot-control-lines-options {
     display: grid;
@@ -5881,36 +5937,36 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     background: #071522;
 }
 
-    .iot-control-lines-options label {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        padding: 0 8px;
-        color: #a9bec8;
-        font-family: Consolas, "Cascadia Mono", monospace;
-        font-size: 9px;
-        font-weight: 900;
-        cursor: pointer;
-    }
+.iot-control-lines-options label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 8px;
+    color: #a9bec8;
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 9px;
+    font-weight: 900;
+    cursor: pointer;
+}
 
-        .iot-control-lines-options label + label {
-            border-left: 1px solid rgba(72, 112, 137, 0.34);
-        }
+.iot-control-lines-options label + label {
+    border-left: 1px solid rgba(72, 112, 137, 0.34);
+}
 
-    .iot-control-lines-options input {
-        accent-color: #2dcdbb;
-    }
+.iot-control-lines-options input {
+    accent-color: #2dcdbb;
+}
 
-    .iot-control-lines-options label:has(input:checked) {
-        color: #b7fff4;
-        background: rgba(23, 126, 115, 0.22);
-    }
+.iot-control-lines-options label:has(input:checked) {
+    color: #b7fff4;
+    background: rgba(23, 126, 115, 0.22);
+}
 
-    .iot-control-lines-options label:has(input:disabled) {
-        cursor: not-allowed;
-        opacity: 0.62;
-    }
+.iot-control-lines-options label:has(input:disabled) {
+    cursor: not-allowed;
+    opacity: 0.62;
+}
 
 .iot-refresh-ports,
 .iot-connect-button {
@@ -5937,22 +5993,22 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     font-size: 10px;
 }
 
-    .iot-connect-button.disconnect {
-        border-color: rgba(255, 102, 119, 0.42);
-        color: #ffdce0;
-        background: rgba(103, 28, 42, 0.65);
-    }
+.iot-connect-button.disconnect {
+    border-color: rgba(255, 102, 119, 0.42);
+    color: #ffdce0;
+    background: rgba(103, 28, 42, 0.65);
+}
 
-    .iot-refresh-ports:hover:not(:disabled),
-    .iot-connect-button:hover:not(:disabled) {
-        filter: brightness(1.12);
-    }
+.iot-refresh-ports:hover:not(:disabled),
+.iot-connect-button:hover:not(:disabled) {
+    filter: brightness(1.12);
+}
 
-    .iot-refresh-ports:disabled,
-    .iot-connect-button:disabled {
-        cursor: not-allowed;
-        opacity: 0.48;
-    }
+.iot-refresh-ports:disabled,
+.iot-connect-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+}
 
 .iot-config-page .iot-config-body {
     height: auto;
@@ -5966,7 +6022,13 @@ h1, h2, h3, strong, dt, dd, label, span, p {
 
 @media (max-width: 1080px) {
     .iot-direct-connection {
-        grid-template-columns: minmax(175px, 1fr) minmax(155px, 210px) minmax(120px, 150px) minmax(110px, 135px) 42px minmax(100px, 120px);
+        grid-template-columns:
+            minmax(175px, 1fr)
+            minmax(155px, 210px)
+            minmax(120px, 150px)
+            minmax(110px, 135px)
+            42px
+            minmax(100px, 120px);
     }
 }
 
@@ -5983,7 +6045,12 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     }
 
     .iot-direct-connection {
-        grid-template-columns: minmax(0, 1fr) minmax(125px, 165px) minmax(115px, 145px) 42px minmax(100px, 120px);
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(125px, 165px)
+            minmax(115px, 145px)
+            42px
+            minmax(100px, 120px);
     }
 
     .iot-direct-connection-copy {
@@ -6032,67 +6099,67 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     align-items: stretch;
 }
 
-    .iot-network-mode-selector > button {
-        display: grid;
-        align-content: center;
-        gap: 3px;
-        min-height: 48px;
-        padding: 8px 12px;
-        border: 1px solid rgba(72, 111, 136, 0.4);
-        border-radius: 10px;
-        background: rgba(4, 20, 32, 0.82);
-        color: #91aab8;
-        text-align: left;
-        cursor: pointer;
-    }
+.iot-network-mode-selector > button {
+    display: grid;
+    align-content: center;
+    gap: 3px;
+    min-height: 48px;
+    padding: 8px 12px;
+    border: 1px solid rgba(72, 111, 136, 0.4);
+    border-radius: 10px;
+    background: rgba(4, 20, 32, 0.82);
+    color: #91aab8;
+    text-align: left;
+    cursor: pointer;
+}
 
-        .iot-network-mode-selector > button strong {
-            color: #d7e8ee;
-            font-size: 11px;
-        }
+.iot-network-mode-selector > button strong {
+    color: #d7e8ee;
+    font-size: 11px;
+}
 
-        .iot-network-mode-selector > button small {
-            color: #6f8999;
-            font-size: 9px;
-        }
+.iot-network-mode-selector > button small {
+    color: #6f8999;
+    font-size: 9px;
+}
 
-        .iot-network-mode-selector > button.active {
-            border-color: rgba(42, 210, 190, 0.68);
-            background: rgba(11, 92, 87, 0.34);
-            box-shadow: inset 0 0 0 1px rgba(42, 210, 190, 0.11);
-        }
+.iot-network-mode-selector > button.active {
+    border-color: rgba(42, 210, 190, 0.68);
+    background: rgba(11, 92, 87, 0.34);
+    box-shadow: inset 0 0 0 1px rgba(42, 210, 190, 0.11);
+}
 
-            .iot-network-mode-selector > button.active strong {
-                color: #8df0e4;
-            }
+.iot-network-mode-selector > button.active strong {
+    color: #8df0e4;
+}
 
-        .iot-network-mode-selector > button.iot-network-mode-send {
-            min-width: 118px;
-            border-color: rgba(43, 206, 186, 0.48);
-            background: linear-gradient(135deg, rgba(16, 130, 121, 0.84), rgba(17, 83, 112, 0.92));
-            color: #efffff;
-            font-size: 10px;
-            font-weight: 900;
-            text-align: center;
-        }
+.iot-network-mode-selector > button.iot-network-mode-send {
+    min-width: 118px;
+    border-color: rgba(43, 206, 186, 0.48);
+    background: linear-gradient(135deg, rgba(16, 130, 121, 0.84), rgba(17, 83, 112, 0.92));
+    color: #efffff;
+    font-size: 10px;
+    font-weight: 900;
+    text-align: center;
+}
 
-        .iot-network-mode-selector > button:hover:not(:disabled) {
-            filter: brightness(1.1);
-        }
+.iot-network-mode-selector > button:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
 
-        .iot-network-mode-selector > button:disabled {
-            opacity: .46;
-            cursor: not-allowed;
-        }
+.iot-network-mode-selector > button:disabled {
+    opacity: .46;
+    cursor: not-allowed;
+}
 
 @media (max-width: 780px) {
     .iot-network-mode-selector {
         grid-template-columns: 1fr 1fr;
     }
 
-        .iot-network-mode-selector > button.iot-network-mode-send {
-            grid-column: span 2;
-        }
+    .iot-network-mode-selector > button.iot-network-mode-send {
+        grid-column: span 2;
+    }
 }
 
 @media (max-width: 560px) {
@@ -6100,9 +6167,9 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         grid-template-columns: 1fr;
     }
 
-        .iot-network-mode-selector > button.iot-network-mode-send {
-            grid-column: span 1;
-        }
+    .iot-network-mode-selector > button.iot-network-mode-send {
+        grid-column: span 1;
+    }
 }
 
 
@@ -6138,25 +6205,25 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 5px;
 }
 
-    .iot-config-page .iot-field input,
-    .iot-config-page .iot-field-control > button,
-    .iot-config-page .iot-input-with-unit {
-        min-height: 36px;
-    }
+.iot-config-page .iot-field input,
+.iot-config-page .iot-field-control > button,
+.iot-config-page .iot-input-with-unit {
+    min-height: 36px;
+}
 
-    .iot-config-page .iot-field input {
-        min-height: 36px;
-        padding-inline: 10px;
-    }
+.iot-config-page .iot-field input {
+    min-height: 36px;
+    padding-inline: 10px;
+}
 
 .iot-config-page .iot-field-control {
     grid-template-columns: minmax(0, 1fr) 66px;
 }
 
-    .iot-config-page .iot-field-control > button {
-        min-height: 36px;
-        padding-inline: 8px;
-    }
+.iot-config-page .iot-field-control > button {
+    min-height: 36px;
+    padding-inline: 8px;
+}
 
 .iot-config-page .iot-period-control {
     grid-template-columns: minmax(0, 1fr) 66px;
@@ -6187,14 +6254,14 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     gap: 7px;
 }
 
-    .iot-config-page .iot-network-mode-selector > button {
-        min-height: 42px;
-        padding: 6px 10px;
-    }
+.iot-config-page .iot-network-mode-selector > button {
+    min-height: 42px;
+    padding: 6px 10px;
+}
 
-        .iot-config-page .iot-network-mode-selector > button.iot-network-mode-send {
-            min-width: 104px;
-        }
+.iot-config-page .iot-network-mode-selector > button.iot-network-mode-send {
+    min-width: 104px;
+}
 
 /* La terminal gana ancho, tipografía y una lectura más cómoda. */
 .iot-config-page .iot-live-terminal {
@@ -6227,7 +6294,8 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     padding: 11px 12px;
     border: 1px solid rgba(65, 110, 137, 0.34);
     border-radius: 12px;
-    background: linear-gradient(135deg, rgba(12, 40, 56, 0.74), rgba(6, 24, 37, 0.88));
+    background:
+        linear-gradient(135deg, rgba(12, 40, 56, 0.74), rgba(6, 24, 37, 0.88));
 }
 
 .iot-device-actions-copy {
@@ -6236,28 +6304,28 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     min-width: 0;
 }
 
-    .iot-device-actions-copy > span {
-        color: #42d2c0;
-        font-size: 8px;
-        font-weight: 900;
-        letter-spacing: .11em;
-    }
+.iot-device-actions-copy > span {
+    color: #42d2c0;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .11em;
+}
 
-    .iot-device-actions-copy > strong {
-        color: #dcecf1;
-        font-size: 11px;
-    }
+.iot-device-actions-copy > strong {
+    color: #dcecf1;
+    font-size: 11px;
+}
 
-    .iot-device-actions-copy > small {
-        color: #708a99;
-        font-size: 8.5px;
-        line-height: 1.45;
-    }
+.iot-device-actions-copy > small {
+    color: #708a99;
+    font-size: 8.5px;
+    line-height: 1.45;
+}
 
-    .iot-device-actions-copy code {
-        color: #9ceee4;
-        font-family: Consolas, "Cascadia Mono", monospace;
-    }
+.iot-device-actions-copy code {
+    color: #9ceee4;
+    font-family: Consolas, "Cascadia Mono", monospace;
+}
 
 .iot-device-actions-buttons {
     display: flex;
@@ -6278,95 +6346,95 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     transition: transform .14s ease, filter .14s ease, border-color .14s ease;
 }
 
-    .iot-action-button > span:first-child {
-        display: grid;
-        width: 25px;
-        height: 25px;
-        place-items: center;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 900;
-    }
+.iot-action-button > span:first-child {
+    display: grid;
+    width: 25px;
+    height: 25px;
+    place-items: center;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 900;
+}
 
-    .iot-action-button > span:last-child {
-        display: grid;
-        gap: 1px;
-        text-align: left;
-    }
+.iot-action-button > span:last-child {
+    display: grid;
+    gap: 1px;
+    text-align: left;
+}
 
-    .iot-action-button strong {
-        font-size: 9.5px;
-        white-space: nowrap;
-    }
+.iot-action-button strong {
+    font-size: 9.5px;
+    white-space: nowrap;
+}
 
-    .iot-action-button small {
-        font-size: 8px;
-        white-space: nowrap;
-    }
+.iot-action-button small {
+    font-size: 8px;
+    white-space: nowrap;
+}
 
-    .iot-action-button.read {
-        border: 1px solid rgba(47, 202, 186, 0.46);
-        color: #eafffb;
-        background: linear-gradient(135deg, rgba(14, 128, 117, .82), rgba(15, 80, 105, .9));
-    }
+.iot-action-button.read {
+    border: 1px solid rgba(47, 202, 186, 0.46);
+    color: #eafffb;
+    background: linear-gradient(135deg, rgba(14, 128, 117, .82), rgba(15, 80, 105, .9));
+}
 
-        .iot-action-button.read > span:first-child {
-            color: #a9fff4;
-            background: rgba(68, 222, 204, .12);
-        }
+.iot-action-button.read > span:first-child {
+    color: #a9fff4;
+    background: rgba(68, 222, 204, .12);
+}
 
-        .iot-action-button.read small {
-            color: #86bdb9;
-        }
+.iot-action-button.read small {
+    color: #86bdb9;
+}
 
-    .iot-action-button.reset {
-        border: 1px solid rgba(231, 154, 66, .42);
-        color: #ffe8c5;
-        background: linear-gradient(135deg, rgba(105, 64, 23, .68), rgba(72, 38, 27, .76));
-    }
+.iot-action-button.reset {
+    border: 1px solid rgba(231, 154, 66, .42);
+    color: #ffe8c5;
+    background: linear-gradient(135deg, rgba(105, 64, 23, .68), rgba(72, 38, 27, .76));
+}
 
-        .iot-action-button.reset > span:first-child {
-            color: #ffc876;
-            background: rgba(238, 158, 65, .12);
-        }
+.iot-action-button.reset > span:first-child {
+    color: #ffc876;
+    background: rgba(238, 158, 65, .12);
+}
 
-        .iot-action-button.reset small {
-            color: #bc9874;
-        }
+.iot-action-button.reset small {
+    color: #bc9874;
+}
 
-    .iot-action-button.confirm-reset {
-        border: 1px solid rgba(255, 102, 119, .56);
-        color: #ffe4e7;
-        background: linear-gradient(135deg, rgba(135, 38, 55, .86), rgba(87, 27, 41, .9));
-    }
+.iot-action-button.confirm-reset {
+    border: 1px solid rgba(255, 102, 119, .56);
+    color: #ffe4e7;
+    background: linear-gradient(135deg, rgba(135, 38, 55, .86), rgba(87, 27, 41, .9));
+}
 
-        .iot-action-button.confirm-reset > span:first-child {
-            color: #ff9eaa;
-            background: rgba(255, 102, 119, .13);
-        }
+.iot-action-button.confirm-reset > span:first-child {
+    color: #ff9eaa;
+    background: rgba(255, 102, 119, .13);
+}
 
-        .iot-action-button.confirm-reset small {
-            color: #d49aa2;
-        }
+.iot-action-button.confirm-reset small {
+    color: #d49aa2;
+}
 
-    .iot-action-button.cancel-reset {
-        border: 1px solid rgba(78, 113, 136, .42);
-        color: #9cb2bf;
-        background: rgba(13, 37, 52, .82);
-        font-size: 9px;
-        font-weight: 900;
-    }
+.iot-action-button.cancel-reset {
+    border: 1px solid rgba(78, 113, 136, .42);
+    color: #9cb2bf;
+    background: rgba(13, 37, 52, .82);
+    font-size: 9px;
+    font-weight: 900;
+}
 
-    .iot-action-button:hover:not(:disabled) {
-        filter: brightness(1.12);
-        transform: translateY(-1px);
-    }
+.iot-action-button:hover:not(:disabled) {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
 
-    .iot-action-button:disabled {
-        opacity: .43;
-        cursor: not-allowed;
-        transform: none;
-    }
+.iot-action-button:disabled {
+    opacity: .43;
+    cursor: not-allowed;
+    transform: none;
+}
 
 @media (max-width: 1250px) {
     .iot-config-page .iot-config-workspace {
@@ -6459,25 +6527,25 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         padding: 9px 14px;
     }
 
-        .iot-page-header > div {
-            gap: 2px;
-            min-width: 0;
-        }
+    .iot-page-header > div {
+        gap: 2px;
+        min-width: 0;
+    }
 
-            .iot-page-header > div > span {
-                font-size: 8px;
-            }
+    .iot-page-header > div > span {
+        font-size: 8px;
+    }
 
-        .iot-page-header h2 {
-            font-size: 0.98rem;
-        }
+    .iot-page-header h2 {
+        font-size: 0.98rem;
+    }
 
-        .iot-page-header p {
-            overflow: hidden;
-            font-size: 0.61rem;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+    .iot-page-header p {
+        overflow: hidden;
+        font-size: 0.61rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 
     .iot-page-close {
         width: 32px;
@@ -6485,7 +6553,13 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     }
 
     .iot-direct-connection {
-        grid-template-columns: minmax(145px, 1fr) minmax(150px, 220px) minmax(115px, 145px) minmax(108px, 135px) 38px minmax(100px, 118px);
+        grid-template-columns:
+            minmax(145px, 1fr)
+            minmax(150px, 220px)
+            minmax(115px, 145px)
+            minmax(108px, 135px)
+            38px
+            minmax(100px, 118px);
         gap: 7px;
         padding: 7px 12px;
     }
@@ -6494,19 +6568,19 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         gap: 1px;
     }
 
-        .iot-direct-connection-copy span,
-        .iot-selector-field > span,
-        .iot-control-lines > span {
-            font-size: 7.5px;
-        }
+    .iot-direct-connection-copy span,
+    .iot-selector-field > span,
+    .iot-control-lines > span {
+        font-size: 7.5px;
+    }
 
-        .iot-direct-connection-copy strong {
-            font-size: 10.5px;
-        }
+    .iot-direct-connection-copy strong {
+        font-size: 10.5px;
+    }
 
-        .iot-direct-connection-copy small {
-            display: none;
-        }
+    .iot-direct-connection-copy small {
+        display: none;
+    }
 
     .iot-selector-field,
     .iot-control-lines {
@@ -6551,21 +6625,21 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         grid-template-columns: 31px minmax(0, 1fr);
     }
 
-        .iot-config-page .iot-config-note > span {
-            min-height: 28px;
-            font-size: 8px;
-        }
+    .iot-config-page .iot-config-note > span {
+        min-height: 28px;
+        font-size: 8px;
+    }
 
-        .iot-config-page .iot-status-banner strong,
-        .iot-config-page .iot-config-note strong {
-            font-size: 9.5px;
-        }
+    .iot-config-page .iot-status-banner strong,
+    .iot-config-page .iot-config-note strong {
+        font-size: 9.5px;
+    }
 
-        .iot-config-page .iot-status-banner small,
-        .iot-config-page .iot-config-note small {
-            font-size: 7.2px;
-            line-height: 1.25;
-        }
+    .iot-config-page .iot-status-banner small,
+    .iot-config-page .iot-config-note small {
+        font-size: 7.2px;
+        line-height: 1.25;
+    }
 
     .iot-config-page .iot-config-grid,
     .iot-config-page .iot-config-error,
@@ -6581,31 +6655,31 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         gap: 3px;
     }
 
-        .iot-config-page .iot-field > span {
-            font-size: 8.2px;
-        }
+    .iot-config-page .iot-field > span {
+        font-size: 8.2px;
+    }
 
-        .iot-config-page .iot-field input,
-        .iot-config-page .iot-field-control > button,
-        .iot-config-page .iot-input-with-unit {
-            min-height: 31px;
-        }
+    .iot-config-page .iot-field input,
+    .iot-config-page .iot-field-control > button,
+    .iot-config-page .iot-input-with-unit {
+        min-height: 31px;
+    }
 
-        .iot-config-page .iot-field input {
-            min-height: 31px;
-            padding-inline: 9px;
-            font-size: 11px;
-        }
+    .iot-config-page .iot-field input {
+        min-height: 31px;
+        padding-inline: 9px;
+        font-size: 11px;
+    }
 
     .iot-config-page .iot-field-control {
         grid-template-columns: minmax(0, 1fr) 60px;
     }
 
-        .iot-config-page .iot-field-control > button {
-            min-height: 31px;
-            padding-inline: 6px;
-            font-size: 8px;
-        }
+    .iot-config-page .iot-field-control > button {
+        min-height: 31px;
+        padding-inline: 6px;
+        font-size: 8px;
+    }
 
     .iot-config-page .iot-period-control {
         grid-template-columns: minmax(0, 1fr) 60px;
@@ -6625,23 +6699,23 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         gap: 5px;
     }
 
-        .iot-config-page .iot-network-mode-selector > button {
-            min-height: 35px;
-            padding: 4px 8px;
-        }
+    .iot-config-page .iot-network-mode-selector > button {
+        min-height: 35px;
+        padding: 4px 8px;
+    }
 
-            .iot-config-page .iot-network-mode-selector > button strong {
-                font-size: 8.5px;
-            }
+    .iot-config-page .iot-network-mode-selector > button strong {
+        font-size: 8.5px;
+    }
 
-            .iot-config-page .iot-network-mode-selector > button small {
-                font-size: 6.8px;
-            }
+    .iot-config-page .iot-network-mode-selector > button small {
+        font-size: 6.8px;
+    }
 
-            .iot-config-page .iot-network-mode-selector > button.iot-network-mode-send {
-                min-width: 92px;
-                font-size: 8px;
-            }
+    .iot-config-page .iot-network-mode-selector > button.iot-network-mode-send {
+        min-width: 92px;
+        font-size: 8px;
+    }
 
     /* Las acciones permanecen accesibles aunque el editor necesite desplazamiento. */
     .iot-device-actions {
@@ -6661,18 +6735,18 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         gap: 1px;
     }
 
-        .iot-device-actions-copy > span {
-            font-size: 6.8px;
-        }
+    .iot-device-actions-copy > span {
+        font-size: 6.8px;
+    }
 
-        .iot-device-actions-copy > strong {
-            font-size: 9px;
-        }
+    .iot-device-actions-copy > strong {
+        font-size: 9px;
+    }
 
-        .iot-device-actions-copy > small {
-            font-size: 6.8px;
-            line-height: 1.2;
-        }
+    .iot-device-actions-copy > small {
+        font-size: 6.8px;
+        line-height: 1.2;
+    }
 
     .iot-device-actions-buttons {
         gap: 6px;
@@ -6684,31 +6758,31 @@ h1, h2, h3, strong, dt, dd, label, span, p {
         padding: 4px 8px;
     }
 
-        .iot-action-button > span:first-child {
-            width: 22px;
-            height: 22px;
-            font-size: 12px;
-        }
+    .iot-action-button > span:first-child {
+        width: 22px;
+        height: 22px;
+        font-size: 12px;
+    }
 
-        .iot-action-button strong {
-            font-size: 8px;
-        }
+    .iot-action-button strong {
+        font-size: 8px;
+    }
 
-        .iot-action-button small {
-            font-size: 6.7px;
-        }
+    .iot-action-button small {
+        font-size: 6.7px;
+    }
 
     .iot-config-page .iot-terminal-header {
         padding: 9px 12px;
     }
 
-        .iot-config-page .iot-terminal-header span {
-            font-size: 7.5px;
-        }
+    .iot-config-page .iot-terminal-header span {
+        font-size: 7.5px;
+    }
 
-        .iot-config-page .iot-terminal-header strong {
-            font-size: 10.5px;
-        }
+    .iot-config-page .iot-terminal-header strong {
+        font-size: 10.5px;
+    }
 
     .iot-config-page .iot-terminal-screen {
         padding: 10px 12px;
@@ -6764,6 +6838,12 @@ h1, h2, h3, strong, dt, dd, label, span, p {
     }
 
     .iot-direct-connection {
-        grid-template-columns: minmax(130px, 1fr) minmax(140px, 190px) minmax(105px, 130px) minmax(100px, 125px) 38px minmax(92px, 108px);
+        grid-template-columns:
+            minmax(130px, 1fr)
+            minmax(140px, 190px)
+            minmax(105px, 130px)
+            minmax(100px, 125px)
+            38px
+            minmax(92px, 108px);
     }
 }

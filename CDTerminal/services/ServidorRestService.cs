@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -16,8 +18,9 @@ public sealed class ServidorRestService : IServidorRestService, IDisposable
     private readonly HttpClient _httpClient;
     private readonly SemaphoreSlim _bloqueoArchivo = new(1, 1);
     private readonly JsonSerializerOptions _opcionesJson;
-    private readonly string _rutaConfiguracion;
-    private ConfiguracionServidorRest _configuracion;
+    private readonly string _rutaDestinos;
+    private readonly string _rutaConfiguracionAnterior;
+    private List<ConfiguracionServidorRest> _destinos;
 
     public ServidorRestService()
     {
@@ -29,7 +32,12 @@ public sealed class ServidorRestService : IServidorRestService, IDisposable
 
         Directory.CreateDirectory(carpeta);
 
-        _rutaConfiguracion = Path.Combine(
+        _rutaDestinos = Path.Combine(
+            carpeta,
+            "destinos-rest.json"
+        );
+
+        _rutaConfiguracionAnterior = Path.Combine(
             carpeta,
             "servidor-rest.json"
         );
@@ -46,53 +54,80 @@ public sealed class ServidorRestService : IServidorRestService, IDisposable
             Timeout = System.Threading.Timeout.InfiniteTimeSpan
         };
 
-        _configuracion = CargarConfiguracion();
+        _destinos = CargarDestinos();
     }
 
-    public ConfiguracionServidorRest ObtenerConfiguracion()
+    public IReadOnlyList<ConfiguracionServidorRest> ObtenerDestinos()
     {
-        return _configuracion.CrearCopia();
+        return _destinos
+            .OrderByDescending(destino => destino.Activo)
+            .ThenBy(destino => destino.Nombre)
+            .Select(destino => destino.CrearCopia())
+            .ToList();
     }
 
-    public async Task GuardarConfiguracionAsync(
-        ConfiguracionServidorRest configuracion,
+    public async Task GuardarDestinoAsync(
+        ConfiguracionServidorRest destino,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(configuracion);
-        ValidarConfiguracion(configuracion, exigirRutaLecturas: false);
+        ArgumentNullException.ThrowIfNull(destino);
+        ValidarConfiguracion(destino, exigirRutaLecturas: false);
 
-        ConfiguracionServidorRest copia = configuracion.CrearCopia();
-        copia.UrlBase = copia.UrlBase.Trim();
-        copia.RutaPrueba = copia.RutaPrueba.Trim();
-        copia.RutaLecturas = copia.RutaLecturas.Trim();
-        copia.IdDispositivo = copia.IdDispositivo.Trim();
-        copia.TokenBearer = copia.TokenBearer.Trim();
-        copia.TimeoutSegundos = Math.Clamp(copia.TimeoutSegundos, 1, 60);
-        copia.ActualizadoEn = DateTime.Now;
+        ConfiguracionServidorRest copia = Normalizar(destino);
 
         await _bloqueoArchivo.WaitAsync(cancellationToken);
 
         try
         {
-            string temporal = _rutaConfiguracion + ".tmp";
-            string json = JsonSerializer.Serialize(
-                copia,
-                _opcionesJson
+            List<ConfiguracionServidorRest> actualizados = _destinos
+                .Select(item => item.CrearCopia())
+                .ToList();
+
+            int indice = actualizados.FindIndex(
+                item => item.Id == copia.Id
             );
 
-            await File.WriteAllTextAsync(
-                temporal,
-                json,
+            if (indice >= 0)
+            {
+                actualizados[indice] = copia;
+            }
+            else
+            {
+                actualizados.Add(copia);
+            }
+
+            await GuardarListaAsync(
+                actualizados,
                 cancellationToken
             );
 
-            File.Move(
-                temporal,
-                _rutaConfiguracion,
-                overwrite: true
+            _destinos = actualizados;
+        }
+        finally
+        {
+            _bloqueoArchivo.Release();
+        }
+    }
+
+    public async Task EliminarDestinoAsync(
+        Guid destinoId,
+        CancellationToken cancellationToken = default)
+    {
+        await _bloqueoArchivo.WaitAsync(cancellationToken);
+
+        try
+        {
+            List<ConfiguracionServidorRest> actualizados = _destinos
+                .Where(destino => destino.Id != destinoId)
+                .Select(destino => destino.CrearCopia())
+                .ToList();
+
+            await GuardarListaAsync(
+                actualizados,
+                cancellationToken
             );
 
-            _configuracion = copia;
+            _destinos = actualizados;
         }
         finally
         {
@@ -163,7 +198,7 @@ public sealed class ServidorRestService : IServidorRestService, IDisposable
             );
 
             solicitud.Headers.UserAgent.ParseAdd(
-                "CDTerminal/1.0"
+                "CDTerminal/1.1"
             );
 
             if (!string.IsNullOrWhiteSpace(
@@ -284,27 +319,121 @@ public sealed class ServidorRestService : IServidorRestService, IDisposable
         }
     }
 
-    private ConfiguracionServidorRest CargarConfiguracion()
+    private List<ConfiguracionServidorRest> CargarDestinos()
     {
-        if (!File.Exists(_rutaConfiguracion))
+        if (File.Exists(_rutaDestinos))
         {
-            return new ConfiguracionServidorRest();
+            try
+            {
+                string json = File.ReadAllText(_rutaDestinos);
+
+                return JsonSerializer
+                           .Deserialize<List<ConfiguracionServidorRest>>(
+                               json,
+                               _opcionesJson
+                           )?
+                           .Where(destino => destino is not null)
+                           .Select(Normalizar)
+                           .ToList()
+                       ?? new List<ConfiguracionServidorRest>();
+            }
+            catch
+            {
+                return new List<ConfiguracionServidorRest>();
+            }
+        }
+
+        return MigrarConfiguracionAnterior();
+    }
+
+    private List<ConfiguracionServidorRest> MigrarConfiguracionAnterior()
+    {
+        if (!File.Exists(_rutaConfiguracionAnterior))
+        {
+            return new List<ConfiguracionServidorRest>();
         }
 
         try
         {
-            string json = File.ReadAllText(_rutaConfiguracion);
+            string json = File.ReadAllText(_rutaConfiguracionAnterior);
+            ConfiguracionServidorRest? anterior =
+                JsonSerializer.Deserialize<ConfiguracionServidorRest>(
+                    json,
+                    _opcionesJson
+                );
 
-            return JsonSerializer.Deserialize<ConfiguracionServidorRest>(
-                       json,
-                       _opcionesJson
-                   )
-                   ?? new ConfiguracionServidorRest();
+            if (anterior is null ||
+                string.IsNullOrWhiteSpace(anterior.UrlBase))
+            {
+                return new List<ConfiguracionServidorRest>();
+            }
+
+            anterior.Id = anterior.Id == Guid.Empty
+                ? Guid.NewGuid()
+                : anterior.Id;
+            anterior.Nombre = "Servidor REST anterior";
+            anterior.Activo = true;
+
+            List<ConfiguracionServidorRest> migrados =
+                new() { Normalizar(anterior) };
+
+            string jsonMigrado = JsonSerializer.Serialize(
+                migrados,
+                _opcionesJson
+            );
+
+            File.WriteAllText(_rutaDestinos, jsonMigrado);
+            return migrados;
         }
         catch
         {
-            return new ConfiguracionServidorRest();
+            return new List<ConfiguracionServidorRest>();
         }
+    }
+
+    private async Task GuardarListaAsync(
+        IReadOnlyList<ConfiguracionServidorRest> destinos,
+        CancellationToken cancellationToken)
+    {
+        string temporal = _rutaDestinos + ".tmp";
+        string json = JsonSerializer.Serialize(
+            destinos,
+            _opcionesJson
+        );
+
+        await File.WriteAllTextAsync(
+            temporal,
+            json,
+            cancellationToken
+        );
+
+        File.Move(
+            temporal,
+            _rutaDestinos,
+            overwrite: true
+        );
+    }
+
+    private static ConfiguracionServidorRest Normalizar(
+        ConfiguracionServidorRest destino)
+    {
+        ConfiguracionServidorRest copia = destino.CrearCopia();
+        copia.Id = copia.Id == Guid.Empty
+            ? Guid.NewGuid()
+            : copia.Id;
+        copia.Nombre = copia.Nombre.Trim();
+        copia.UrlBase = copia.UrlBase.Trim();
+        copia.RutaPrueba = copia.RutaPrueba.Trim();
+        copia.RutaLecturas = copia.RutaLecturas.Trim();
+        copia.IdDispositivo = copia.IdDispositivo.Trim();
+        copia.TokenBearer = copia.TokenBearer.Trim();
+        copia.TimeoutSegundos = Math.Clamp(
+            copia.TimeoutSegundos,
+            1,
+            60
+        );
+        copia.ActualizadoEn = DateTime.Now;
+        return copia;
     }
 
     private static void ValidarConfiguracion(
@@ -312,6 +441,13 @@ public sealed class ServidorRestService : IServidorRestService, IDisposable
         bool exigirRutaLecturas)
     {
         ArgumentNullException.ThrowIfNull(configuracion);
+
+        if (string.IsNullOrWhiteSpace(configuracion.Nombre))
+        {
+            throw new InvalidOperationException(
+                "Escribe un nombre para el destino."
+            );
+        }
 
         if (!Uri.TryCreate(
                 configuracion.UrlBase?.Trim(),

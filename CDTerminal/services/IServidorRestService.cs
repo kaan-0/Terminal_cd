@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using CDTerminal.Models;
@@ -6,10 +8,14 @@ namespace CDTerminal.Services;
 
 public interface IServidorRestService
 {
-    ConfiguracionServidorRest ObtenerConfiguracion();
+    IReadOnlyList<ConfiguracionServidorRest> ObtenerDestinos();
 
-    Task GuardarConfiguracionAsync(
-        ConfiguracionServidorRest configuracion,
+    Task GuardarDestinoAsync(
+        ConfiguracionServidorRest destino,
+        CancellationToken cancellationToken = default);
+
+    Task EliminarDestinoAsync(
+        Guid destinoId,
         CancellationToken cancellationToken = default);
 
     Task<ResultadoServidorRest> ProbarConexionAsync(

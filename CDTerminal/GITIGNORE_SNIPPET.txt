@@ -1,8 +1,4 @@
-# Salidas de publicación e instaladores
+# Publicaciones e instaladores de CD Terminal
 artifacts/
-
-# Archivos temporales de Inno Setup
-Installer/Output/
-
-# Dependencias grandes opcionales
+Backups/
 Installer/Dependencies/*.exe

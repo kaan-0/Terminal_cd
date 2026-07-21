@@ -1,8 +1,8 @@
 #ifndef MyAppVersion
-  #define MyAppVersion "1.0.0"
+  #define MyAppVersion "1.1.0"
 #endif
 
-#define MyAppName "CD Terminal Local"
+#define MyAppName "CD Terminal"
 #define MyAppPublisher "Circuitos y Desarrollos en Tecnología"
 #define MyAppExeName "CDTerminal.exe"
 #define MyAppSourceDir "..\artifacts\publish\win-x64"
@@ -10,6 +10,7 @@
 #define WebView2Installer "Dependencies\MicrosoftEdgeWebView2RuntimeInstallerX64.exe"
 
 [Setup]
+; Mantener este AppId permite actualizar la instalación 1.0.0 existente.
 AppId={{A1ED66B4-C983-46F9-98A9-E90D1AADE52D}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
@@ -31,7 +32,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 
 OutputDir=..\artifacts\installer
-OutputBaseFilename=CDTerminal-Local-Setup-{#MyAppVersion}-x64
+OutputBaseFilename=CDTerminal-Setup-{#MyAppVersion}-x64
 SetupIconFile={#MyAppIcon}
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
