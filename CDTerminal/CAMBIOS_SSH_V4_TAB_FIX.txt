@@ -1,0 +1,8 @@
+CD TERMINAL SSH V4 TAB FIX
+
+- Corrige JSException al abrir Terminal SSH.
+- Sustituye el objeto global window.cdTerminalSsh por importacion dinamica de modulo ES.
+- TerminalSsh.razor carga ./js/cdterminal-ssh.js directamente.
+- Si TAB no logra inicializarse, la terminal permanece abierta y muestra el error en su consola.
+- Libera IJSObjectReference al cerrar el modulo.
+- Ya no requiere modificar wwwroot/index.html.

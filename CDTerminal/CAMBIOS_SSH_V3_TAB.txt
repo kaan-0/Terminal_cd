@@ -1,0 +1,22 @@
+CD TERMINAL SSH MVP V3 - AUTOCOMPLETADO CON TAB
+
+NUEVO
+- La tecla TAB ya no cambia el foco del campo de comandos.
+- CD Terminal consulta los comandos disponibles en el servidor conectado.
+- Si existe una sola coincidencia, completa el comando y agrega un espacio.
+- Si existen varias coincidencias, completa el prefijo comun y muestra hasta 18 opciones elegibles.
+- Las sugerencias pueden seleccionarse con clic.
+- La lista de comandos se precarga al conectar y se mantiene en memoria solo durante la sesion.
+- No se guarda la contrasena ni la lista de comandos en disco.
+
+ALCANCE DE ESTA VERSION
+- Completa nombres de comandos ejecutables, built-ins y comandos conocidos por Bash.
+- Tambien funciona con servidores sin Bash mediante una lista alternativa obtenida desde PATH.
+- Todavia no completa rutas de archivos, nombres de carpetas, opciones como --help ni argumentos especificos.
+
+ARCHIVOS MODIFICADOS
+- Components\\Pages\\Modulos\\TerminalSsh.razor
+- Components\\Pages\\Modulos\\TerminalSsh.razor.css
+- Services\\SshTerminalService.cs
+- wwwroot\\js\\cdterminal-ssh.js
+- wwwroot\\index.html, solo para registrar el archivo JavaScript.

@@ -1,0 +1,37 @@
+PRUEBAS RECOMENDADAS
+====================
+
+1. Conexion valida
+   - IP o dominio correcto.
+   - Puerto 22.
+   - Usuario y contraseña correctos.
+   - Confirmar huella SHA-256.
+
+2. Comandos basicos
+   whoami
+   hostname
+   pwd
+   ls -la
+   uptime
+   df -h
+
+3. Proceso continuo
+   ping 127.0.0.1
+   Presionar Ctrl+C.
+
+4. Errores
+   - Contraseña incorrecta.
+   - IP inexistente.
+   - Puerto cerrado.
+   - Desconectar cable de red.
+
+5. Huella
+   - Primera conexion debe pedir confianza.
+   - Segunda conexion no debe pedirla.
+   - Una huella diferente debe bloquear y advertir.
+
+6. Navegacion
+   - Abrir SSH.
+   - Conectar.
+   - Cambiar a Terminal serial.
+   - Confirmar que SSH se desconecta y no bloquea la interfaz.

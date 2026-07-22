@@ -1,0 +1,12 @@
+CD TERMINAL SSH V5
+
+- Historial de comandos con ArrowUp y ArrowDown.
+- Conserva un borrador mientras se navega por el historial.
+- Maximo de 200 comandos por apertura del modulo.
+- TAB distingue entre comando y ruta.
+- Autocompleta rutas relativas, absolutas y desde HOME.
+- Agrega / a los directorios para continuar completando niveles.
+- Escapa caracteres especiales en nombres de archivos.
+- Rastrea el directorio remoto al ejecutar cd simples.
+- JavaScript consolidado para TAB, ArrowUp y ArrowDown.
+- Mantiene la carga como modulo ES para evitar el crash de la V3.

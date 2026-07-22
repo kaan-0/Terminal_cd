@@ -1,118 +1,40 @@
-CD TERMINAL - CLIENTE HTTP REST (ETAPA 1)
-=========================================
+CD TERMINAL SSH V5
+HISTORIAL DE COMANDOS Y AUTOCOMPLETADO DE RUTAS
 
-Esta versión parte de la interfaz que ya incluye:
-- sesiones seriales y Modbus RTU;
-- polling automático;
-- CSV/TXT;
-- gráfica en tiempo real;
-- perfiles de dispositivos;
-- menú Ver.
+NOVEDADES
+1. Flecha arriba: muestra comandos anteriores.
+2. Flecha abajo: avanza por el historial y restaura el texto que estaba escribiendo.
+3. Historial en memoria de hasta 200 comandos.
+4. TAB completa comandos cuando se escribe el primer token.
+5. TAB completa archivos y directorios en los argumentos.
+6. Soporta rutas relativas, absolutas, ./, ../ y ~/.
+7. Los directorios terminan en / para seguir navegando con TAB.
+8. Los nombres con espacios se insertan con barra invertida.
+9. El directorio de trabajo se actualiza para comandos cd simples.
 
-ARCHIVOS QUE DEBES REEMPLAZAR
------------------------------
-1. Components/Pages/Inicio.razor
-   Usa la ruta real donde ya tienes Inicio.razor.
+APLICAR
+Desde la raiz del proyecto:
 
-2. Components/Pages/Inicio.razor.css
-   Colócalo junto a Inicio.razor.
+Set-ExecutionPolicy -Scope Process Bypass
+C:\RUTA\CDTerminal_SSH_MVP_V5_HISTORIAL_RUTAS\Scripts\Aplicar-Historial-Rutas-SSH.ps1 `
+    -ProjectRoot (Get-Location).Path
 
-3. MainWindow.xaml.cs
+PRUEBAS
+1. Conectar por SSH.
+2. Ejecutar: pwd
+3. Ejecutar: ls
+4. Presionar flecha arriba y flecha abajo.
+5. Escribir: syst y presionar TAB.
+6. Escribir: cd /va y presionar TAB.
+7. Escribir: ls /etc/ho y presionar TAB.
+8. Escribir: cat ./ y presionar TAB.
+9. Probar una carpeta con espacios.
 
-ARCHIVOS NUEVOS
----------------
-Models/ConfiguracionServidorRest.cs
-Models/LecturaServidorRest.cs
-Models/ResultadoServidorRest.cs
-
-Services/IServidorRestService.cs
-Services/ServidorRestService.cs
-
-No se necesitan paquetes NuGet adicionales.
-
-FUNCIONES AGREGADAS
--------------------
-Herramientas > Conexión al servidor
-
-La ventana permite configurar:
-- URL base del servidor;
-- endpoint GET de prueba;
-- endpoint POST de lecturas;
-- ID único del dispositivo;
-- token Bearer opcional;
-- timeout de 1 a 60 segundos;
-- envío automático de lecturas válidas.
-
-También incluye:
-- botón Probar conexión;
-- botón Enviar última lectura;
-- contador de envíos correctos y fallidos;
-- último código HTTP;
-- estado REST en la barra inferior;
-- envío automático después de cada lectura Modbus correcta.
-
-CONTRATO HTTP
--------------
-Prueba:
-    GET {URL_BASE}{RUTA_PRUEBA}
-
-Envío de lectura:
-    POST {URL_BASE}{RUTA_LECTURAS}
-    Content-Type: application/json
-    X-Device-Id: <ID DEL DISPOSITIVO>
-    Authorization: Bearer <TOKEN>   (solo cuando existe token)
-
-Se considera correcto cualquier código HTTP entre 200 y 299.
-El archivo ejemplo-payload.json contiene el cuerpo JSON esperado.
-
-CONFIGURACIÓN LOCAL
--------------------
-La configuración se almacena en:
-
-%LOCALAPPDATA%\CDTerminal\servidor-rest.json
-
-Nota de seguridad: en esta primera etapa el token se guarda en ese archivo
-local sin cifrado. No uses todavía un token administrativo o de alto privilegio.
-Más adelante conviene protegerlo con las credenciales de Windows.
-
-PRUEBA RÁPIDA SIN UN SERVIDOR REAL
-----------------------------------
-Se incluye un servidor de laboratorio escrito en Python y sin dependencias:
-
-ServidorPrueba/servidor_prueba.py
-
-1. Abre PowerShell en la carpeta del paquete.
-2. Ejecuta:
-
-   python .\ServidorPrueba\servidor_prueba.py
-
-3. En CD Terminal configura:
-
-   URL base:          http://127.0.0.1:5080
-   Ruta de prueba:    /health
-   Ruta de lecturas:  /api/readings
-   ID del dispositivo: sensor-tgu-01
-   Token:             vacío
-
-4. Presiona Probar conexión.
-5. Realiza una lectura Modbus.
-6. Presiona Enviar última lectura o activa el envío automático.
-
-Las lecturas quedarán en:
-
-ServidorPrueba/data/lecturas.ndjson
-
-El servidor Python es solo para pruebas locales. No debe publicarse en Internet.
-
-COMPILACIÓN
------------
-dotnet clean
-dotnet restore
-dotnet build .\CDTerminal.csproj -c Debug
-
-ALCANCE ACTUAL
---------------
-Esta etapa envía las lecturas directamente al servidor. Todavía no existe una
-cola persistente para reintentar cuando se pierde Internet. Si el servidor no
-responde, CD Terminal informa el error y continúa con las siguientes lecturas.
-La cola local store-and-forward será una etapa posterior.
+NOTAS
+- El historial no se guarda en disco.
+- La contraseña tampoco se guarda.
+- El seguimiento del directorio funciona con cd simples, por ejemplo:
+  cd /var/log
+  cd ..
+  cd "Mi Carpeta"
+- Comandos complejos como cd /tmp && ls se envian normalmente, pero no actualizan el directorio interno usado por el autocompletado.

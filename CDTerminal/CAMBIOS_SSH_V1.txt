@@ -1,0 +1,37 @@
+CD TERMINAL SSH MVP V1
+======================
+
+NUEVO MODULO
+------------
+Comunicacion > Terminal SSH
+
+ALCANCE
+-------
+- Servidor por IP o dominio.
+- Puerto configurable.
+- Usuario y contraseña.
+- Terminal interactiva con ShellStream.
+- Recepcion continua de salida.
+- Envio de comandos con Enter.
+- Ctrl+C.
+- Auto scroll, contador RX y limpiar.
+- Timeout de conexion.
+- Keep-alive cada 20 segundos.
+- Confianza de host mediante huella SHA-256.
+- Alerta si cambia la huella.
+- La contraseña solo permanece en memoria.
+
+ARCHIVO LOCAL
+-------------
+%LOCALAPPDATA%\CDTerminal\ssh-known-hosts.json
+
+DEPENDENCIA
+-----------
+SSH.NET 2025.1.0
+
+NO INCLUIDO TODAVIA
+-------------------
+- Llaves privadas.
+- SFTP.
+- Perfiles SSH.
+- Emulacion xterm completa para nano, vim, top o htop.

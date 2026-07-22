@@ -1,0 +1,1204 @@
+﻿@namespace CDTerminal.Components.Pages.Modulos
+@using System.Text
+@using System.Linq
+@using System.Text.RegularExpressions
+@using CDTerminal.Models
+@using CDTerminal.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+
+<main class="ssh-module-shell">
+    <section class="ssh-page" aria-label="Terminal SSH">
+
+        <header class="ssh-page-header">
+            <div class="ssh-title-group">
+                <span class="ssh-eyebrow">COMUNICACIÓN · SSH</span>
+                <div class="ssh-title-row">
+                    <span class="ssh-title-icon">$_</span>
+                    <div>
+                        <h2>Terminal SSH</h2>
+                        <p>Conecta y administra servidores Linux, VPS, NAS u otros equipos con SSH.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ssh-header-actions">
+                <span class="ssh-status-badge @(servicio.EstaConectado ? "connected" : conectando ? "connecting" : "disconnected")">
+                    <i></i>
+                    @(servicio.EstaConectado
+                        ? $"{configuracion.Usuario}@{configuracion.Servidor}"
+                        : conectando
+                            ? "Conectando"
+                            : "Desconectado")
+                </span>
+
+                <button type="button"
+                        class="ssh-close-button"
+                        title="Cerrar módulo SSH"
+                        disabled="@conectando"
+                        @onclick="CerrarModuloAsync">
+                    ×
+                </button>
+            </div>
+        </header>
+
+        <section class="ssh-connection-card">
+            <div class="ssh-connection-grid">
+                <label class="ssh-field ssh-host-field">
+                    <span>Servidor o IP</span>
+                    <input type="text"
+                           placeholder="192.168.1.200 o servidor.local"
+                           autocomplete="off"
+                           disabled="@(servicio.EstaConectado || conectando)"
+                           @bind="configuracion.Servidor"
+                           @bind:event="oninput" />
+                </label>
+
+                <label class="ssh-field ssh-port-field">
+                    <span>Puerto</span>
+                    <input type="number"
+                           min="1"
+                           max="65535"
+                           disabled="@(servicio.EstaConectado || conectando)"
+                           @bind="configuracion.Puerto" />
+                </label>
+
+                <label class="ssh-field">
+                    <span>Usuario</span>
+                    <input type="text"
+                           placeholder="administrador"
+                           autocomplete="username"
+                           disabled="@(servicio.EstaConectado || conectando)"
+                           @bind="configuracion.Usuario"
+                           @bind:event="oninput" />
+                </label>
+
+                <label class="ssh-field ssh-password-field">
+                    <span>Contraseña</span>
+                    <div class="ssh-password-input">
+                        <input type="@(mostrarContrasena ? "text" : "password")"
+                               placeholder="Contraseña SSH"
+                               autocomplete="current-password"
+                               disabled="@(servicio.EstaConectado || conectando)"
+                               @bind="configuracion.Contrasena"
+                               @bind:event="oninput"
+                               @onkeydown="ManejarEnterConexion" />
+                        <button type="button"
+                                title="@(mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña")"
+                                disabled="@(servicio.EstaConectado || conectando)"
+                                @onclick="() => mostrarContrasena = !mostrarContrasena">
+                            @(mostrarContrasena ? "Ocultar" : "Ver")
+                        </button>
+                    </div>
+                </label>
+
+                <label class="ssh-field ssh-timeout-field">
+                    <span>Timeout</span>
+                    <div class="ssh-unit-input">
+                        <input type="number"
+                               min="3"
+                               max="120"
+                               disabled="@(servicio.EstaConectado || conectando)"
+                               @bind="configuracion.TimeoutSegundos" />
+                        <small>s</small>
+                    </div>
+                </label>
+
+                <div class="ssh-connect-actions">
+                    @if (servicio.EstaConectado)
+                    {
+                        <button type="button"
+                                class="ssh-primary-button disconnect"
+                                @onclick="DesconectarAsync">
+                            <span>■</span>
+                            Desconectar
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                class="ssh-primary-button connect"
+                                disabled="@(conectando || !PuedeConectar)"
+                                @onclick="ConectarAsync">
+                            <span>@(conectando ? "◌" : "◆")</span>
+                            @(conectando ? "Conectando..." : "Conectar")
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <div class="ssh-connection-note">
+                <span>ⓘ</span>
+                La contraseña no se guarda en disco. Las huellas confiables se conservan en
+                <code>%LOCALAPPDATA%\CDTerminal\ssh-known-hosts.json</code>.
+            </div>
+        </section>
+
+        @if (hostPendiente is not null)
+        {
+            <section class="ssh-hostkey-banner @(hostPendiente.EsCambioDeHuella ? "changed" : "new")">
+                <div class="ssh-hostkey-icon">@(hostPendiente.EsCambioDeHuella ? "!" : "KEY")</div>
+
+                <div class="ssh-hostkey-copy">
+                    <span>@(hostPendiente.EsCambioDeHuella ? "HUELLA MODIFICADA" : "SERVIDOR DESCONOCIDO")</span>
+                    <strong>
+                        @(hostPendiente.EsCambioDeHuella
+                            ? "La identidad SSH del servidor cambió"
+                            : "Confirma la identidad del servidor")
+                    </strong>
+                    <p>@mensajeHostPendiente</p>
+
+                    <dl>
+                        <div>
+                            <dt>Servidor</dt>
+                            <dd>@(hostPendiente.Servidor):@(hostPendiente.Puerto)</dd>
+                        </div>
+                        <div>
+                            <dt>Algoritmo</dt>
+                            <dd>@hostPendiente.Algoritmo</dd>
+                        </div>
+                        <div class="wide">
+                            <dt>SHA-256 nueva</dt>
+                            <dd>SHA256:@hostPendiente.HuellaSha256</dd>
+                        </div>
+                        @if (hostPendiente.EsCambioDeHuella)
+                        {
+                            <div class="wide old-key">
+                                <dt>SHA-256 anterior</dt>
+                                <dd>SHA256:@hostPendiente.HuellaAnteriorSha256</dd>
+                            </div>
+                        }
+                    </dl>
+                </div>
+
+                <div class="ssh-hostkey-actions">
+                    <button type="button"
+                            class="ssh-secondary-button"
+                            disabled="@conectando"
+                            @onclick="RechazarHost">
+                        Cancelar
+                    </button>
+                    <button type="button"
+                            class="ssh-trust-button @(hostPendiente.EsCambioDeHuella ? "danger" : "")"
+                            disabled="@conectando"
+                            @onclick="ConfiarYConectarAsync">
+                        @(hostPendiente.EsCambioDeHuella
+                            ? "Actualizar confianza"
+                            : "Confiar y conectar")
+                    </button>
+                </div>
+            </section>
+        }
+
+        <section class="ssh-terminal-card">
+            <header class="ssh-terminal-header">
+                <div>
+                    <span class="ssh-terminal-icon">&gt;_</span>
+                    <div>
+                        <strong>Consola remota</strong>
+                        <small>@EstadoTerminal</small>
+                    </div>
+                </div>
+
+                <div class="ssh-terminal-tools">
+                    <span class="ssh-byte-counter">RX @bytesRecibidos.ToString("N0") B</span>
+
+                    <label>
+                        <input type="checkbox" @bind="autoScroll" />
+                        Auto scroll
+                    </label>
+
+                    <button type="button"
+                            disabled="@(!servicio.EstaConectado)"
+                            title="Enviar Ctrl+C al proceso remoto"
+                            @onclick="EnviarCtrlCAsync">
+                        Ctrl+C
+                    </button>
+
+                    <button type="button"
+                            disabled="@(terminalTexto.Length == 0)"
+                            @onclick="LimpiarTerminal">
+                        Limpiar
+                    </button>
+                </div>
+            </header>
+
+            <pre class="ssh-terminal-screen"
+                 aria-live="polite"
+                 @ref="terminalElement">@terminalTexto</pre>
+
+            <div class="ssh-command-row">
+                <span class="ssh-command-prefix">$</span>
+                <input type="text"
+                       placeholder="Escribe un comando y presiona Enter"
+                       autocomplete="off"
+                       disabled="@(!servicio.EstaConectado)"
+                       @ref="comandoElement"
+                       @bind="comando"
+                       @bind:event="oninput"
+                       @onkeydown="ManejarTeclaComando" />
+
+                <button type="button"
+                        disabled="@(!PuedeEnviarComando)"
+                        @onclick="EnviarComandoAsync">
+                    Enviar
+                </button>
+            </div>
+
+            @if (sugerenciasComando.Count > 0)
+            {
+                <div class="ssh-command-suggestions" role="listbox" aria-label="Sugerencias de autocompletado SSH">
+                    <span>
+                        TAB · @sugerenciasComando.Count coincidencia(s)
+                    </span>
+
+                    <div>
+                        @foreach (string sugerencia in sugerenciasComando)
+                        {
+                            <button type="button"
+                                    title="Usar @sugerencia"
+                                    @onclick="() => SeleccionarSugerenciaAsync(sugerencia)">
+                                @sugerencia
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+
+            <footer class="ssh-terminal-footer">
+                <span>@mensajeEstado</span>
+                <span>SSH · TAB comandos/rutas · ↑↓ historial · Keep-alive 20 s</span>
+            </footer>
+        </section>
+
+    </section>
+</main>
+
+@code {
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback<string> EstadoCambiado { get; set; }
+
+    private readonly ConfiguracionSsh configuracion = new();
+    private readonly SshTerminalService servicio = new();
+    private readonly StringBuilder terminal = new();
+    private readonly Regex regexAnsi = new(
+        @"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~]|\][^\x07]*(?:\x07|\x1B\\))",
+        RegexOptions.Compiled
+    );
+
+    private const int MaximoCaracteresTerminal = 250_000;
+    private const int MaximoHistorialComandos = 200;
+
+    private readonly List<string> historialComandos = new();
+    private int indiceHistorial = -1;
+    private string borradorHistorial = string.Empty;
+    private string directorioTrabajo = "~";
+    private string terminalTexto = string.Empty;
+    private string comando = string.Empty;
+    private string mensajeEstado = "Escribe los datos del servidor para comenzar.";
+    private string mensajeHostPendiente = string.Empty;
+    private bool conectando;
+    private bool mostrarContrasena;
+    private bool autoScroll = true;
+    private bool scrollPendiente;
+    private bool disposed;
+    private bool cargandoAutocompletado;
+    private long bytesRecibidos;
+    private ElementReference terminalElement;
+    private ElementReference comandoElement;
+    private DotNetObjectReference<TerminalSsh>? referenciaDotNet;
+    private IJSObjectReference? moduloJs;
+    private IReadOnlyList<string> sugerenciasComando = Array.Empty<string>();
+    private HostSshPendiente? hostPendiente;
+
+    private bool PuedeConectar =>
+        !string.IsNullOrWhiteSpace(configuracion.Servidor) &&
+        configuracion.Puerto is >= 1 and <= 65535 &&
+        !string.IsNullOrWhiteSpace(configuracion.Usuario) &&
+        !string.IsNullOrEmpty(configuracion.Contrasena);
+
+    private bool PuedeEnviarComando =>
+        servicio.EstaConectado &&
+        !string.IsNullOrWhiteSpace(comando);
+
+    private string EstadoTerminal =>
+        servicio.EstaConectado
+            ? $"Sesión activa con {configuracion.Servidor}:{configuracion.Puerto}"
+            : conectando
+                ? "Negociando conexión segura..."
+                : "Esperando conexión";
+
+    protected override void OnInitialized()
+    {
+        servicio.DatosRecibidos += AlRecibirDatos;
+        servicio.ErrorOcurrido += AlOcurrirError;
+        servicio.ConexionCerrada += AlCerrarConexion;
+
+        AgregarSistema(
+            "Módulo SSH listo. La contraseña permanecerá únicamente en memoria."
+        );
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                referenciaDotNet = DotNetObjectReference.Create(this);
+                moduloJs = await JSRuntime.InvokeAsync<IJSObjectReference>(
+                    "import",
+                    "./js/cdterminal-ssh.js"
+                );
+
+                await moduloJs.InvokeVoidAsync(
+                    "enableCommandKeys",
+                    comandoElement,
+                    referenciaDotNet
+                );
+            }
+            catch (JSException ex)
+            {
+                mensajeEstado =
+                    $"La terminal abrió, pero los atajos TAB/↑/↓ no pudieron inicializarse: {ex.Message}";
+                AgregarError(mensajeEstado);
+            }
+        }
+
+        if (!autoScroll || !scrollPendiente)
+        {
+            return;
+        }
+
+        scrollPendiente = false;
+
+        await JSRuntime.InvokeVoidAsync(
+            "cdTerminal.scrollToBottom",
+            terminalElement
+        );
+    }
+
+    private async Task ConectarAsync()
+    {
+        if (conectando || servicio.EstaConectado || !PuedeConectar)
+        {
+            return;
+        }
+
+        conectando = true;
+        hostPendiente = null;
+        mensajeHostPendiente = string.Empty;
+        mensajeEstado = $"Conectando con {configuracion.Servidor}:{configuracion.Puerto}...";
+        AgregarSistema(mensajeEstado);
+
+        try
+        {
+            ResultadoConexionSsh resultado =
+                await servicio.ConectarAsync(configuracion);
+
+            if (resultado.Exitoso)
+            {
+                mensajeEstado = "Conexión SSH establecida.";
+                AgregarSistema(
+                    $"Conectado a {configuracion.Usuario}@{configuracion.Servidor}:{configuracion.Puerto}."
+                );
+
+                await EstadoCambiado.InvokeAsync(
+                    $"{configuracion.Usuario}@{configuracion.Servidor}"
+                );
+
+                try
+                {
+                    directorioTrabajo =
+                        await servicio.ObtenerDirectorioTrabajoInicialAsync();
+                }
+                catch
+                {
+                    directorioTrabajo = "~";
+                }
+
+                mensajeEstado =
+                    $"Conexión SSH establecida · directorio {directorioTrabajo}";
+
+                _ = PrecargarAutocompletadoAsync();
+                return;
+            }
+
+            if (resultado.HostPendiente is not null)
+            {
+                hostPendiente = resultado.HostPendiente;
+                mensajeHostPendiente = resultado.Mensaje;
+                mensajeEstado = resultado.Mensaje;
+                AgregarSistema(resultado.Mensaje);
+                return;
+            }
+
+            mensajeEstado = resultado.Mensaje;
+            AgregarError(resultado.Mensaje);
+        }
+        catch (Exception ex)
+        {
+            mensajeEstado = ex.Message;
+            AgregarError(ex.Message);
+        }
+        finally
+        {
+            conectando = false;
+        }
+    }
+
+    private async Task ConfiarYConectarAsync()
+    {
+        if (conectando || hostPendiente is null)
+        {
+            return;
+        }
+
+        conectando = true;
+
+        try
+        {
+            await servicio.ConfiarHostPendienteAsync();
+            AgregarSistema(
+                $"Huella SHA-256 guardada para {hostPendiente.Servidor}:{hostPendiente.Puerto}."
+            );
+
+            hostPendiente = null;
+            mensajeHostPendiente = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            mensajeEstado = ex.Message;
+            AgregarError(ex.Message);
+            conectando = false;
+            return;
+        }
+
+        conectando = false;
+        await ConectarAsync();
+    }
+
+    private void RechazarHost()
+    {
+        servicio.DescartarHostPendiente();
+        hostPendiente = null;
+        mensajeHostPendiente = string.Empty;
+        mensajeEstado = "Conexión cancelada: la huella del servidor no fue aceptada.";
+        AgregarSistema(mensajeEstado);
+    }
+
+    private async Task DesconectarAsync()
+    {
+        if (!servicio.EstaConectado)
+        {
+            return;
+        }
+
+        await servicio.DesconectarAsync();
+        sugerenciasComando = Array.Empty<string>();
+        indiceHistorial = -1;
+        borradorHistorial = string.Empty;
+        directorioTrabajo = "~";
+        mensajeEstado = "Sesión SSH desconectada.";
+        AgregarSistema(mensajeEstado);
+        await EstadoCambiado.InvokeAsync(string.Empty);
+    }
+
+    private async Task EnviarComandoAsync()
+    {
+        if (!PuedeEnviarComando)
+        {
+            return;
+        }
+
+        string texto = comando.Trim();
+        RegistrarEnHistorial(texto);
+        comando = string.Empty;
+        sugerenciasComando = Array.Empty<string>();
+
+        try
+        {
+            await servicio.EnviarAsync(texto + "\n");
+            await ActualizarDirectorioTrabajoTrasComandoAsync(texto);
+        }
+        catch (Exception ex)
+        {
+            mensajeEstado = ex.Message;
+            AgregarError(ex.Message);
+        }
+    }
+
+    private async Task EnviarCtrlCAsync()
+    {
+        if (!servicio.EstaConectado)
+        {
+            return;
+        }
+
+        try
+        {
+            await servicio.EnviarAsync("\x03");
+            mensajeEstado = "Ctrl+C enviado al proceso remoto.";
+        }
+        catch (Exception ex)
+        {
+            mensajeEstado = ex.Message;
+            AgregarError(ex.Message);
+        }
+    }
+
+    private async Task ManejarTeclaComando(KeyboardEventArgs evento)
+    {
+        if (evento.CtrlKey &&
+            string.Equals(evento.Key, "c", StringComparison.OrdinalIgnoreCase))
+        {
+            await EnviarCtrlCAsync();
+            return;
+        }
+
+        if (evento.Key is "Tab" or "ArrowUp" or "ArrowDown")
+        {
+            return;
+        }
+
+        if (evento.Key == "Enter")
+        {
+            await EnviarComandoAsync();
+            return;
+        }
+
+        indiceHistorial = -1;
+        borradorHistorial = string.Empty;
+
+        if (sugerenciasComando.Count > 0)
+        {
+            sugerenciasComando = Array.Empty<string>();
+        }
+    }
+
+    [JSInvokable]
+    public async Task CompletarComandoDesdeTab()
+    {
+        if (!servicio.EstaConectado || cargandoAutocompletado)
+        {
+            return;
+        }
+
+        cargandoAutocompletado = true;
+
+        try
+        {
+            (int inicio, string prefijoEscrito) = ObtenerTokenActual(comando);
+            bool esPrimerToken =
+                string.IsNullOrWhiteSpace(comando[..inicio]);
+
+            bool completarRuta =
+                !esPrimerToken ||
+                prefijoEscrito.Contains('/') ||
+                prefijoEscrito.StartsWith('.') ||
+                prefijoEscrito.StartsWith('~');
+
+            if (!completarRuta && string.IsNullOrEmpty(prefijoEscrito))
+            {
+                sugerenciasComando = Array.Empty<string>();
+                return;
+            }
+
+            string[] coincidencias;
+            string tipo;
+
+            if (completarRuta)
+            {
+                string prefijoRuta =
+                    DesescaparTokenRuta(prefijoEscrito);
+
+                IReadOnlyList<string> rutas =
+                    await servicio.ObtenerRutasDisponiblesAsync(
+                        directorioTrabajo,
+                        prefijoRuta
+                    );
+
+                coincidencias = rutas.Take(80).ToArray();
+                tipo = "ruta";
+            }
+            else
+            {
+                IReadOnlyList<string> comandosDisponibles =
+                    await servicio.ObtenerComandosDisponiblesAsync();
+
+                coincidencias = comandosDisponibles
+                    .Where(candidato =>
+                        candidato.StartsWith(
+                            prefijoEscrito,
+                            StringComparison.Ordinal
+                        )
+                    )
+                    .Take(80)
+                    .ToArray();
+
+                tipo = "comando";
+            }
+
+            if (coincidencias.Length == 0)
+            {
+                sugerenciasComando = Array.Empty<string>();
+                mensajeEstado = string.IsNullOrEmpty(prefijoEscrito)
+                    ? "No hay rutas disponibles en el directorio actual."
+                    : $"Sin coincidencias para \"{prefijoEscrito}\".";
+                return;
+            }
+
+            if (coincidencias.Length == 1)
+            {
+                string coincidencia = coincidencias[0];
+                bool esDirectorio = coincidencia.EndsWith('/');
+
+                AplicarCompletado(
+                    inicio,
+                    coincidencia + (esDirectorio ? string.Empty : " ")
+                );
+
+                sugerenciasComando = Array.Empty<string>();
+                mensajeEstado = tipo == "ruta"
+                    ? $"Ruta completada: {coincidencia}"
+                    : $"Comando completado: {coincidencia}";
+                return;
+            }
+
+            string comun = ObtenerPrefijoComun(coincidencias);
+
+            if (comun.Length > prefijoEscrito.Length)
+            {
+                AplicarCompletado(inicio, comun);
+            }
+
+            sugerenciasComando = coincidencias
+                .Take(18)
+                .ToArray();
+
+            mensajeEstado =
+                $"{coincidencias.Length} {tipo}(s) coinciden con \"{prefijoEscrito}\".";
+        }
+        catch (Exception ex)
+        {
+            sugerenciasComando = Array.Empty<string>();
+            mensajeEstado = $"No fue posible autocompletar: {ex.Message}";
+            AgregarError(mensajeEstado);
+        }
+        finally
+        {
+            cargandoAutocompletado = false;
+            StateHasChanged();
+            await EnfocarComandoAlFinalAsync();
+        }
+    }
+
+    [JSInvokable]
+    public async Task NavegarHistorialDesdeTeclado(string direccion)
+    {
+        if (!servicio.EstaConectado || historialComandos.Count == 0)
+        {
+            return;
+        }
+
+        if (string.Equals(direccion, "up", StringComparison.Ordinal))
+        {
+            if (indiceHistorial < 0)
+            {
+                borradorHistorial = comando;
+                indiceHistorial = historialComandos.Count - 1;
+            }
+            else if (indiceHistorial > 0)
+            {
+                indiceHistorial--;
+            }
+
+            comando = historialComandos[indiceHistorial];
+        }
+        else if (string.Equals(direccion, "down", StringComparison.Ordinal))
+        {
+            if (indiceHistorial < 0)
+            {
+                return;
+            }
+
+            if (indiceHistorial < historialComandos.Count - 1)
+            {
+                indiceHistorial++;
+                comando = historialComandos[indiceHistorial];
+            }
+            else
+            {
+                indiceHistorial = -1;
+                comando = borradorHistorial;
+                borradorHistorial = string.Empty;
+            }
+        }
+        else
+        {
+            return;
+        }
+
+        sugerenciasComando = Array.Empty<string>();
+        mensajeEstado = indiceHistorial >= 0
+            ? $"Historial {indiceHistorial + 1}/{historialComandos.Count}"
+            : "Fin del historial de comandos.";
+
+        StateHasChanged();
+        await EnfocarComandoAlFinalAsync();
+    }
+
+    private async Task PrecargarAutocompletadoAsync()
+    {
+        try
+        {
+            await servicio.ObtenerComandosDisponiblesAsync();
+        }
+        catch
+        {
+            // La primera pulsación de TAB volverá a intentarlo.
+        }
+    }
+
+    private static (int Inicio, string Prefijo) ObtenerTokenActual(
+        string texto)
+    {
+        int fin = texto.Length;
+        int inicio = fin;
+
+        while (inicio > 0)
+        {
+            int indice = inicio - 1;
+            char caracter = texto[indice];
+
+            if (char.IsWhiteSpace(caracter) &&
+                !EstaEscapadoConBarraInvertida(texto, indice))
+            {
+                break;
+            }
+
+            inicio--;
+        }
+
+        return (inicio, texto[inicio..fin]);
+    }
+
+    private static bool EstaEscapadoConBarraInvertida(
+        string texto,
+        int indice)
+    {
+        int barras = 0;
+
+        for (int i = indice - 1; i >= 0 && texto[i] == '\\'; i--)
+        {
+            barras++;
+        }
+
+        return barras % 2 == 1;
+    }
+
+    private static string DesescaparTokenRuta(string token)
+    {
+        if (string.IsNullOrEmpty(token))
+        {
+            return string.Empty;
+        }
+
+        StringBuilder resultado = new(token.Length);
+        bool escapar = false;
+
+        foreach (char caracter in token)
+        {
+            if (escapar)
+            {
+                resultado.Append(caracter);
+                escapar = false;
+                continue;
+            }
+
+            if (caracter == '\\')
+            {
+                escapar = true;
+                continue;
+            }
+
+            resultado.Append(caracter);
+        }
+
+        if (escapar)
+        {
+            resultado.Append('\\');
+        }
+
+        return resultado.ToString();
+    }
+
+    private static string ObtenerPrefijoComun(
+        IReadOnlyList<string> opciones)
+    {
+        if (opciones.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        string prefijo = opciones[0];
+
+        for (int i = 1; i < opciones.Count && prefijo.Length > 0; i++)
+        {
+            string opcion = opciones[i];
+            int limite = Math.Min(prefijo.Length, opcion.Length);
+            int indice = 0;
+
+            while (indice < limite &&
+                   prefijo[indice] == opcion[indice])
+            {
+                indice++;
+            }
+
+            prefijo = prefijo[..indice];
+        }
+
+        return prefijo;
+    }
+
+    private void AplicarCompletado(
+        int inicioToken,
+        string textoCompletado)
+    {
+        comando = comando[..inicioToken] + textoCompletado;
+        indiceHistorial = -1;
+        borradorHistorial = string.Empty;
+    }
+
+    private async Task SeleccionarSugerenciaAsync(
+        string sugerencia)
+    {
+        (int inicio, _) = ObtenerTokenActual(comando);
+        bool esDirectorio = sugerencia.EndsWith('/');
+
+        AplicarCompletado(
+            inicio,
+            sugerencia + (esDirectorio ? string.Empty : " ")
+        );
+
+        sugerenciasComando = Array.Empty<string>();
+        mensajeEstado = $"Sugerencia seleccionada: {sugerencia}";
+        await EnfocarComandoAlFinalAsync();
+    }
+
+    private void RegistrarEnHistorial(string texto)
+    {
+        if (string.IsNullOrWhiteSpace(texto))
+        {
+            return;
+        }
+
+        if (historialComandos.Count == 0 ||
+            !string.Equals(
+                historialComandos[^1],
+                texto,
+                StringComparison.Ordinal
+            ))
+        {
+            historialComandos.Add(texto);
+        }
+
+        if (historialComandos.Count > MaximoHistorialComandos)
+        {
+            historialComandos.RemoveAt(0);
+        }
+
+        indiceHistorial = -1;
+        borradorHistorial = string.Empty;
+    }
+
+    private async Task ActualizarDirectorioTrabajoTrasComandoAsync(
+        string texto)
+    {
+        if (!TryObtenerArgumentoCd(texto, out string argumentoCd))
+        {
+            return;
+        }
+
+        try
+        {
+            string? nuevoDirectorio =
+                await servicio.ResolverDirectorioTrabajoAsync(
+                    directorioTrabajo,
+                    argumentoCd
+                );
+
+            if (!string.IsNullOrWhiteSpace(nuevoDirectorio))
+            {
+                directorioTrabajo = nuevoDirectorio;
+                mensajeEstado = $"Directorio remoto: {directorioTrabajo}";
+            }
+        }
+        catch
+        {
+            // La salida real del shell mostrará cualquier error de cd.
+        }
+    }
+
+    private static bool TryObtenerArgumentoCd(
+        string texto,
+        out string argumento)
+    {
+        argumento = string.Empty;
+        string limpio = texto.Trim();
+
+        if (string.Equals(limpio, "cd", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (!limpio.StartsWith("cd ", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        string resto = limpio[2..].Trim();
+
+        if (resto.StartsWith("-- ", StringComparison.Ordinal))
+        {
+            resto = resto[3..].Trim();
+        }
+
+        if (resto.IndexOfAny([';', '|', '&', '\n', '\r']) >= 0)
+        {
+            return false;
+        }
+
+        if (resto.Length >= 2 &&
+            ((resto[0] == '"' && resto[^1] == '"') ||
+             (resto[0] == '\'' && resto[^1] == '\'')))
+        {
+            resto = resto[1..^1];
+        }
+
+        argumento = DesescaparTokenRuta(resto);
+        return true;
+    }
+
+    private async Task EnfocarComandoAlFinalAsync()
+    {
+        if (moduloJs is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await moduloJs.InvokeVoidAsync(
+                "focusCommandEnd",
+                comandoElement
+            );
+        }
+        catch
+        {
+            // El componente puede estar cerrándose.
+        }
+    }
+
+    private async Task ManejarEnterConexion(KeyboardEventArgs evento)
+    {
+        if (evento.Key == "Enter")
+        {
+            await ConectarAsync();
+        }
+    }
+
+    private async Task CerrarModuloAsync()
+    {
+        if (servicio.EstaConectado)
+        {
+            await servicio.DesconectarAsync();
+        }
+
+        await EstadoCambiado.InvokeAsync(string.Empty);
+        await OnClose.InvokeAsync();
+    }
+
+    private void AlRecibirDatos(object? sender, string datos)
+    {
+        _ = InvokeAsync(() =>
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            bytesRecibidos += Encoding.UTF8.GetByteCount(datos);
+            AgregarSalidaRemota(datos);
+            StateHasChanged();
+        });
+    }
+
+    private void AlOcurrirError(object? sender, string error)
+    {
+        _ = InvokeAsync(() =>
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            mensajeEstado = error;
+            AgregarError(error);
+            StateHasChanged();
+        });
+    }
+
+    private void AlCerrarConexion(object? sender, EventArgs e)
+    {
+        _ = InvokeAsync(async () =>
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            mensajeEstado = "El servidor cerró la conexión SSH.";
+            AgregarSistema(mensajeEstado);
+            await EstadoCambiado.InvokeAsync(string.Empty);
+            StateHasChanged();
+        });
+    }
+
+    private void AgregarSalidaRemota(string datos)
+    {
+        string limpio = LimpiarSalidaAnsi(datos);
+
+        terminal.Append(limpio);
+        RecortarTerminal();
+        terminalTexto = terminal.ToString();
+        scrollPendiente = true;
+    }
+
+    private string LimpiarSalidaAnsi(string texto)
+    {
+        string limpio = regexAnsi.Replace(texto, string.Empty);
+
+        // Normalizar retornos de carro usados por barras de progreso y prompts.
+        limpio = limpio.Replace("\r\n", "\n");
+        limpio = limpio.Replace('\r', '\n');
+
+        // Aplicar retrocesos sencillos para que la consola no muestre ^H.
+        StringBuilder resultado = new(limpio.Length);
+
+        foreach (char caracter in limpio)
+        {
+            if (caracter == '\b')
+            {
+                if (resultado.Length > 0)
+                {
+                    resultado.Length--;
+                }
+
+                continue;
+            }
+
+            resultado.Append(caracter);
+        }
+
+        return resultado.ToString();
+    }
+
+    private void AgregarSistema(string mensaje)
+    {
+        AgregarLineaLocal("SYS", mensaje);
+    }
+
+    private void AgregarError(string mensaje)
+    {
+        AgregarLineaLocal("ERROR", mensaje);
+    }
+
+    private void AgregarLineaLocal(string tipo, string mensaje)
+    {
+        if (terminal.Length > 0 && terminal[^1] != '\n')
+        {
+            terminal.AppendLine();
+        }
+
+        terminal.Append('[');
+        terminal.Append(DateTime.Now.ToString("HH:mm:ss.fff"));
+        terminal.Append("] ");
+        terminal.Append(tipo);
+        terminal.Append(": ");
+        terminal.AppendLine(mensaje);
+
+        RecortarTerminal();
+        terminalTexto = terminal.ToString();
+        scrollPendiente = true;
+    }
+
+    private void RecortarTerminal()
+    {
+        if (terminal.Length <= MaximoCaracteresTerminal)
+        {
+            return;
+        }
+
+        int eliminar = terminal.Length - MaximoCaracteresTerminal;
+        int siguienteSalto = terminal.ToString().IndexOf('\n', eliminar);
+
+        terminal.Remove(
+            0,
+            siguienteSalto >= 0
+                ? siguienteSalto + 1
+                : eliminar
+        );
+    }
+
+    private void LimpiarTerminal()
+    {
+        terminal.Clear();
+        terminalTexto = string.Empty;
+        bytesRecibidos = 0;
+        scrollPendiente = false;
+        mensajeEstado = servicio.EstaConectado
+            ? "Terminal limpia. La sesión SSH continúa activa."
+            : "Terminal limpia.";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (disposed)
+        {
+            return;
+        }
+
+        disposed = true;
+
+        servicio.DatosRecibidos -= AlRecibirDatos;
+        servicio.ErrorOcurrido -= AlOcurrirError;
+        servicio.ConexionCerrada -= AlCerrarConexion;
+
+        try
+        {
+            if (moduloJs is not null)
+            {
+                await moduloJs.InvokeVoidAsync(
+                    "disableCommandKeys",
+                    comandoElement
+                );
+
+                await moduloJs.DisposeAsync();
+            }
+        }
+        catch
+        {
+            // La vista puede cerrarse mientras WebView se está desmontando.
+        }
+
+        moduloJs = null;
+        referenciaDotNet?.Dispose();
+        await servicio.DisposeAsync();
+    }
+}
