@@ -1691,16 +1691,16 @@
 
     @if (ModuloIotActivo)
     {
-        <main class="iot-module-shell">
+        <main class="iot-module-shell iot-v10-shell">
 
-            <section class="iot-config-page"
-                     aria-label="Configuración serial del equipo IoT">
+            <section class="iot-config-page iot-v10-page"
+                     aria-label="Configuración del equipo IoT, RS485 y Modbus RTU">
 
-                <header class="iot-page-header">
+                <header class="iot-page-header iot-v10-page-header">
                     <div>
-                        <span>HERRAMIENTAS · CONFIGURACIÓN SERIAL</span>
+                        <span>HERRAMIENTAS · CONFIGURACIÓN DEL CONTROLADOR</span>
                         <h2>Configurar equipo IoT</h2>
-                        <p>Configura la red local, el servidor HTTP y el conector usando los comandos del firmware actual.</p>
+                        <p>Administra la red, el servidor HTTP, la interfaz RS485 y las consultas Modbus RTU desde un solo panel.</p>
                     </div>
 
                     <button type="button"
@@ -1712,11 +1712,11 @@
                     </button>
                 </header>
 
-                <div class="iot-direct-connection">
+                <div class="iot-direct-connection iot-v10-direct-connection">
                     <div class="iot-direct-connection-copy">
                         <span>CONEXIÓN DIRECTA</span>
                         <strong>Puerto serial del configurador</strong>
-                        <small>Esta conexión es independiente de las sesiones Terminal serial y Modbus RTU.</small>
+                        <small>La conexión USB es independiente de las sesiones Terminal serial, Modbus RTU y SSH.</small>
                     </div>
 
                     <div class="iot-selector-field iot-port-selector-field">
@@ -1763,7 +1763,7 @@
                     </div>
 
                     <div class="iot-selector-field iot-baud-selector-field">
-                        <span>Baud rate</span>
+                        <span>Baud USB</span>
                         <div class="iot-dropdown @(mostrarListaVelocidadesIot ? "open" : "")">
                             <button type="button"
                                     class="iot-dropdown-button"
@@ -1795,13 +1795,13 @@
                     <div class="iot-control-lines">
                         <span>Líneas USB</span>
                         <div class="iot-control-lines-options">
-                            <label title="Data Terminal Ready. Algunos Arduino, Pico y puertos USB CDC lo necesitan para transmitir al PC.">
+                            <label title="Data Terminal Ready">
                                 <input type="checkbox"
                                        disabled="@(ServicioIot.EstaConectado || configuracionIotEnCurso)"
                                        @bind="configuracionSerialIot.HabilitarDtr" />
                                 <span>DTR</span>
                             </label>
-                            <label title="Request To Send. Normalmente puede permanecer desactivado.">
+                            <label title="Request To Send">
                                 <input type="checkbox"
                                        disabled="@(ServicioIot.EstaConectado || configuracionIotEnCurso)"
                                        @bind="configuracionSerialIot.HabilitarRts" />
@@ -1826,13 +1826,122 @@
                     </button>
                 </div>
 
-                <div class="iot-config-body">
+                <div class="iot-config-body iot-v10-body">
 
-                    <div class="iot-config-workspace">
+                    <div class="iot-v10-commandbar">
+                        <div class="iot-v10-commandbar-copy">
+                            <span>CONFIGURACIÓN DEL EQUIPO</span>
+                            <strong>Red, comunicación RS485 y sensor Modbus RTU</strong>
+                        </div>
 
-                        <div class="iot-config-editor">
+                        <div class="iot-v10-commandbar-actions">
+                            <button type="button"
+                                    class="iot-v10-top-action"
+                                    title="Leer la EEPROM y consultar SHOWMODBUS"
+                                    disabled="@(!PuedeOperarConfiguracionIot)"
+                                    @onclick="CargarConfiguracionIntegralIotAsync">
+                                <span>⇩</span>
+                                <strong>@(leyendoConfiguracionIot ? "Leyendo..." : "Cargar desde equipo")</strong>
+                            </button>
 
-                            <div class="iot-status-banner @ClaseEstadoConfiguracionIot">
+                            <button type="button"
+                                    class="iot-v10-top-action primary"
+                                    title="Enviar SETSERIAL y SETMODBUS"
+                                    disabled="@(!PuedeOperarConfiguracionIot)"
+                                    @onclick="GuardarConfiguracionRs485ModbusIotAsync">
+                                <span>⇧</span>
+                                <strong>Guardar en equipo</strong>
+                            </button>
+
+                            <button type="button"
+                                    class="iot-v10-top-action"
+                                    title="Vaciar el monitor serial"
+                                    @onclick="LimpiarTerminalIot">
+                                <span>⌫</span>
+                                <strong>Limpiar terminal</strong>
+                            </button>
+
+                            <button type="button"
+                                    class="iot-v10-top-action test"
+                                    title="Enviar TESTMODBUS"
+                                    disabled="@(!PuedeOperarConfiguracionIot)"
+                                    @onclick="ProbarSensorModbusIotAsync">
+                                <span>▷</span>
+                                <strong>@(pruebaModbusIotEnCurso ? "Probando..." : "Probar sensor")</strong>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="iot-v11-workspace">
+
+                        <aside class="iot-v11-section-nav" aria-label="Secciones de configuración IoT">
+                            <div class="iot-v11-nav-heading">
+                                <span>CONFIGURACIÓN</span>
+                                <strong>Equipo IoT</strong>
+                            </div>
+
+                            <button type="button"
+                                    class="iot-v11-nav-item @(seccionConfiguracionIot == "red" ? "active" : "")"
+                                    @onclick='() => seccionConfiguracionIot = "red"'>
+                                <span class="iot-v11-nav-icon">⌁</span>
+                                <span>
+                                    <strong>Red y conectividad</strong>
+                                    <small>Ethernet, DHCP y servidor</small>
+                                </span>
+                            </button>
+
+                            <button type="button"
+                                    class="iot-v11-nav-item @(seccionConfiguracionIot == "sensor" ? "active" : "")"
+                                    @onclick='() => seccionConfiguracionIot = "sensor"'>
+                                <span class="iot-v11-nav-icon">RS</span>
+                                <span>
+                                    <strong>Sensor RS485</strong>
+                                    <small>Bus físico y Modbus RTU</small>
+                                </span>
+                            </button>
+
+                            <button type="button"
+                                    class="iot-v11-nav-item @(seccionConfiguracionIot == "envio" ? "active" : "")"
+                                    @onclick='() => seccionConfiguracionIot = "envio"'>
+                                <span class="iot-v11-nav-icon">⇧</span>
+                                <span>
+                                    <strong>Envío de datos</strong>
+                                    <small>HTTP, intervalo y conector</small>
+                                </span>
+                            </button>
+
+                            <button type="button"
+                                    class="iot-v11-nav-item @(seccionConfiguracionIot == "sistema" ? "active" : "")"
+                                    @onclick='() => seccionConfiguracionIot = "sistema"'>
+                                <span class="iot-v11-nav-icon">⚙</span>
+                                <span>
+                                    <strong>Sistema</strong>
+                                    <small>Lectura completa y reinicio</small>
+                                </span>
+                            </button>
+
+                            <div class="iot-v11-device-card">
+                                <div class="iot-v11-device-card-title">
+                                    <span class="iot-v11-device-icon">IOT</span>
+                                    <div>
+                                        <strong>@IdModuloIotNormalizado</strong>
+                                        <small class="@(ServicioIot.EstaConectado ? "online" : "offline")">
+                                            @(ServicioIot.EstaConectado ? "En línea" : "Sin conexión")
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <dl>
+                                    <div><dt>Puerto</dt><dd>@(ServicioIot.EstaConectado ? ServicioIot.PuertoActual : "—")</dd></div>
+                                    <div><dt>RS485</dt><dd>@baudRateRs485Iot @paridadRs485Iot</dd></div>
+                                    <div><dt>Esclavo</dt><dd>@idEsclavoModbusIot</dd></div>
+                                    <div><dt>Función</dt><dd>@funcionModbusIot.ToString("00")</dd></div>
+                                </dl>
+                            </div>
+                        </aside>
+
+                        <section class="iot-v11-section-content">
+                            <div class="iot-status-banner iot-v11-status @ClaseEstadoConfiguracionIot">
                                 <span class="iot-status-icon">@IconoEstadoConfiguracionIot</span>
                                 <div>
                                     <strong>@TextoEstadoConfiguracionIot</strong>
@@ -1840,244 +1949,437 @@
                                 </div>
                             </div>
 
-                            <div class="iot-config-note">
-                                <span>COM</span>
-                                <div>
-                                    <strong>Comandos reconocidos por el firmware</strong>
-                                    <small>Cada botón envía un comando compatible con el firmware actual. Los cambios se guardan en la EEPROM AT24C256.</small>
-                                </div>
-                            </div>
-
-                            <div class="iot-config-grid">
-                                <div class="iot-field iot-field-id">
-                                    <span>ID del dispositivo</span>
-                                    <input type="text"
-                                           maxlength="24"
-                                           placeholder="LC0001C"
-                                           disabled="@configuracionIotEnCurso"
-                                           @bind="idModuloIot"
-                                           @bind:event="oninput" />
-                                    <small>Debe coincidir con ID_DEVICE en el firmware.</small>
-                                </div>
-
-                                <div class="iot-field iot-field-wide">
-                                    <span>Modo de red local</span>
-                                    <div class="iot-network-mode-selector">
-                                        <button type="button"
-                                                class="@(modoDhcpIot ? "active" : "")"
-                                                disabled="@configuracionIotEnCurso"
-                                                @onclick="() => SeleccionarModoRedIot(true)">
-                                            <strong>DHCP</strong>
-                                            <small>IP automática</small>
-                                        </button>
-
-                                        <button type="button"
-                                                class="@(!modoDhcpIot ? "active" : "")"
-                                                disabled="@configuracionIotEnCurso"
-                                                @onclick="() => SeleccionarModoRedIot(false)">
-                                            <strong>IP estática</strong>
-                                            <small>IP y máscara manuales</small>
-                                        </button>
-
-                                        @if (modoDhcpIot)
-                                        {
-                                            <button type="button"
-                                                    class="iot-network-mode-send"
-                                                    disabled="@(!PuedeOperarConfiguracionIot)"
-                                                    @onclick="EnviarDhcpIotAsync">
-                                                Enviar DHCP
-                                            </button>
-                                        }
+                            @if (seccionConfiguracionIot == "red")
+                            {
+                                <header class="iot-v11-section-header">
+                                    <div>
+                                        <span>RED Y CONECTIVIDAD</span>
+                                        <h3>Configuración Ethernet</h3>
+                                        <p>Define la identidad del equipo, la red local y el servidor que recibirá los datos.</p>
                                     </div>
-                                    <small>DHCP envía ID_DEVICEdhcpZ. El cambio se aplica al reiniciar el controlador.</small>
-                                </div>
+                                    <button type="button"
+                                            class="iot-v11-header-action"
+                                            disabled="@(!PuedeOperarConfiguracionIot)"
+                                            @onclick="CargarConfiguracionIntegralIotAsync">
+                                        ⇩ Cargar desde equipo
+                                    </button>
+                                </header>
+
+                                <section class="iot-v11-card">
+                                    <header class="iot-v11-card-header">
+                                        <span class="iot-v11-step">1</span>
+                                        <div>
+                                            <strong>Identidad y modo de red</strong>
+                                            <small>Datos básicos del controlador</small>
+                                        </div>
+                                    </header>
+
+                                    <div class="iot-v11-grid two-columns">
+                                        <label class="iot-v11-field">
+                                            <span>ID del dispositivo</span>
+                                            <input type="text"
+                                                   maxlength="24"
+                                                   placeholder="LC0001C"
+                                                   disabled="@configuracionIotEnCurso"
+                                                   @bind="idModuloIot"
+                                                   @bind:event="oninput" />
+                                        </label>
+
+                                        <div class="iot-v11-field">
+                                            <span>Modo de red local</span>
+                                            <div class="iot-v11-segmented">
+                                                <button type="button"
+                                                        class="@(modoDhcpIot ? "active" : "")"
+                                                        disabled="@configuracionIotEnCurso"
+                                                        @onclick="() => SeleccionarModoRedIot(true)">
+                                                    DHCP
+                                                </button>
+                                                <button type="button"
+                                                        class="@(!modoDhcpIot ? "active" : "")"
+                                                        disabled="@configuracionIotEnCurso"
+                                                        @onclick="() => SeleccionarModoRedIot(false)">
+                                                    IP estática
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
 
                                 @if (!modoDhcpIot)
                                 {
-                                    <div class="iot-field">
-                                        <span>IP local estática</span>
-                                        <input type="text"
-                                               maxlength="15"
-                                               placeholder="192.168.1.50"
-                                               disabled="@configuracionIotEnCurso"
-                                               @bind="ipLocalIot"
-                                               @bind:event="oninput" />
-                                        <small>Dirección IPv4 del controlador.</small>
-                                    </div>
+                                    <section class="iot-v11-card">
+                                        <header class="iot-v11-card-header">
+                                            <span class="iot-v11-step">2</span>
+                                            <div>
+                                                <strong>Red local estática</strong>
+                                                <small>Dirección utilizada por el controlador dentro de la LAN</small>
+                                            </div>
+                                        </header>
 
-                                    <div class="iot-field">
-                                        <span>Máscara local</span>
-                                        <div class="iot-field-control">
+                                        <div class="iot-v11-grid two-columns">
+                                            <label class="iot-v11-field">
+                                                <span>IP local</span>
+                                                <input type="text"
+                                                       maxlength="15"
+                                                       placeholder="192.168.1.50"
+                                                       disabled="@configuracionIotEnCurso"
+                                                       @bind="ipLocalIot"
+                                                       @bind:event="oninput" />
+                                            </label>
+
+                                            <label class="iot-v11-field">
+                                                <span>Máscara local</span>
+                                                <input type="text"
+                                                       maxlength="15"
+                                                       placeholder="255.255.255.0"
+                                                       disabled="@configuracionIotEnCurso"
+                                                       @bind="mascaraLocalIot"
+                                                       @bind:event="oninput" />
+                                            </label>
+                                        </div>
+
+                                        <div class="iot-v11-card-actions">
+                                            <button type="button"
+                                                    class="primary"
+                                                    disabled="@(!PuedeOperarConfiguracionIot)"
+                                                    @onclick="EnviarRedLocalEstaticaIotAsync">
+                                                Guardar red local
+                                            </button>
+                                        </div>
+                                    </section>
+                                }
+                                else
+                                {
+                                    <section class="iot-v11-card compact-card">
+                                        <div class="iot-v11-inline-message">
+                                            <span>DHCP</span>
+                                            <div>
+                                                <strong>Asignación automática habilitada</strong>
+                                                <small>La dirección IP y la máscara serán entregadas por el router.</small>
+                                            </div>
+                                            <button type="button"
+                                                    class="primary"
+                                                    disabled="@(!PuedeOperarConfiguracionIot)"
+                                                    @onclick="EnviarDhcpIotAsync">
+                                                Guardar DHCP
+                                            </button>
+                                        </div>
+                                    </section>
+                                }
+
+                                <section class="iot-v11-card">
+                                    <header class="iot-v11-card-header">
+                                        <span class="iot-v11-step">3</span>
+                                        <div>
+                                            <strong>Servidor de destino</strong>
+                                            <small>Dirección del servidor HTTP dentro de la red</small>
+                                        </div>
+                                    </header>
+
+                                    <div class="iot-v11-grid two-columns">
+                                        <label class="iot-v11-field">
+                                            <span>IP del servidor</span>
+                                            <input type="text"
+                                                   maxlength="15"
+                                                   placeholder="192.168.1.200"
+                                                   disabled="@configuracionIotEnCurso"
+                                                   @bind="ipServidorIot"
+                                                   @bind:event="oninput" />
+                                        </label>
+
+                                        <label class="iot-v11-field">
+                                            <span>Máscara del servidor</span>
                                             <input type="text"
                                                    maxlength="15"
                                                    placeholder="255.255.255.0"
                                                    disabled="@configuracionIotEnCurso"
-                                                   @bind="mascaraLocalIot"
+                                                   @bind="mascaraServidorIot"
                                                    @bind:event="oninput" />
-                                            <button type="button"
-                                                    disabled="@(!PuedeOperarConfiguracionIot)"
-                                                    @onclick="EnviarRedLocalEstaticaIotAsync">
-                                                Enviar red
-                                            </button>
-                                        </div>
-                                        <small>Envía ID_DEVICEIP/MASCARAZ.</small>
+                                        </label>
                                     </div>
-                                }
 
-                                <div class="iot-field">
-                                    <span>IP del servidor</span>
-                                    <input type="text"
-                                           maxlength="15"
-                                           placeholder="192.168.1.200"
-                                           disabled="@configuracionIotEnCurso"
-                                           @bind="ipServidorIot"
-                                           @bind:event="oninput" />
-                                    <small>Dirección IPv4 del servidor HTTP.</small>
-                                </div>
-
-                                <div class="iot-field">
-                                    <span>Máscara del servidor</span>
-                                    <div class="iot-field-control">
-                                        <input type="text"
-                                               maxlength="15"
-                                               placeholder="255.255.255.0"
-                                               disabled="@configuracionIotEnCurso"
-                                               @bind="mascaraServidorIot"
-                                               @bind:event="oninput" />
+                                    <div class="iot-v11-card-actions">
                                         <button type="button"
+                                                class="primary"
                                                 disabled="@(!PuedeOperarConfiguracionIot)"
                                                 @onclick="EnviarServidorIotAsync">
-                                            Enviar
+                                            Guardar servidor
                                         </button>
                                     </div>
-                                    <small>Envía ID_DEVICE_IP/MASCARAZ.</small>
-                                </div>
+                                </section>
+                            }
+                            else if (seccionConfiguracionIot == "sensor")
+                            {
+                                <header class="iot-v11-section-header">
+                                    <div>
+                                        <span>SENSOR RS485 / MODBUS RTU</span>
+                                        <h3>Configuración del sensor</h3>
+                                        <p>Configura primero el bus físico RS485 y luego la consulta Modbus del sensor.</p>
+                                    </div>
+                                    <button type="button"
+                                            class="iot-v11-header-action test"
+                                            disabled="@(!PuedeOperarConfiguracionIot)"
+                                            @onclick="ProbarSensorModbusIotAsync">
+                                        ▷ Probar sensor
+                                    </button>
+                                </header>
 
-                                <div class="iot-field">
-                                    <span>Puerto HTTP</span>
-                                    <div class="iot-field-control">
-                                        <input type="number"
-                                               min="1"
-                                               max="65535"
-                                               disabled="@configuracionIotEnCurso"
-                                               @bind="puertoServidorIot" />
+                                <section class="iot-v11-card">
+                                    <header class="iot-v11-card-header">
+                                        <span class="iot-v11-step">1</span>
+                                        <div>
+                                            <strong>Configuración física RS485</strong>
+                                            <small>Velocidad y paridad del enlace serial</small>
+                                        </div>
+                                        <code>@ComandoSerialRs485VistaPrevia</code>
+                                    </header>
+
+                                    <div class="iot-v11-grid two-columns">
+                                        <label class="iot-v11-field">
+                                            <span>Baud rate</span>
+                                            <select disabled="@configuracionIotEnCurso"
+                                                    @bind="baudRateRs485Iot">
+                                                @foreach (int velocidad in velocidadesRs485Iot)
+                                                {
+                                                    <option value="@velocidad">@velocidad</option>
+                                                }
+                                            </select>
+                                        </label>
+
+                                        <label class="iot-v11-field">
+                                            <span>Paridad</span>
+                                            <select disabled="@configuracionIotEnCurso"
+                                                    @bind="paridadRs485Iot">
+                                                <option value="N">N · Ninguna</option>
+                                                <option value="E">E · Par</option>
+                                                <option value="O">O · Impar</option>
+                                            </select>
+                                        </label>
+                                    </div>
+
+                                    <div class="iot-v11-card-actions">
+                                        <button type="button"
+                                                class="primary"
+                                                disabled="@(!PuedeOperarConfiguracionIot)"
+                                                @onclick="EnviarConfiguracionSerialRs485IotAsync">
+                                            Enviar SETSERIAL
+                                        </button>
+                                    </div>
+                                </section>
+
+                                <section class="iot-v11-card">
+                                    <header class="iot-v11-card-header">
+                                        <span class="iot-v11-step">2</span>
+                                        <div>
+                                            <strong>Consulta Modbus RTU</strong>
+                                            <small>Esclavo, función, registro inicial y cantidad</small>
+                                        </div>
+                                        <code>@ComandoModbusVistaPrevia</code>
+                                    </header>
+
+                                    <div class="iot-v11-grid modbus-grid">
+                                        <label class="iot-v11-field">
+                                            <span>ID esclavo</span>
+                                            <input type="number"
+                                                   min="1"
+                                                   max="247"
+                                                   disabled="@configuracionIotEnCurso"
+                                                   @bind="idEsclavoModbusIot" />
+                                        </label>
+
+                                        <label class="iot-v11-field">
+                                            <span>Función</span>
+                                            <select disabled="@configuracionIotEnCurso"
+                                                    @bind="funcionModbusIot">
+                                                <option value="3">03 · Holding Registers</option>
+                                                <option value="4">04 · Input Registers</option>
+                                            </select>
+                                        </label>
+
+                                        <label class="iot-v11-field">
+                                            <span>Registro inicial</span>
+                                            <input type="text"
+                                                   maxlength="8"
+                                                   placeholder="0x0000"
+                                                   disabled="@configuracionIotEnCurso"
+                                                   @bind="registroInicialModbusIot"
+                                                   @bind:event="oninput" />
+                                        </label>
+
+                                        <label class="iot-v11-field">
+                                            <span>Cantidad</span>
+                                            <input type="number"
+                                                   min="1"
+                                                   max="125"
+                                                   disabled="@configuracionIotEnCurso"
+                                                   @bind="cantidadRegistrosModbusIot" />
+                                        </label>
+                                    </div>
+
+                                    <div class="iot-v11-card-actions split-actions">
+                                        <button type="button"
+                                                class="primary"
+                                                disabled="@(!PuedeOperarConfiguracionIot)"
+                                                @onclick="EnviarConfiguracionModbusIotAsync">
+                                            Enviar SETMODBUS
+                                        </button>
                                         <button type="button"
                                                 disabled="@(!PuedeOperarConfiguracionIot)"
-                                                @onclick="EnviarPuertoServidorIotAsync">
-                                            Enviar
+                                                @onclick="ConsultarConfiguracionModbusIotAsync">
+                                            Consultar SHOWMODBUS
+                                        </button>
+                                        <button type="button"
+                                                class="test"
+                                                disabled="@(!PuedeOperarConfiguracionIot)"
+                                                @onclick="ProbarSensorModbusIotAsync">
+                                            Probar TESTMODBUS
                                         </button>
                                     </div>
-                                    <small>Envía ID_DEVICEPUERTOZ. Rango: 1 a 65535.</small>
-                                </div>
+                                </section>
+                            }
+                            else if (seccionConfiguracionIot == "envio")
+                            {
+                                <header class="iot-v11-section-header">
+                                    <div>
+                                        <span>ENVÍO DE DATOS</span>
+                                        <h3>Destino HTTP</h3>
+                                        <p>Define el puerto, el intervalo de transmisión y la ruta del conector.</p>
+                                    </div>
+                                </header>
 
-                                <div class="iot-field">
-                                    <span>Tiempo de envío</span>
-                                    <div class="iot-field-control iot-period-control">
-                                        <div class="iot-input-with-unit">
+                                <section class="iot-v11-card">
+                                    <header class="iot-v11-card-header">
+                                        <span class="iot-v11-step">1</span>
+                                        <div>
+                                            <strong>Comunicación HTTP</strong>
+                                            <small>Parámetros utilizados para publicar la información</small>
+                                        </div>
+                                    </header>
+
+                                    <div class="iot-v11-grid two-columns">
+                                        <label class="iot-v11-field">
+                                            <span>Puerto HTTP</span>
+                                            <input type="number"
+                                                   min="1"
+                                                   max="65535"
+                                                   disabled="@configuracionIotEnCurso"
+                                                   @bind="puertoServidorIot" />
+                                        </label>
+
+                                        <label class="iot-v11-field">
+                                            <span>Tiempo de envío (min)</span>
                                             <input type="number"
                                                    min="1"
                                                    max="65535"
                                                    disabled="@configuracionIotEnCurso"
                                                    @bind="periodoEnvioIot" />
-                                            <span>min</span>
-                                        </div>
+                                        </label>
+
+                                        <label class="iot-v11-field full-row">
+                                            <span>URL del conector</span>
+                                            <input type="text"
+                                                   maxlength="180"
+                                                   placeholder="e_IOT/DISPOSITIVOS/D.PHP?"
+                                                   disabled="@configuracionIotEnCurso"
+                                                   @bind="rutaConectorIot"
+                                                   @bind:event="oninput" />
+                                        </label>
+                                    </div>
+
+                                    <div class="iot-v11-card-actions split-actions">
+                                        <button type="button"
+                                                disabled="@(!PuedeOperarConfiguracionIot)"
+                                                @onclick="EnviarPuertoServidorIotAsync">
+                                            Guardar puerto
+                                        </button>
                                         <button type="button"
                                                 disabled="@(!PuedeOperarConfiguracionIot)"
                                                 @onclick="EnviarPeriodoIotAsync">
-                                            Enviar
+                                            Guardar intervalo
                                         </button>
-                                    </div>
-                                    <small>Envía ID_DEVICETIEMPOM.</small>
-                                </div>
-
-                                <div class="iot-field iot-field-wide">
-                                    <span>URL del conector</span>
-                                    <div class="iot-field-control">
-                                        <input type="text"
-                                               maxlength="180"
-                                               placeholder="e_IOT/DISPOSITIVOS/D.PHP?"
-                                               disabled="@configuracionIotEnCurso"
-                                               @bind="rutaConectorIot"
-                                               @bind:event="oninput" />
                                         <button type="button"
+                                                class="primary"
                                                 disabled="@(!PuedeOperarConfiguracionIot)"
                                                 @onclick="EnviarRutaConectorIotAsync">
-                                            Enviar
+                                            Guardar conector
                                         </button>
                                     </div>
-                                    <small>El signo ? se agrega cuando falta. El comando termina con ! y admite hasta 180 caracteres.</small>
-                                </div>
-                            </div>
+                                </section>
+                            }
+                            else
+                            {
+                                <header class="iot-v11-section-header">
+                                    <div>
+                                        <span>SISTEMA</span>
+                                        <h3>Administración del controlador</h3>
+                                        <p>Lee toda la configuración guardada o reinicia el equipo de manera controlada.</p>
+                                    </div>
+                                </header>
+
+                                <section class="iot-v11-card system-card">
+                                    <div class="iot-v11-system-action">
+                                        <span class="iot-v11-system-icon">⇩</span>
+                                        <div>
+                                            <strong>Cargar configuración completa</strong>
+                                            <small>Consulta EEPROM, red, HTTP, SETSERIAL y SETMODBUS.</small>
+                                        </div>
+                                        <button type="button"
+                                                class="primary"
+                                                disabled="@(!PuedeOperarConfiguracionIot)"
+                                                @onclick="CargarConfiguracionIntegralIotAsync">
+                                            @(leyendoConfiguracionIot ? "Leyendo..." : "Cargar desde equipo")
+                                        </button>
+                                    </div>
+
+                                    <div class="iot-v11-system-action danger-zone">
+                                        <span class="iot-v11-system-icon">↻</span>
+                                        <div>
+                                            <strong>Reiniciar controlador</strong>
+                                            <small>Envía @($"{IdModuloIotNormalizado}resetZ") al firmware.</small>
+                                        </div>
+
+                                        @if (confirmarResetIot)
+                                        {
+                                            <div class="iot-v11-reset-buttons">
+                                                <button type="button"
+                                                        disabled="@configuracionIotEnCurso"
+                                                        @onclick="CancelarResetIot">
+                                                    Cancelar
+                                                </button>
+                                                <button type="button"
+                                                        class="danger"
+                                                        disabled="@(!PuedeOperarConfiguracionIot)"
+                                                        @onclick="EnviarResetIotAsync">
+                                                    Confirmar reinicio
+                                                </button>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <button type="button"
+                                                    class="danger"
+                                                    disabled="@(!PuedeOperarConfiguracionIot)"
+                                                    @onclick="SolicitarResetIot">
+                                                Reiniciar equipo
+                                            </button>
+                                        }
+                                    </div>
+                                </section>
+                            }
 
                             @if (!string.IsNullOrWhiteSpace(errorConfiguracionIot))
                             {
-                                <div class="iot-config-error">
+                                <div class="iot-config-error iot-v11-error">
                                     @errorConfiguracionIot
                                 </div>
                             }
+                        </section>
 
-                            <div class="iot-device-actions">
-                                <div class="iot-device-actions-copy">
-                                    <span>ACCIONES DEL CONTROLADOR</span>
-                                    <strong>Consultar o reiniciar el equipo</strong>
-                                    <small>La lectura no modifica la EEPROM. El reinicio envía el comando RAW <code>@($"{IdModuloIotNormalizado}resetZ")</code>.</small>
-                                </div>
-
-                                <div class="iot-device-actions-buttons">
-                                    <button type="button"
-                                            class="iot-action-button read"
-                                            disabled="@(!PuedeOperarConfiguracionIot)"
-                                            @onclick="LeerConfiguracionEquipoIotAsync">
-                                        <span>↧</span>
-                                        <span>
-                                            <strong>@(leyendoConfiguracionIot ? "Leyendo..." : "Leer configuración")</strong>
-                                            <small>Consultar EEPROM</small>
-                                        </span>
-                                    </button>
-
-                                    @if (confirmarResetIot)
-                                    {
-                                        <button type="button"
-                                                class="iot-action-button cancel-reset"
-                                                disabled="@configuracionIotEnCurso"
-                                                @onclick="CancelarResetIot">
-                                            Cancelar
-                                        </button>
-
-                                        <button type="button"
-                                                class="iot-action-button confirm-reset"
-                                                disabled="@(!PuedeOperarConfiguracionIot)"
-                                                @onclick="EnviarResetIotAsync">
-                                            <span>↻</span>
-                                            <span>
-                                                <strong>Confirmar reinicio</strong>
-                                                <small>Enviar resetZ</small>
-                                            </span>
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                        <button type="button"
-                                                class="iot-action-button reset"
-                                                disabled="@(!PuedeOperarConfiguracionIot)"
-                                                @onclick="SolicitarResetIot">
-                                            <span>↻</span>
-                                            <span>
-                                                <strong>Reiniciar equipo</strong>
-                                                <small>Solicita confirmación</small>
-                                            </span>
-                                        </button>
-                                    }
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <aside class="iot-live-terminal">
-                            <header class="iot-terminal-header">
+                        <aside class="iot-live-terminal iot-v11-terminal">
+                            <header class="iot-v11-terminal-header">
                                 <div>
-                                    <span>TERMINAL SERIAL</span>
-                                    <strong>Transmisión y recepción del controlador</strong>
+                                    <span>MONITOR DEL CONTROLADOR</span>
+                                    <strong>Terminal serial</strong>
                                 </div>
 
                                 <div class="iot-terminal-header-actions">
@@ -2095,6 +2397,15 @@
                                 </div>
                             </header>
 
+                            <div class="iot-v11-terminal-stats">
+                                <span class="@(ServicioIot.EstaConectado ? "online" : "offline")">
+                                    <i></i>
+                                    @(ServicioIot.EstaConectado ? "Conectado" : "Desconectado")
+                                </span>
+                                <span>RS485 <strong>@baudRateRs485Iot @paridadRs485Iot</strong></span>
+                                <span>RX <strong>@bytesRecibidosIot B</strong></span>
+                            </div>
+
                             <div class="iot-terminal-screen"
                                  @ref="terminalIotElement">
                                 @if (lineasTerminalIot.Count == 0 &&
@@ -2103,7 +2414,7 @@
                                     <div class="iot-terminal-empty">
                                         <span>COM</span>
                                         <strong>Esperando datos del controlador</strong>
-                                        <small>Todo lo que transmita el microcontrolador aparecerá aquí, incluso cuando todavía no haya enviado un salto de línea.</small>
+                                        <small>Las respuestas del firmware aparecerán aquí.</small>
                                     </div>
                                 }
                                 else
@@ -2144,10 +2455,28 @@
                                 </button>
                             </div>
 
+                            <div class="iot-v11-quick-commands">
+                                <span>Comandos rápidos</span>
+                                <div>
+                                    <button type="button"
+                                            disabled="@(!PuedeOperarConfiguracionIot)"
+                                            @onclick="ConsultarConfiguracionModbusIotAsync">SHOWMODBUS</button>
+                                    <button type="button"
+                                            disabled="@(!PuedeOperarConfiguracionIot)"
+                                            @onclick="ProbarSensorModbusIotAsync">TESTMODBUS</button>
+                                    <button type="button"
+                                            disabled="@(!PuedeOperarConfiguracionIot)"
+                                            @onclick="EnviarConfiguracionSerialRs485IotAsync">SETSERIAL</button>
+                                    <button type="button"
+                                            disabled="@(!PuedeOperarConfiguracionIot)"
+                                            @onclick="EnviarConfiguracionModbusIotAsync">SETMODBUS</button>
+                                </div>
+                            </div>
+
                             <footer class="iot-terminal-footer">
                                 <span class="@(ServicioIot.EstaConectado ? "online" : "offline")"></span>
                                 <strong>@(ServicioIot.EstaConectado ? ServicioIot.PuertoActual : "Sin conexión")</strong>
-                                <small>RAW · @configuracionSerialIot.Velocidad bps · DTR @(configuracionSerialIot.HabilitarDtr ? "ON" : "OFF") · RX @bytesRecibidosIot byte(s)</small>
+                                <small>RAW · @configuracionSerialIot.Velocidad bps · DTR @(configuracionSerialIot.HabilitarDtr ? "ON" : "OFF")</small>
                             </footer>
                         </aside>
 
@@ -2539,6 +2868,7 @@
     private long eventosRecepcionIot;
 
     private bool configuracionIotEnCurso;
+    private string seccionConfiguracionIot = "red";
     private bool leyendoConfiguracionIot;
     private string idModuloIot = "LC0001C";
     private bool modoDhcpIot = true;
@@ -2549,6 +2879,36 @@
     private int puertoServidorIot = 80;
     private string rutaConectorIot = string.Empty;
     private int periodoEnvioIot = 1;
+
+    // Configuración física del bus RS485 y consulta Modbus del firmware.
+    private readonly int[] velocidadesRs485Iot =
+    {
+        1200,
+        2400,
+        4800,
+        9600,
+        19200,
+        38400,
+        57600,
+        115200
+    };
+
+    private int baudRateRs485Iot = 9600;
+    private string paridadRs485Iot = "N";
+    private int idEsclavoModbusIot = 1;
+    private int funcionModbusIot = 3;
+    private string registroInicialModbusIot = "0x0000";
+    private int cantidadRegistrosModbusIot = 1;
+    private bool pruebaModbusIotEnCurso;
+
+    private string ComandoSerialRs485VistaPrevia =>
+        $"SETSERIAL {baudRateRs485Iot} {paridadRs485Iot}";
+
+    private string ComandoModbusVistaPrevia =>
+        $"SETMODBUS {idEsclavoModbusIot} {funcionModbusIot} " +
+        $"{(string.IsNullOrWhiteSpace(registroInicialModbusIot) ? "0x0000" : registroInicialModbusIot.Trim())} " +
+        $"{cantidadRegistrosModbusIot}";
+
     private string errorConfiguracionIot = string.Empty;
     private string mensajeConfiguracionIot =
         "Conecta el controlador para leer o cambiar su configuración.";
@@ -3428,6 +3788,7 @@
         }
 
         ProcesarLineaConfiguracionIot(linea);
+        ProcesarLineaConfiguracionRs485ModbusIot(linea);
         AgregarLineaTerminalIot("RX", linea);
     }
 
@@ -3693,6 +4054,450 @@
             "tiempo de envío",
             $"{IdModuloIotNormalizado}{periodoEnvioIot}m"
         );
+    }
+
+    private async Task CargarConfiguracionIntegralIotAsync()
+    {
+        if (!PuedeOperarConfiguracionIot)
+        {
+            return;
+        }
+
+        await LeerConfiguracionEquipoIotAsync();
+
+        if (!ServicioIot.EstaConectado)
+        {
+            return;
+        }
+
+        await Task.Delay(250);
+        await ConsultarConfiguracionModbusIotAsync();
+    }
+
+    private Task EnviarConfiguracionSerialRs485IotAsync()
+    {
+        if (!TryConstruirComandoSerialRs485Iot(
+                out string comando,
+                out string error))
+        {
+            MostrarErrorConfiguracionIot(error);
+            return Task.CompletedTask;
+        }
+
+        return EnviarComandoLineaIndividualIotAsync(
+            "configuración física RS485",
+            comando
+        );
+    }
+
+    private Task EnviarConfiguracionModbusIotAsync()
+    {
+        if (!TryConstruirComandoModbusIot(
+                out string comando,
+                out string error))
+        {
+            MostrarErrorConfiguracionIot(error);
+            return Task.CompletedTask;
+        }
+
+        return EnviarComandoLineaIndividualIotAsync(
+            "configuración Modbus RTU",
+            comando
+        );
+    }
+
+    private async Task GuardarConfiguracionRs485ModbusIotAsync()
+    {
+        if (!PuedeOperarConfiguracionIot)
+        {
+            return;
+        }
+
+        if (!TryConstruirComandoSerialRs485Iot(
+                out string comandoSerial,
+                out string errorSerial))
+        {
+            MostrarErrorConfiguracionIot(errorSerial);
+            return;
+        }
+
+        if (!TryConstruirComandoModbusIot(
+                out string comandoModbus,
+                out string errorModbus))
+        {
+            MostrarErrorConfiguracionIot(errorModbus);
+            return;
+        }
+
+        errorConfiguracionIot = string.Empty;
+        configuracionIotEnCurso = true;
+        mensajeConfiguracionIot =
+            "Guardando la configuración RS485 y Modbus RTU en el controlador...";
+
+        try
+        {
+            EnviarComandoLineaConfiguracionIot(comandoSerial);
+            await Task.Delay(650);
+
+            EnviarComandoLineaConfiguracionIot(comandoModbus);
+            await Task.Delay(1400);
+
+            mensajeConfiguracionIot =
+                "SETSERIAL y SETMODBUS fueron enviados. Revisa la confirmación del firmware en la terminal.";
+            mensajeEstado =
+                "Configuración IoT: RS485 y Modbus RTU enviados.";
+        }
+        catch (Exception ex)
+        {
+            errorConfiguracionIot =
+                $"No fue posible guardar RS485/Modbus: {ex.Message}";
+            mensajeConfiguracionIot =
+                "La configuración RS485/Modbus no pudo completarse.";
+            AgregarLineaTerminalIot("ERROR", errorConfiguracionIot);
+        }
+        finally
+        {
+            configuracionIotEnCurso = false;
+        }
+    }
+
+    private Task ConsultarConfiguracionModbusIotAsync()
+    {
+        return EnviarComandoLineaIndividualIotAsync(
+            "consulta Modbus",
+            "SHOWMODBUS",
+            1100
+        );
+    }
+
+    private async Task ProbarSensorModbusIotAsync()
+    {
+        if (!PuedeOperarConfiguracionIot)
+        {
+            return;
+        }
+
+        errorConfiguracionIot = string.Empty;
+        configuracionIotEnCurso = true;
+        pruebaModbusIotEnCurso = true;
+        mensajeConfiguracionIot =
+            "Ejecutando TESTMODBUS con la configuración guardada en el controlador...";
+
+        try
+        {
+            EnviarComandoLineaConfiguracionIot("TESTMODBUS");
+            await Task.Delay(2600);
+
+            mensajeConfiguracionIot =
+                "Prueba Modbus enviada. Revisa los registros recibidos en la terminal.";
+            mensajeEstado = "Configuración IoT: prueba Modbus ejecutada.";
+        }
+        catch (Exception ex)
+        {
+            errorConfiguracionIot =
+                $"No fue posible ejecutar TESTMODBUS: {ex.Message}";
+            mensajeConfiguracionIot =
+                "La prueba del sensor no pudo completarse.";
+            AgregarLineaTerminalIot("ERROR", errorConfiguracionIot);
+        }
+        finally
+        {
+            pruebaModbusIotEnCurso = false;
+            configuracionIotEnCurso = false;
+        }
+    }
+
+    private async Task EnviarComandoLineaIndividualIotAsync(
+        string nombreAccion,
+        string comando,
+        int esperaMilisegundos = 1400)
+    {
+        if (!PuedeOperarConfiguracionIot)
+        {
+            return;
+        }
+
+        errorConfiguracionIot = string.Empty;
+        configuracionIotEnCurso = true;
+        mensajeConfiguracionIot =
+            $"Enviando {nombreAccion} al controlador...";
+
+        try
+        {
+            EnviarComandoLineaConfiguracionIot(comando);
+            await Task.Delay(esperaMilisegundos);
+
+            mensajeConfiguracionIot =
+                $"{nombreAccion} enviado. Revisa la respuesta del firmware en la terminal.";
+            mensajeEstado =
+                $"Configuración IoT: {nombreAccion} enviado.";
+        }
+        catch (Exception ex)
+        {
+            errorConfiguracionIot =
+                $"No fue posible enviar {nombreAccion}: {ex.Message}";
+            mensajeConfiguracionIot =
+                "El comando no pudo completarse.";
+            AgregarLineaTerminalIot("ERROR", errorConfiguracionIot);
+        }
+        finally
+        {
+            configuracionIotEnCurso = false;
+        }
+    }
+
+    private bool TryConstruirComandoSerialRs485Iot(
+        out string comando,
+        out string error)
+    {
+        comando = string.Empty;
+        error = string.Empty;
+
+        if (!velocidadesRs485Iot.Contains(baudRateRs485Iot))
+        {
+            error =
+                "Selecciona un baud rate RS485 válido entre 1200 y 115200.";
+            return false;
+        }
+
+        string paridad = paridadRs485Iot
+            .Trim()
+            .ToUpperInvariant();
+
+        if (paridad is not ("N" or "E" or "O"))
+        {
+            error = "La paridad RS485 debe ser N, E u O.";
+            return false;
+        }
+
+        paridadRs485Iot = paridad;
+        comando = $"SETSERIAL {baudRateRs485Iot} {paridad}";
+        return true;
+    }
+
+    private bool TryConstruirComandoModbusIot(
+        out string comando,
+        out string error)
+    {
+        comando = string.Empty;
+        error = string.Empty;
+
+        if (idEsclavoModbusIot is < 1 or > 247)
+        {
+            error = "El ID del esclavo debe estar entre 1 y 247.";
+            return false;
+        }
+
+        if (funcionModbusIot is not (3 or 4))
+        {
+            error = "La función Modbus debe ser 03 o 04.";
+            return false;
+        }
+
+        if (!TryNormalizarRegistroModbusIot(
+                registroInicialModbusIot,
+                out string registroNormalizado))
+        {
+            error =
+                "El registro inicial debe ser decimal o hexadecimal, por ejemplo 0 o 0x0000.";
+            return false;
+        }
+
+        if (cantidadRegistrosModbusIot is < 1 or > 125)
+        {
+            error = "La cantidad de registros debe estar entre 1 y 125.";
+            return false;
+        }
+
+        registroInicialModbusIot = registroNormalizado;
+        comando =
+            $"SETMODBUS {idEsclavoModbusIot} {funcionModbusIot} " +
+            $"{registroNormalizado} {cantidadRegistrosModbusIot}";
+        return true;
+    }
+
+    private static bool TryNormalizarRegistroModbusIot(
+        string texto,
+        out string registroNormalizado)
+    {
+        registroNormalizado = string.Empty;
+        string valor = texto.Trim();
+
+        if (string.IsNullOrWhiteSpace(valor))
+        {
+            return false;
+        }
+
+        int registro;
+
+        if (valor.StartsWith(
+                "0x",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            if (!int.TryParse(
+                    valor[2..],
+                    NumberStyles.HexNumber,
+                    CultureInfo.InvariantCulture,
+                    out registro))
+            {
+                return false;
+            }
+        }
+        else if (!int.TryParse(
+                     valor,
+                     NumberStyles.Integer,
+                     CultureInfo.InvariantCulture,
+                     out registro))
+        {
+            return false;
+        }
+
+        if (registro is < 0 or > 65535)
+        {
+            return false;
+        }
+
+        registroNormalizado = $"0x{registro:X4}";
+        return true;
+    }
+
+    private void EnviarComandoLineaConfiguracionIot(string comando)
+    {
+        // Los nuevos comandos no incluyen terminador propio.
+        // CRLF permite que el firmware los procese al recibir Enter.
+        ServicioIot.EnviarTexto(comando + "\r\n");
+        AgregarLineaTerminalIot("TX", comando);
+    }
+
+    private void ProcesarLineaConfiguracionRs485ModbusIot(string linea)
+    {
+        string lineaLimpia = linea.Trim();
+
+        if (TryObtenerValorVariasEtiquetasIot(
+                lineaLimpia,
+                out string baud,
+                "Baud rate RS485",
+                "Baud rate",
+                "Baudrate",
+                "Velocidad RS485") &&
+            int.TryParse(
+                ExtraerPrimerTokenIot(baud),
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture,
+                out int baudLeido) &&
+            velocidadesRs485Iot.Contains(baudLeido))
+        {
+            baudRateRs485Iot = baudLeido;
+            return;
+        }
+
+        if (TryObtenerValorVariasEtiquetasIot(
+                lineaLimpia,
+                out string paridad,
+                "Paridad RS485",
+                "Paridad"))
+        {
+            string valorParidad = ExtraerPrimerTokenIot(paridad)
+                .Trim()
+                .ToUpperInvariant();
+
+            if (valorParidad is "N" or "E" or "O")
+            {
+                paridadRs485Iot = valorParidad;
+            }
+
+            return;
+        }
+
+        if (TryObtenerValorVariasEtiquetasIot(
+                lineaLimpia,
+                out string idEsclavo,
+                "ID esclavo",
+                "Esclavo Modbus",
+                "Direccion esclavo") &&
+            int.TryParse(
+                ExtraerPrimerTokenIot(idEsclavo),
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture,
+                out int idLeido) &&
+            idLeido is >= 1 and <= 247)
+        {
+            idEsclavoModbusIot = idLeido;
+            return;
+        }
+
+        if (TryObtenerValorVariasEtiquetasIot(
+                lineaLimpia,
+                out string funcion,
+                "Funcion Modbus",
+                "Funcion") &&
+            int.TryParse(
+                ExtraerPrimerTokenIot(funcion),
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture,
+                out int funcionLeida) &&
+            funcionLeida is 3 or 4)
+        {
+            funcionModbusIot = funcionLeida;
+            return;
+        }
+
+        if (TryObtenerValorVariasEtiquetasIot(
+                lineaLimpia,
+                out string registro,
+                "Registro inicial",
+                "Registro") &&
+            TryNormalizarRegistroModbusIot(
+                ExtraerPrimerTokenIot(registro),
+                out string registroLeido))
+        {
+            registroInicialModbusIot = registroLeido;
+            return;
+        }
+
+        if (TryObtenerValorVariasEtiquetasIot(
+                lineaLimpia,
+                out string cantidad,
+                "Cantidad de registros",
+                "Cantidad") &&
+            int.TryParse(
+                ExtraerPrimerTokenIot(cantidad),
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture,
+                out int cantidadLeida) &&
+            cantidadLeida is >= 1 and <= 125)
+        {
+            cantidadRegistrosModbusIot = cantidadLeida;
+        }
+    }
+
+    private static bool TryObtenerValorVariasEtiquetasIot(
+        string linea,
+        out string valor,
+        params string[] etiquetas)
+    {
+        foreach (string etiqueta in etiquetas)
+        {
+            if (TryObtenerValorEtiquetaIot(
+                    linea,
+                    etiqueta,
+                    out valor))
+            {
+                return true;
+            }
+        }
+
+        valor = string.Empty;
+        return false;
+    }
+
+    private static string ExtraerPrimerTokenIot(string valor)
+    {
+        return valor
+            .Split(
+                new[] { ' ', '\t', ',', ';' },
+                StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault() ?? string.Empty;
     }
 
     private void SolicitarResetIot()
