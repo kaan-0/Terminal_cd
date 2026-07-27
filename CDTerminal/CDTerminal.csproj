@@ -1,22 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-	<TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-	<RootNamespace>CDTerminal</RootNamespace>
+    <RootNamespace>CDTerminal</RootNamespace>
+    <ApplicationIcon>Assets\CDTerminal.ico</ApplicationIcon>
   </PropertyGroup>
-
-  <ItemGroup>
-    
-  </ItemGroup>
-
+  <ItemGroup></ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" Version="10.0.80" />
     <PackageReference Include="SSH.NET" Version="2025.1.0" />
     <PackageReference Include="System.IO.Ports" Version="10.0.9" />
   </ItemGroup>
-
 </Project>

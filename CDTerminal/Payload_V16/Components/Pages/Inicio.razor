@@ -1,4 +1,3 @@
-﻿@using System
 @using System.Globalization
 @using CDTerminal.Models
 @using CDTerminal.Components.Pages.Modulos
@@ -1701,7 +1700,7 @@
                     <div>
                         <span>HERRAMIENTAS · CONFIGURACIÓN DEL CONTROLADOR</span>
                         <h2>Configurar equipo IoT</h2>
-                        <p>Aprovisiona la identidad, configura la red, conecta la API HTTPS de producción y administra hasta cuatro sensores Modbus RTU.</p>
+                        <p>Aprovisiona la identidad, configura la API y administra hasta cuatro sensores Modbus RTU desde una interfaz guiada.</p>
                     </div>
 
                     <button type="button"
@@ -1853,7 +1852,7 @@
                     <div class="iot-v10-commandbar iot-v15-commandbar">
                         <div class="iot-v10-commandbar-copy">
                             <span>APROVISIONAMIENTO UNIVERSAL</span>
-                            <strong>Identidad, red, producción HTTPS y hasta cuatro sensores Modbus RTU</strong>
+                            <strong>Identidad, red, API y hasta cuatro sensores Modbus RTU</strong>
                         </div>
 
                         <div class="iot-v10-commandbar-actions">
@@ -1918,8 +1917,8 @@
                                     @onclick='() => SeleccionarSeccionIot("red")'>
                                 <span class="iot-v11-nav-icon">⌁</span>
                                 <span>
-                                    <strong>Red local</strong>
-                                    <small>Ethernet, DHCP e IP fija</small>
+                                    <strong>Red y servidor</strong>
+                                    <small>Ethernet, DHCP e IP del servidor</small>
                                 </span>
                             </button>
 
@@ -1939,7 +1938,7 @@
                                 <span class="iot-v11-nav-icon">API</span>
                                 <span>
                                     <strong>Envío de datos</strong>
-                                    <small>HTTPS, intervalo y endpoint</small>
+                                    <small>POST, intervalo y endpoint</small>
                                 </span>
                             </button>
 
@@ -1968,7 +1967,7 @@
                                     <div><dt>Token</dt><dd>@(tokenConfiguradoIot ? tokenResumenIot : "Pendiente")</dd></div>
                                     <div><dt>RS485</dt><dd>@baudRateRs485Iot @paridadRs485Iot</dd></div>
                                     <div><dt>Sensores</dt><dd>@SensoresActivosIot / 4</dd></div>
-                                    <div><dt>API</dt><dd>@ResumenApiCompactoIot</dd></div>
+                                    <div><dt>API</dt><dd>@(string.IsNullOrWhiteSpace(rutaConectorIot) ? "Pendiente" : "Lista")</dd></div>
                                 </dl>
                             </div>
                         </aside>
@@ -2073,9 +2072,9 @@
                             {
                                 <header class="iot-v11-section-header">
                                     <div>
-                                        <span>PASO 2 · RED LOCAL</span>
+                                        <span>PASO 2 · RED Y SERVIDOR</span>
                                         <h3>Conectividad Ethernet</h3>
-                                        <p>Configura cómo el controlador obtiene acceso a Internet. El destino de producción se administra en Envío de datos.</p>
+                                        <p>Selecciona DHCP o una IP estática y define el servidor que recibirá las mediciones.</p>
                                     </div>
                                 </header>
 
@@ -2108,49 +2107,52 @@
                                     {
                                         <div class="iot-v11-grid two-columns iot-v15-subgrid">
                                             <label class="iot-v11-field">
-                                                <span class="iot-v14-field-label">
-                                                    <span>IP local</span>
-                                                    <span class="iot-v14-help" tabindex="0" role="button"
-                                                          data-tooltip="Dirección fija que tendrá el controlador en la red del cliente. Debe pertenecer al mismo segmento del router.">i</span>
-                                                </span>
+                                                <span>IP local</span>
                                                 <input type="text" placeholder="192.168.1.50"
                                                        disabled="@configuracionIotEnCurso"
                                                        @bind="ipLocalIot" @bind:event="oninput" />
                                             </label>
                                             <label class="iot-v11-field">
-                                                <span class="iot-v14-field-label">
-                                                    <span>Máscara local</span>
-                                                    <span class="iot-v14-help" tabindex="0" role="button"
-                                                          data-tooltip="Máscara de la red local. En la mayoría de instalaciones pequeñas se utiliza 255.255.255.0.">i</span>
-                                                </span>
+                                                <span>Máscara local</span>
                                                 <input type="text" placeholder="255.255.255.0"
                                                        disabled="@configuracionIotEnCurso"
                                                        @bind="mascaraLocalIot" @bind:event="oninput" />
                                             </label>
                                         </div>
                                     }
+                                </section>
 
+                                <section class="iot-v11-card">
+                                    <header class="iot-v11-card-header">
+                                        <span class="iot-v11-step">2</span>
+                                        <div>
+                                            <strong>Servidor de la API</strong>
+                                            <small>Dirección base usada cuando el endpoint es una ruta relativa.</small>
+                                        </div>
+                                    </header>
+                                    <div class="iot-v11-grid two-columns">
+                                        <label class="iot-v11-field">
+                                            <span>IP del servidor</span>
+                                            <input type="text" placeholder="192.168.1.200"
+                                                   disabled="@configuracionIotEnCurso"
+                                                   @bind="ipServidorIot" @bind:event="oninput" />
+                                        </label>
+                                        <label class="iot-v11-field">
+                                            <span>Máscara del servidor</span>
+                                            <input type="text" placeholder="255.255.255.0"
+                                                   disabled="@configuracionIotEnCurso"
+                                                   @bind="mascaraServidorIot" @bind:event="oninput" />
+                                        </label>
+                                    </div>
                                     <div class="iot-v11-card-actions">
                                         <button type="button" class="primary"
                                                 disabled="@(!PuedeOperarConfiguracionIot)"
                                                 @onclick="GuardarRedCompletaIotAsync">
-                                            Guardar red local
+                                            Guardar red y servidor
                                         </button>
                                     </div>
                                 </section>
-
-                                <section class="iot-v17-cloud-note">
-                                    <span class="iot-v17-cloud-icon">HTTPS</span>
-                                    <div>
-                                        <strong>La API de producción ya no depende de una IP privada</strong>
-                                        <p>El controlador se conecta al subdominio <code>rs485.cdtechnologia.net</code>. La URL completa y el puerto 443 se configuran desde Envío de datos.</p>
-                                    </div>
-                                    <button type="button"
-                                            disabled="@configuracionIotEnCurso"
-                                            @onclick='() => SeleccionarSeccionIot("envio")'>Configurar destino</button>
-                                </section>
                             }
-
                             else if (seccionConfiguracionIot == "sensor")
                             {
                                 <header class="iot-v11-section-header">
@@ -2342,159 +2344,54 @@
                                 <header class="iot-v11-section-header">
                                     <div>
                                         <span>PASO 4 · ENVÍO DE DATOS</span>
-                                        <h3>Destino HTTPS de telemetría</h3>
-                                        <p>Configura la API de producción, el intervalo automático y, solo cuando sea necesario, un servidor alternativo.</p>
+                                        <h3>Destino HTTP POST</h3>
+                                        <p>Configura el endpoint Laravel y el intervalo automático de lectura y transmisión.</p>
                                     </div>
                                 </header>
 
-                                <section class="iot-v11-card iot-v17-destination-card">
+                                <section class="iot-v11-card">
                                     <header class="iot-v11-card-header">
                                         <span class="iot-v11-step">1</span>
                                         <div>
-                                            <strong>Seleccionar destino</strong>
-                                            <small>Producción utiliza el subdominio oficial mediante HTTPS. Personalizado conserva compatibilidad con servidores locales.</small>
+                                            <strong>API de telemetría</strong>
+                                            <small>La URL puede ser completa o una ruta relativa al servidor configurado.</small>
                                         </div>
                                     </header>
-
-                                    <div class="iot-v11-field">
-                                        <span class="iot-v14-field-label">
-                                            <span>Modo de conexión a la API</span>
-                                            <span class="iot-v14-help" tabindex="0" role="button"
-                                                  data-tooltip="Producción usa https://rs485.cdtechnologia.net/api/v1/mediciones y puerto 443. Personalizado permite una URL completa o una ruta relativa para instalaciones locales.">i</span>
-                                        </span>
-                                        <div class="iot-v11-segmented iot-v17-destination-mode">
-                                            <button type="button"
-                                                    class="@(usarApiProduccionIot ? "active" : "")"
-                                                    disabled="@configuracionIotEnCurso"
-                                                    @onclick="() => SeleccionarDestinoApiIot(true)">
-                                                Producción HTTPS
-                                            </button>
-                                            <button type="button"
-                                                    class="@(!usarApiProduccionIot ? "active" : "")"
-                                                    disabled="@configuracionIotEnCurso"
-                                                    @onclick="() => SeleccionarDestinoApiIot(false)">
-                                                Personalizado
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    @if (usarApiProduccionIot)
-                                    {
-                                        <div class="iot-v17-production-card">
-                                            <div class="iot-v17-production-title">
-                                                <span class="iot-v17-production-badge">PRODUCCIÓN</span>
-                                                <div>
-                                                    <strong>API RS485 de CD Tecnología</strong>
-                                                    <small>Destino predefinido por el firmware cuando la EEPROM no contiene una URL.</small>
-                                                </div>
-                                            </div>
-                                            <code>@UrlApiProduccionIot</code>
-                                            <div class="iot-v17-production-grid">
-                                                <div><span>Protocolo</span><strong>HTTPS</strong></div>
-                                                <div><span>Puerto efectivo</span><strong>443</strong></div>
-                                                <div><span>Método</span><strong>POST JSON</strong></div>
-                                                <div><span>Timeout</span><strong>15 segundos</strong></div>
-                                                <div><span>Reintentos</span><strong>3 en RAM</strong></div>
-                                                <div><span>Autenticación</span><strong>ID + Token</strong></div>
-                                            </div>
-                                            <div class="iot-v17-tls-warning">
-                                                <span>!</span>
-                                                <p>La comunicación viaja cifrada. El firmware actual usa <code>setInsecure()</code>, por lo que todavía no valida el certificado remoto.</p>
-                                            </div>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="iot-v17-custom-destination">
-                                            <label class="iot-v11-field full-row">
-                                                <span class="iot-v14-field-label">
-                                                    <span>URL completa o ruta relativa</span>
-                                                    <span class="iot-v14-help" tabindex="0" role="button"
-                                                          data-tooltip="URL completa: https://dominio/ruta o http://dominio/ruta. Ruta relativa: /api/v1/mediciones; en ese caso también debe indicar la IP y el puerto del servidor local.">i</span>
-                                                </span>
-                                                <input type="text" maxlength="180"
-                                                       placeholder="https://servidor.example/api/v1/mediciones"
-                                                       disabled="@configuracionIotEnCurso"
-                                                       @bind="rutaConectorIot" @bind:event="oninput" />
-                                            </label>
-
-                                            @if (EsDestinoApiRelativoIot)
-                                            {
-                                                <div class="iot-v17-relative-banner">
-                                                    <strong>Modo local por IP</strong>
-                                                    <small>La ruta se combinará con la IP y el puerto guardados en EEPROM.</small>
-                                                </div>
-                                                <div class="iot-v11-grid two-columns">
-                                                    <label class="iot-v11-field">
-                                                        <span>IP del servidor local</span>
-                                                        <input type="text" placeholder="192.168.1.200"
-                                                               disabled="@configuracionIotEnCurso"
-                                                               @bind="ipServidorIot" @bind:event="oninput" />
-                                                    </label>
-                                                    <label class="iot-v11-field">
-                                                        <span>Máscara del servidor</span>
-                                                        <input type="text" placeholder="255.255.255.0"
-                                                               disabled="@configuracionIotEnCurso"
-                                                               @bind="mascaraServidorIot" @bind:event="oninput" />
-                                                    </label>
-                                                    <label class="iot-v11-field">
-                                                        <span>Puerto HTTP local</span>
-                                                        <input type="number" min="1" max="65535"
-                                                               disabled="@configuracionIotEnCurso" @bind="puertoServidorIot" />
-                                                    </label>
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                </section>
-
-                                <section class="iot-v11-card">
-                                    <header class="iot-v11-card-header">
-                                        <span class="iot-v11-step">2</span>
-                                        <div>
-                                            <strong>Programación del envío</strong>
-                                            <small>El intervalo se guarda en minutos y comienza a contar nuevamente desde el momento de la configuración.</small>
-                                        </div>
-                                    </header>
-
                                     <div class="iot-v11-grid two-columns">
                                         <label class="iot-v11-field">
-                                            <span class="iot-v14-field-label">
-                                                <span>Intervalo de envío (min)</span>
-                                                <span class="iot-v14-help" tabindex="0" role="button"
-                                                      data-tooltip="Tiempo entre lecturas automáticas. Rango del firmware: 1 a 65535 minutos.">i</span>
-                                            </span>
+                                            <span>Puerto HTTP</span>
+                                            <input type="number" min="1" max="65535"
+                                                   disabled="@configuracionIotEnCurso" @bind="puertoServidorIot" />
+                                        </label>
+                                        <label class="iot-v11-field">
+                                            <span>Intervalo de envío (min)</span>
                                             <input type="number" min="1" max="65535"
                                                    disabled="@configuracionIotEnCurso" @bind="periodoEnvioIot" />
                                         </label>
-                                        <div class="iot-v17-effective-destination">
-                                            <span>Puerto efectivo</span>
-                                            <strong>@PuertoEfectivoApiIot</strong>
-                                            <small>@ProtocoloApiIot · @HostApiIot</small>
-                                        </div>
+                                        <label class="iot-v11-field full-row">
+                                            <span class="iot-v14-field-label">
+                                                <span>URL de la API</span>
+                                                <span class="iot-v14-help" tabindex="0" role="button"
+                                                      data-tooltip="Ejemplo relativo: /api/v1/mediciones. También admite una URL completa http:// o https://. El firmware enviará JSON mediante POST.">i</span>
+                                            </span>
+                                            <input type="text" maxlength="180"
+                                                   placeholder="/api/v1/mediciones"
+                                                   disabled="@configuracionIotEnCurso"
+                                                   @bind="rutaConectorIot" @bind:event="oninput" />
+                                        </label>
                                     </div>
-
-                                    <div class="iot-v15-endpoint-preview iot-v17-endpoint-preview">
+                                    <div class="iot-v15-endpoint-preview">
                                         <span>Destino resultante</span>
                                         <strong>@ResumenDestinoApiIot</strong>
                                         <small>Cabeceras: X-Device-ID y X-Device-Token</small>
                                     </div>
-
-                                    <div class="iot-v11-card-actions split-actions">
-                                        <button type="button"
-                                                disabled="@configuracionIotEnCurso"
-                                                @onclick="RestaurarDestinoProduccionIot">
-                                            Restaurar producción
-                                        </button>
+                                    <div class="iot-v11-card-actions">
                                         <button type="button" class="primary"
                                                 disabled="@(!PuedeOperarConfiguracionIot)"
-                                                @onclick="GuardarEnvioCompletoIotAsync">
-                                            @(usarApiProduccionIot ? "Guardar producción HTTPS" : "Guardar destino personalizado")
-                                        </button>
+                                                @onclick="GuardarEnvioCompletoIotAsync">Guardar envío de datos</button>
                                     </div>
                                 </section>
                             }
-
                             else
                             {
                                 <header class="iot-v11-section-header">
@@ -2516,7 +2413,7 @@
 
                                     <div class="iot-v11-system-action">
                                         <span class="iot-v11-system-icon">◉</span>
-                                        <div><strong>Leer y enviar ahora</strong><small>Consulta todos los sensores activos y hace el POST a @ProtocoloApiIot.</small></div>
+                                        <div><strong>Leer y enviar ahora</strong><small>Consulta todos los sensores activos y hace el POST a la API.</small></div>
                                         <button type="button" class="test"
                                                 disabled="@(!PuedeOperarConfiguracionIot)"
                                                 @onclick="EjecutarLecturaEnvioAhoraIotAsync">Ejecutar</button>
@@ -3059,21 +2956,13 @@
     private string tokenResumenIot = "No configurado";
     private bool tokenConfiguradoIot;
     private bool mostrarTokenIot;
-    private const string UrlApiProduccionIot =
-        "https://rs485.cdtechnologia.net/api/v1/mediciones";
-
     private bool modoDhcpIot = true;
     private string ipLocalIot = string.Empty;
     private string mascaraLocalIot = "255.255.255.0";
-
-    // Solo se utilizan cuando el destino personalizado es una ruta relativa.
     private string ipServidorIot = string.Empty;
     private string mascaraServidorIot = "255.255.255.0";
     private int puertoServidorIot = 80;
-
-    private bool usarApiProduccionIot = true;
-    private string rutaPersonalizadaIot = "/api/v1/mediciones";
-    private string rutaConectorIot = UrlApiProduccionIot;
+    private string rutaConectorIot = "/api/v1/mediciones";
     private int periodoEnvioIot = 1;
 
     // Configuración física compartida por las cuatro ranuras Modbus.
@@ -3291,96 +3180,11 @@
     private bool TokenIotValidoParaEnvio =>
         TokenDispositivoIotValido(tokenDispositivoIot);
 
-    private string DestinoApiActualIot =>
-        usarApiProduccionIot
-            ? UrlApiProduccionIot
-            : rutaConectorIot.Trim();
-
-    private bool EsDestinoApiAbsolutoIot
-    {
-        get
-        {
-            return Uri.TryCreate(
-                       DestinoApiActualIot,
-                       UriKind.Absolute,
-                       out Uri? uri) &&
-                   (uri.Scheme.Equals("http", StringComparison.OrdinalIgnoreCase) ||
-                    uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase));
-        }
-    }
-
-    private bool EsDestinoApiRelativoIot =>
-        !EsDestinoApiAbsolutoIot;
-
-    private string ProtocoloApiIot
-    {
-        get
-        {
-            if (Uri.TryCreate(
-                    ResumenDestinoApiIot,
-                    UriKind.Absolute,
-                    out Uri? uri))
-            {
-                return uri.Scheme.ToUpperInvariant();
-            }
-
-            return "HTTP";
-        }
-    }
-
-    private int PuertoEfectivoApiIot
-    {
-        get
-        {
-            if (Uri.TryCreate(
-                    ResumenDestinoApiIot,
-                    UriKind.Absolute,
-                    out Uri? uri))
-            {
-                if (!uri.IsDefaultPort)
-                {
-                    return uri.Port;
-                }
-
-                return uri.Scheme.Equals(
-                    "https",
-                    StringComparison.OrdinalIgnoreCase)
-                        ? 443
-                        : 80;
-            }
-
-            return puertoServidorIot;
-        }
-    }
-
-    private string HostApiIot
-    {
-        get
-        {
-            if (Uri.TryCreate(
-                    ResumenDestinoApiIot,
-                    UriKind.Absolute,
-                    out Uri? uri))
-            {
-                return uri.Host;
-            }
-
-            return EsDireccionIpv4Valida(ipServidorIot)
-                ? ipServidorIot.Trim()
-                : "Servidor pendiente";
-        }
-    }
-
-    private string ResumenApiCompactoIot =>
-        string.IsNullOrWhiteSpace(DestinoApiActualIot)
-            ? "Pendiente"
-            : $"{ProtocoloApiIot} {PuertoEfectivoApiIot}";
-
     private string ResumenDestinoApiIot
     {
         get
         {
-            string ruta = DestinoApiActualIot.Trim();
+            string ruta = rutaConectorIot.Trim();
 
             if (ruta.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 ruta.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
@@ -3391,7 +3195,7 @@
             if (!EsDireccionIpv4Valida(ipServidorIot))
             {
                 return string.IsNullOrWhiteSpace(ruta)
-                    ? "Configura la IP del servidor local y la ruta"
+                    ? "Configura la IP del servidor y la ruta"
                     : ruta;
             }
 
@@ -5046,60 +4850,6 @@
         errorConfiguracionIot = string.Empty;
     }
 
-    private void SeleccionarDestinoApiIot(bool produccion)
-    {
-        if (configuracionIotEnCurso)
-        {
-            return;
-        }
-
-        if (usarApiProduccionIot == produccion)
-        {
-            return;
-        }
-
-        if (produccion)
-        {
-            if (!string.IsNullOrWhiteSpace(rutaConectorIot) &&
-                !rutaConectorIot.Equals(
-                    UrlApiProduccionIot,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                rutaPersonalizadaIot = rutaConectorIot;
-            }
-
-            usarApiProduccionIot = true;
-            rutaConectorIot = UrlApiProduccionIot;
-            mensajeConfiguracionIot =
-                "Destino de producción seleccionado: HTTPS por el puerto 443.";
-        }
-        else
-        {
-            usarApiProduccionIot = false;
-            rutaConectorIot = string.IsNullOrWhiteSpace(rutaPersonalizadaIot)
-                ? "/api/v1/mediciones"
-                : rutaPersonalizadaIot;
-            mensajeConfiguracionIot =
-                "Destino personalizado seleccionado. Usa una URL completa o una ruta local.";
-        }
-
-        errorConfiguracionIot = string.Empty;
-    }
-
-    private void RestaurarDestinoProduccionIot()
-    {
-        if (configuracionIotEnCurso)
-        {
-            return;
-        }
-
-        usarApiProduccionIot = true;
-        rutaConectorIot = UrlApiProduccionIot;
-        mensajeConfiguracionIot =
-            "Se restauró la API HTTPS oficial de producción.";
-        errorConfiguracionIot = string.Empty;
-    }
-
     private void SeleccionarSensorIot(int ranura)
     {
         if (configuracionIotEnCurso || ranura is < 1 or > 4)
@@ -5225,27 +4975,29 @@
             return;
         }
 
-        if (!modoDhcpIot &&
-            (!EsDireccionIpv4Valida(ipLocalIot) ||
-             !EsMascaraIpv4Valida(mascaraLocalIot)))
+        if (!EsDireccionIpv4Valida(ipServidorIot) ||
+            !EsMascaraIpv4Valida(mascaraServidorIot))
         {
-            MostrarErrorConfiguracionIot(
-                "Revisa la IP y la máscara de la red local."
-            );
+            MostrarErrorConfiguracionIot("Revisa la IP y la máscara del servidor.");
+            return;
+        }
+
+        if (!modoDhcpIot &&
+            (!EsDireccionIpv4Valida(ipLocalIot) || !EsMascaraIpv4Valida(mascaraLocalIot)))
+        {
+            MostrarErrorConfiguracionIot("Revisa la IP y la máscara de la red local.");
             return;
         }
 
         errorConfiguracionIot = string.Empty;
         configuracionIotEnCurso = true;
-        mensajeConfiguracionIot = "Guardando la red local...";
+        mensajeConfiguracionIot = "Guardando la red y el servidor...";
 
         try
         {
             if (modoDhcpIot)
             {
-                EnviarComandoConfiguracionIot(
-                    $"{IdModuloIotNormalizado}dhcpZ"
-                );
+                EnviarComandoConfiguracionIot($"{IdModuloIotNormalizado}dhcpZ");
             }
             else
             {
@@ -5254,14 +5006,18 @@
                 );
             }
 
-            await Task.Delay(900);
+            await Task.Delay(800);
+            EnviarComandoConfiguracionIot(
+                $"{IdModuloIotNormalizado}_{ipServidorIot.Trim()}/{mascaraServidorIot.Trim()}Z"
+            );
+            await Task.Delay(1000);
+
             mensajeConfiguracionIot =
-                "Red local guardada. Reinicia el equipo para aplicar el cambio.";
+                "Red y servidor guardados. Reinicia el equipo para aplicar un cambio de red local.";
         }
         catch (Exception ex)
         {
-            errorConfiguracionIot =
-                $"No fue posible guardar la red local: {ex.Message}";
+            errorConfiguracionIot = $"No fue posible guardar la red: {ex.Message}";
             AgregarLineaTerminalIot("ERROR", errorConfiguracionIot);
         }
         finally
@@ -5283,88 +5039,39 @@
             return;
         }
 
-        string destino = usarApiProduccionIot
-            ? UrlApiProduccionIot
-            : NormalizarRutaConectorIot(rutaConectorIot);
+        string ruta = NormalizarRutaConectorIot(rutaConectorIot);
 
-        if (periodoEnvioIot is < 1 or > 65535 ||
-            string.IsNullOrWhiteSpace(destino) ||
-            destino.Length > 180 ||
-            destino.Any(char.IsWhiteSpace))
+        if (puertoServidorIot is < 1 or > 65535 ||
+            periodoEnvioIot is < 1 or > 65535 ||
+            string.IsNullOrWhiteSpace(ruta) ||
+            ruta.Length > 180 ||
+            ruta.Any(char.IsWhiteSpace))
         {
             MostrarErrorConfiguracionIot(
-                "Revisa el intervalo y la URL de la API."
+                "Revisa el puerto, el intervalo y la URL de la API."
             );
             return;
         }
 
-        bool destinoAbsoluto = Uri.TryCreate(
-            destino,
-            UriKind.Absolute,
-            out Uri? uriDestino) &&
-            (uriDestino.Scheme.Equals("http", StringComparison.OrdinalIgnoreCase) ||
-             uriDestino.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase));
-
-        if (!destinoAbsoluto &&
-            (!EsDireccionIpv4Valida(ipServidorIot) ||
-             !EsMascaraIpv4Valida(mascaraServidorIot) ||
-             puertoServidorIot is < 1 or > 65535))
-        {
-            MostrarErrorConfiguracionIot(
-                "Para una ruta relativa debes indicar la IP, la máscara y el puerto del servidor local."
-            );
-            return;
-        }
-
-        rutaConectorIot = destino;
-
-        if (!usarApiProduccionIot)
-        {
-            rutaPersonalizadaIot = destino;
-        }
-
+        rutaConectorIot = ruta;
         errorConfiguracionIot = string.Empty;
         configuracionIotEnCurso = true;
-        mensajeConfiguracionIot = usarApiProduccionIot
-            ? "Guardando el destino HTTPS de producción..."
-            : "Guardando el destino personalizado...";
+        mensajeConfiguracionIot = "Guardando el destino de telemetría...";
 
         try
         {
-            // La IP y el puerto solo participan cuando se almacena una ruta relativa.
-            if (!destinoAbsoluto)
-            {
-                EnviarComandoConfiguracionIot(
-                    $"{IdModuloIotNormalizado}_{ipServidorIot.Trim()}/{mascaraServidorIot.Trim()}Z"
-                );
-                await Task.Delay(650);
-
-                EnviarComandoConfiguracionIot(
-                    $"{IdModuloIotNormalizado}{puertoServidorIot}Z"
-                );
-                await Task.Delay(650);
-            }
-
-            EnviarComandoConfiguracionIot(
-                $"{IdModuloIotNormalizado}{periodoEnvioIot}m"
-            );
+            EnviarComandoConfiguracionIot($"{IdModuloIotNormalizado}{puertoServidorIot}Z");
             await Task.Delay(650);
-
-            EnviarComandoConfiguracionIot(
-                $"{IdModuloIotNormalizado}{destino}!"
-            );
+            EnviarComandoConfiguracionIot($"{IdModuloIotNormalizado}{periodoEnvioIot}m");
+            await Task.Delay(650);
+            EnviarComandoConfiguracionIot($"{IdModuloIotNormalizado}{rutaConectorIot}!");
             await Task.Delay(900);
 
-            mensajeConfiguracionIot = usarApiProduccionIot
-                ? "Producción HTTPS guardada. El firmware usará rs485.cdtechnologia.net y el puerto 443."
-                : destinoAbsoluto
-                    ? $"URL {uriDestino!.Scheme.ToUpperInvariant()} completa e intervalo guardados."
-                    : "Servidor local, puerto, intervalo y ruta guardados.";
+            mensajeConfiguracionIot = "Puerto, intervalo y URL de la API guardados.";
         }
         catch (Exception ex)
         {
-            errorConfiguracionIot =
-                $"No fue posible guardar el envío de datos: {ex.Message}";
+            errorConfiguracionIot = $"No fue posible guardar el envío de datos: {ex.Message}";
             AgregarLineaTerminalIot("ERROR", errorConfiguracionIot);
         }
         finally
@@ -5881,28 +5588,6 @@
     {
         string lineaLimpia = linea.Trim();
 
-        if (lineaLimpia.StartsWith(
-                "TLS:",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            mensajeConfiguracionIot = lineaLimpia;
-            return;
-        }
-
-        if (TryObtenerValorEtiquetaIot(
-                lineaLimpia,
-                "Codigo HTTP",
-                out string codigoHttp))
-        {
-            mensajeConfiguracionIot = int.TryParse(
-                ExtraerPrimerTokenIot(codigoHttp),
-                out int codigo) &&
-                codigo is >= 200 and < 300
-                    ? $"Envío aceptado por la API. HTTP {codigo}."
-                    : $"La API respondió HTTP {codigoHttp}. Revisa la terminal para más detalles.";
-            return;
-        }
-
         if (lineaLimpia.Contains(
                 "FIN DE LA CONFIGURACION",
                 StringComparison.OrdinalIgnoreCase))
@@ -6034,43 +5719,11 @@
                 "URL de la API",
                 "URL del conector"))
         {
-            string urlLeida = conector.Equals(
+            rutaConectorIot = conector.Equals(
                 "No configurada",
                 StringComparison.OrdinalIgnoreCase)
-                    ? UrlApiProduccionIot
-                    : conector.Trim();
-
-            usarApiProduccionIot = urlLeida.Equals(
-                UrlApiProduccionIot,
-                StringComparison.OrdinalIgnoreCase);
-            rutaConectorIot = urlLeida;
-
-            if (!usarApiProduccionIot)
-            {
-                rutaPersonalizadaIot = urlLeida;
-            }
-
-            return;
-        }
-
-        if (TryObtenerValorEtiquetaIot(
-                lineaLimpia,
-                "Protocolo API",
-                out string protocoloApi))
-        {
-            mensajeConfiguracionIot =
-                $"Configuración recibida. Protocolo de la API: {protocoloApi}.";
-            return;
-        }
-
-        if (TryObtenerValorEtiquetaIot(
-                lineaLimpia,
-                "Puerto efectivo",
-                out string puertoEfectivo))
-        {
-            mensajeConfiguracionIot =
-                $"Configuración recibida. Puerto efectivo de la API: {puertoEfectivo}.";
-            return;
+                    ? string.Empty
+                    : conector;
         }
     }
 

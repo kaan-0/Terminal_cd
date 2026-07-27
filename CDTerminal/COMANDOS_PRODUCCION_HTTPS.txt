@@ -1,0 +1,35 @@
+CONFIGURACION RECOMENDADA DE PRODUCCION
+
+1. ID
+SETID CDT-HN-000001
+
+2. TOKEN
+SETTOKEN TOKEN_ALFANUMERICO_DE_32_A_64_CARACTERES
+
+3. RED LOCAL
+DHCP:
+<ID>dhcpZ
+
+IP estatica:
+<ID>192.168.1.50/255.255.255.0Z
+
+4. INTERVALO
+<ID>5m
+
+5. URL HTTPS DE PRODUCCION
+<ID>https://rs485.cdtechnologia.net/api/v1/mediciones!
+
+6. COMPROBAR
+SHOWAUTH
+<ID>configZ
+SHOWSENSORS
+
+7. LEER Y ENVIAR AHORA
+<ID>sensorZ
+
+EN PRODUCCION NO ES NECESARIO CONFIGURAR
+- IP privada del servidor
+- Mascara del servidor
+- Puerto HTTP 80
+
+La URL HTTPS completa determina el host y el puerto efectivo 443.

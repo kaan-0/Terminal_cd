@@ -1,0 +1,17 @@
+CD TERMINAL · CONFIGURADOR IOT V13
+
+CORRECCIÓN PRINCIPAL
+- Se eliminó la miniaturización agresiva de V12.
+- Se recuperaron las proporciones visuales de V11.
+- El módulo completo obtiene desplazamiento vertical cuando la altura de la pantalla no alcanza.
+- La cuadrícula principal conserva una altura mínima de 620 px.
+- La navegación izquierda ya no corta la tarjeta del dispositivo.
+- La terminal reserva espacio para entrada, comandos rápidos y barra inferior.
+- El monitor y la sección central mantienen desplazamiento independiente.
+
+NO SE MODIFICÓ
+- Lógica serial.
+- Comandos de red.
+- Comandos SETSERIAL, SETMODBUS, SHOWMODBUS y TESTMODBUS.
+- SSH.
+- Servicios existentes.

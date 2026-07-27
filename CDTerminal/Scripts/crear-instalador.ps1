@@ -1,85 +1,91 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
-    [string]$Version = "1.1.0",
+    [string]$Version = "1.4.0",
     [switch]$SoloPublicar,
-    [switch]$OmitirVerificacionV9
+    [switch]$OmitirVerificacionV17,
+    [switch]$OmitirAplicacionIcono
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$kitRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 
-# Buscar el proyecto primero en la raiz y, si no aparece, de forma recursiva.
-$project = Get-ChildItem -Path $projectRoot -Filter "CDTerminal.csproj" -File |
-    Select-Object -First 1
-
+$project = Get-ChildItem -Path $kitRoot -Filter "CDTerminal.csproj" -File | Select-Object -First 1
 if (-not $project) {
-    $project = Get-ChildItem -Path $projectRoot -Filter "CDTerminal.csproj" -File -Recurse |
-        Where-Object {
-            $_.FullName -notmatch '\\(bin|obj|artifacts|Backups|Payload_V9)\\'
-        } |
+    $project = Get-ChildItem -Path $kitRoot -Filter "CDTerminal.csproj" -File -Recurse |
+        Where-Object { $_.FullName -notmatch '\\(bin|obj|artifacts|Backups|Payload_V17)\\' } |
         Select-Object -First 1
 }
 
 if (-not $project) {
-    throw "No se encontro CDTerminal.csproj dentro de: $projectRoot"
+    throw "No se encontro CDTerminal.csproj dentro de: $kitRoot"
 }
 
 $projectRoot = $project.Directory.FullName
 
 if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
-    throw "No se encontro dotnet. Instala el SDK de .NET usado por el proyecto."
+    throw "No se encontro dotnet. Instala el SDK usado por el proyecto."
 }
 
-# Verificacion flexible: no supone que Inicio.razor.css este en una ruta fija.
-if (-not $OmitirVerificacionV9) {
-    $archivosInicio = Get-ChildItem -Path $projectRoot -File -Recurse |
-        Where-Object {
-            $_.Name -in @("Inicio.razor", "Inicio.razor.css") -and
-            $_.FullName -notmatch '\\(bin|obj|artifacts|Backups|Payload_V9)\\'
-        }
+if (-not $OmitirAplicacionIcono) {
+    & (Join-Path $PSScriptRoot "aplicar-icono.ps1")
+}
 
-    $v9Detectada = $false
+if (-not $OmitirVerificacionV17) {
+    $inicio = Get-ChildItem -Path $projectRoot -Filter "Inicio.razor" -File -Recurse |
+        Where-Object { $_.FullName -notmatch '\\(bin|obj|artifacts|Backups|Payload_V17)\\' } |
+        Select-Object -First 1
 
-    foreach ($archivoInicio in $archivosInicio) {
+    $v17Detectada = $false
+    if ($inicio) {
         try {
-            $contenido = Get-Content -Path $archivoInicio.FullName -Raw -ErrorAction Stop
-
-            if ($archivoInicio.Name -eq "Inicio.razor.css" -and
-                $contenido -match "Configurador IoT V9") {
-                $v9Detectada = $true
-                break
-            }
-
-            if ($archivoInicio.Name -eq "Inicio.razor" -and
-                $contenido -match "Configurar equipo IoT" -and
-                $contenido -match "resetZ") {
-                $v9Detectada = $true
-                break
-            }
+            $contenido = Get-Content -Path $inicio.FullName -Raw -ErrorAction Stop
+            $v17Detectada =
+                $contenido -match "https://rs485\.cdtechnologia\.net/api/v1/mediciones" -and
+                $contenido -match "Produccion HTTPS" -and
+                $contenido -match "Puerto efectivo" -and
+                $contenido -match "iot-v16-dropdown"
         }
         catch {
-            Write-Warning "No se pudo revisar $($archivoInicio.FullName): $($_.Exception.Message)"
+            Write-Warning "No se pudo revisar Inicio.razor: $($_.Exception.Message)"
         }
     }
 
-    if ($v9Detectada) {
-        Write-Host "Configurador IoT V9 detectado." -ForegroundColor Green
+    if ($v17Detectada) {
+        Write-Host "Configurador IoT V17 Produccion HTTPS detectado." -ForegroundColor Green
     }
     else {
-        Write-Warning "No se pudo confirmar automaticamente la interfaz V9. Se publicara el codigo actual del proyecto."
-        Write-Warning "Si ya probaste visualmente esta version, puedes continuar con seguridad."
+        Write-Warning "No se pudo confirmar automaticamente el Configurador IoT V17."
+        Write-Warning "El instalador publicara exactamente el codigo actual del proyecto."
+    }
+
+    $terminalSsh = Get-ChildItem -Path $projectRoot -Filter "TerminalSsh.razor" -File -Recurse |
+        Where-Object { $_.FullName -notmatch '\\(bin|obj|artifacts|Backups)\\' } |
+        Select-Object -First 1
+
+    if ($terminalSsh) {
+        Write-Host "Modulo SSH detectado." -ForegroundColor Green
+    }
+    else {
+        Write-Warning "No se encontro TerminalSsh.razor."
     }
 }
 
 $publishDir = Join-Path $projectRoot "artifacts\publish\win-x64"
 $installerDir = Join-Path $projectRoot "artifacts\installer"
+$appIcon = Join-Path $projectRoot "Assets\CDTerminal.ico"
+
+if (-not (Test-Path $appIcon)) {
+    throw "No se encontro el icono en: $appIcon"
+}
 
 Write-Host ""
 Write-Host "CD Terminal $Version" -ForegroundColor Cyan
 Write-Host "Proyecto: $($project.FullName)"
 Write-Host "Publicacion: $publishDir"
+Write-Host "Icono: $appIcon"
+Write-Host "API produccion: https://rs485.cdtechnologia.net/api/v1/mediciones"
 Write-Host ""
 
 if (Test-Path $publishDir) {
@@ -94,19 +100,15 @@ try {
     & dotnet clean $project.FullName -c Release
     if ($LASTEXITCODE -ne 0) { throw "Fallo dotnet clean." }
 
-    # Eliminar assets anteriores para evitar que project.assets.json conserve
-    # una restauracion sin el RuntimeIdentifier win-x64.
     $objDir = Join-Path $projectRoot "obj"
     if (Test-Path $objDir) {
         Remove-Item $objDir -Recurse -Force
     }
 
-    # Restaurar especificamente para Windows x64. Esto genera el target:
-    # net10.0-windows.../win-x64 requerido por dotnet publish.
     & dotnet restore $project.FullName -r win-x64
     if ($LASTEXITCODE -ne 0) { throw "Fallo dotnet restore para win-x64." }
 
-    & dotnet build $project.FullName -c Release -r win-x64 --no-restore
+    & dotnet build $project.FullName -c Release -r win-x64 --no-restore "-p:ApplicationIcon=$appIcon"
     if ($LASTEXITCODE -ne 0) { throw "Fallo dotnet build para win-x64." }
 
     & dotnet publish $project.FullName `
@@ -114,10 +116,11 @@ try {
         -r win-x64 `
         --self-contained true `
         --no-restore `
+        "-p:ApplicationIcon=$appIcon" `
         -p:Version=$Version `
         -p:FileVersion="$Version.0" `
         -p:AssemblyVersion="$Version.0" `
-        -p:InformationalVersion="${Version}-configurador-iot" `
+        -p:InformationalVersion="${Version}-ssh-iot-v17-https-production" `
         -p:PublishSingleFile=false `
         -p:PublishReadyToRun=true `
         -p:PublishTrimmed=false `
@@ -133,19 +136,18 @@ finally {
 
 $exePath = Join-Path $publishDir "CDTerminal.exe"
 if (-not (Test-Path $exePath)) {
-    throw "La publicacion termino, pero no aparecio CDTerminal.exe en $publishDir"
+    throw "La publicacion termino, pero no aparecio CDTerminal.exe."
 }
 
 Write-Host "Publicacion win-x64 creada correctamente." -ForegroundColor Green
 
 if ($SoloPublicar) {
-    Write-Host "Se omitio la compilacion del instalador por -SoloPublicar."
+    Write-Host "Se omitio Inno Setup por -SoloPublicar."
     exit 0
 }
 
 $isccCandidates = @(
-    (Get-Command ISCC.exe -ErrorAction SilentlyContinue |
-        Select-Object -ExpandProperty Source -ErrorAction SilentlyContinue),
+    (Get-Command ISCC.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -ErrorAction SilentlyContinue),
     "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe",
     "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
     "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
@@ -153,8 +155,8 @@ $isccCandidates = @(
 
 $iscc = $isccCandidates | Select-Object -First 1
 if (-not $iscc) {
-    Write-Warning "No se encontro Inno Setup 6. La aplicacion publicada esta lista en: $publishDir"
-    Write-Warning "Instala Inno Setup 6 y vuelve a ejecutar este script para generar el Setup.exe."
+    Write-Warning "No se encontro Inno Setup 6."
+    Write-Warning "La aplicacion publicada esta lista en: $publishDir"
     exit 0
 }
 
@@ -168,18 +170,15 @@ if ($LASTEXITCODE -ne 0) {
     throw "Inno Setup no pudo compilar el instalador."
 }
 
-$setupName = "CDTerminal-Setup-$Version-x64.exe"
-$setup = Get-ChildItem -Path $installerDir -Filter $setupName -File |
-    Select-Object -First 1
-
+$setupName = "CdTecHNologia-CDTerminal-$Version-x64.exe"
+$setup = Get-ChildItem -Path $installerDir -Filter $setupName -File | Select-Object -First 1
 if (-not $setup) {
     throw "No se encontro el instalador compilado en: $installerDir"
 }
 
 $hash = Get-FileHash -Path $setup.FullName -Algorithm SHA256
 $checksumPath = Join-Path $installerDir "SHA256SUMS.txt"
-"$($hash.Hash.ToLower())  $($setup.Name)" |
-    Set-Content -Path $checksumPath -Encoding ASCII
+"$($hash.Hash.ToLower())  $($setup.Name)" | Set-Content -Path $checksumPath -Encoding ASCII
 
 Write-Host ""
 Write-Host "Instalador creado:" -ForegroundColor Green

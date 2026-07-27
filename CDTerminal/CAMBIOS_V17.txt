@@ -1,0 +1,15 @@
+CD TERMINAL · CONFIGURADOR IOT V17
+
+ACTUALIZACION PARA PRODUCCION HTTPS
+- La API oficial ahora es https://rs485.cdtechnologia.net/api/v1/mediciones.
+- El modo Produccion HTTPS aparece seleccionado por defecto.
+- En produccion ya no se solicita IP del servidor ni puerto HTTP.
+- El puerto efectivo se muestra como 443.
+- La red local del controlador queda separada del destino de la API.
+- Se conserva un modo Personalizado para URL completa HTTP/HTTPS o servidor local por IP.
+- Una ruta relativa muestra IP, mascara y puerto solamente cuando son necesarios.
+- El guardado envia solo los comandos que realmente utiliza el firmware.
+- Se muestran metodo POST JSON, timeout de 15 s, 3 intentos y autenticacion por ID/token.
+- Se advierte que el firmware actual utiliza setInsecure(): hay cifrado TLS, pero no validacion del certificado remoto.
+- Se interpretan las lineas Protocolo API, Puerto efectivo, TLS y Codigo HTTP.
+- Se mantienen identidad, cuatro sensores, selectores personalizados, terminal, SSH y estructura visual V16.
