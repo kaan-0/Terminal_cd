@@ -1,0 +1,99 @@
+ACTUALIZACION RS485-API: HASTA 4 SENSORES POR CONTROLADOR
+=========================================================
+
+MODELO IMPLEMENTADO
+-------------------
+Cliente
+  -> Controlador RS485 / dispositivo con un ID y un token
+      -> Sensor ranura 1
+      -> Sensor ranura 2
+      -> Sensor ranura 3
+      -> Sensor ranura 4
+
+Cada controlador admite como máximo cuatro ranuras. El mismo X-Device-ID y
+X-Device-Token autentica todas las mediciones enviadas por ese controlador.
+
+INSTALACION
+-----------
+1. Haga copia de seguridad de la carpeta del proyecto y de la base de datos.
+2. Extraiga el contenido del ZIP dentro de:
+
+   C:\xampp\htdocs\rs485-api
+
+3. Acepte reemplazar los archivos existentes.
+4. Abra CMD o PowerShell en el proyecto y ejecute:
+
+   cd C:\xampp\htdocs\rs485-api
+   php artisan migrate
+   php artisan optimize:clear
+
+5. Inicie Laravel:
+
+   php artisan serve --host=0.0.0.0 --port=8000
+
+IMPORTANTE: no use php artisan migrate:fresh porque borraría los datos.
+
+URLS
+----
+Recepción del firmware:
+POST http://192.168.1.2:8000/api/v1/mediciones
+
+Dashboard:
+http://192.168.1.2:8000/dashboard
+
+Administración:
+http://192.168.1.2:8000/administracion/clientes
+
+COMPORTAMIENTO
+--------------
+- La API acepta el arreglo sensores[] del firmware.
+- Cada elemento se guarda como una medición independiente.
+- La ranura debe estar entre 1 y 4 y no puede repetirse en el mismo POST.
+- Cada sensor puede contener de 1 a 16 registros Modbus.
+- La API crea automáticamente una ranura cuando la recibe por primera vez.
+- En Administración puede cambiar nombre, tipo y unidad de cada ranura.
+- Ocultar un sensor en el panel no impide que la API conserve sus datos.
+- Si un sensor no aparece en un envío por un error temporal, no se borra.
+- Las mediciones anteriores quedan asignadas a la ranura 1 durante la migración.
+
+FORMATO ACEPTADO
+----------------
+{
+  "valor": 125,
+  "rs485": {
+    "baudrate": 9600,
+    "paridad": "N"
+  },
+  "sensores": [
+    {
+      "ranura": 1,
+      "slave": 12,
+      "funcion": 3,
+      "registro_inicial": 0,
+      "cantidad": 1,
+      "registros": [125]
+    },
+    {
+      "ranura": 2,
+      "slave": 13,
+      "funcion": 3,
+      "registro_inicial": 0,
+      "cantidad": 1,
+      "registros": [248]
+    }
+  ]
+}
+
+ENCABEZADOS
+-----------
+Accept: application/json
+Content-Type: application/json
+X-Device-ID: ID_DEL_CONTROLADOR
+X-Device-Token: TOKEN_DEL_CONTROLADOR
+
+NO ES NECESARIO CAMBIAR
+-----------------------
+- La URL /api/v1/mediciones.
+- El ID del controlador.
+- El token del controlador.
+- El firmware compartido, porque ya genera rs485 y sensores[].

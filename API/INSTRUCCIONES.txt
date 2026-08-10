@@ -1,0 +1,53 @@
+ACTUALIZACION: FICHA PDF SOLO CON DATOS DEL PANEL
+=================================================
+
+Esta actualización reemplaza la versión anterior del PDF de configuración.
+
+EL PDF INCLUYE ÚNICAMENTE:
+- Código y nombre del cliente.
+- Estado del cliente.
+- Nombre, ubicación, estado e ID del equipo.
+- Token completo del equipo.
+- Acceso al dashboard, solo cuando fue creado junto con el cliente.
+- Sensores configurados en las ranuras 1 a 4.
+- Nombre y tipo de cada sensor.
+- ID esclavo, función Modbus, registro inicial y cantidad de registros.
+- Nombres y unidades de las lecturas visibles configuradas.
+
+EL PDF YA NO INCLUYE:
+- Comandos de terminal.
+- IP o máscara del servidor.
+- IP local, DHCP o red estática.
+- Puerto HTTP.
+- URL de la API.
+- Intervalo de envío.
+- Baudrate o paridad inventados.
+- Listas de verificación o valores predeterminados no guardados en el panel.
+
+INSTALACION
+-----------
+1. Haga una copia de seguridad de C:\xampp\htdocs\rs485-api
+2. Extraiga el contenido de este ZIP dentro de esa carpeta.
+3. Acepte reemplazar los archivos existentes.
+4. Abra CMD o PowerShell en el proyecto y ejecute:
+
+   php artisan optimize:clear
+
+5. Inicie Laravel normalmente:
+
+   php artisan serve --host=0.0.0.0 --port=8000
+
+No requiere migraciones ni paquetes Composer.
+
+FLUJO RECOMENDADO
+-----------------
+1. Crear el cliente y su primer equipo.
+2. Copiar el ID y el token.
+3. Configurar en el panel las ranuras de sensores necesarias.
+4. En cada sensor indicar ID esclavo, función, registro inicial y cantidad.
+5. Configurar los nombres y unidades de sus lecturas.
+6. Presionar "Descargar ficha".
+
+La ficha queda disponible durante 30 minutos. Durante ese tiempo toma la
+configuración actual de sensores guardada en el panel. El token permanece
+cifrado en la sesión y no se guarda legible en la base de datos.

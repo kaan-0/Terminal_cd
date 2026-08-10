@@ -1,0 +1,56 @@
+RS485-API - ACCESO SEPARADO POR CLIENTE
+========================================
+
+Esta actualización agrega:
+- Inicio y cierre de sesión.
+- Rol administrador: ve todos los clientes y dispositivos.
+- Rol cliente: ve únicamente sus propios dispositivos.
+- Protección en el servidor contra cambios manuales en la URL.
+- Creación de accesos de clientes desde el panel administrativo.
+- Activación/desactivación de usuarios.
+- Cambio de contraseña de usuarios.
+
+INSTALACIÓN
+-----------
+1. Haga una copia de seguridad del proyecto y de la base de datos.
+
+2. Extraiga este ZIP dentro de la carpeta raíz de rs485-api y acepte
+   reemplazar los archivos existentes.
+
+3. Abra CMD o PowerShell dentro del proyecto y ejecute:
+
+   php artisan migrate
+   php artisan optimize:clear
+
+4. Cree o actualice la cuenta administradora. Cambie el correo por el suyo:
+
+   php artisan usuarios:crear-admin admin@cdtechnologia.net --nombre="Administrador"
+
+   El comando solicitará una contraseña oculta de mínimo 8 caracteres.
+
+5. Inicie Laravel:
+
+   php artisan serve --host=0.0.0.0 --port=8000
+
+URL DE ACCESO
+-------------
+Local:
+http://127.0.0.1:8000/login
+
+Desde otro equipo de la red, usando la IP del servidor:
+http://192.168.1.2:8000/login
+
+CREAR ACCESO PARA UN CLIENTE EXISTENTE
+--------------------------------------
+1. Inicie sesión como administrador.
+2. Entre a Administrar clientes.
+3. Busque el cliente.
+4. Abra "+ Crear acceso para este cliente".
+5. Escriba nombre, correo y contraseña.
+
+IMPORTANTE
+----------
+La recepción de datos del sensor no cambia. El Pico continúa enviando POST a:
+/api/v1/mediciones
+
+Los encabezados X-Device-ID y X-Device-Token continúan funcionando igual.
